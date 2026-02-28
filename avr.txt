@@ -1,0 +1,54 @@
+; .rodata append to the end of code in flash
+; .progmem.data append to the end of the vector table in flash, before the code.
+; .text append inside the code text in flash
+; .data sram initialized in flash but manually but not automatically copied
+; .bss sram uninitialized
+
+In the AVR-GCC ABI, registers are split into two main camps:
+    Call-Used (Volatile): r0, r1, r18–r25, r26–r27 (X), r30–r31 (Z).
+    Call-Saved (Non-volatile): r2–r17, r28–r29 (Y).
+
+To understand Call-Saved registers (also known as "Callee-Saved"), you have to think about the "Social Contract"
+between two functions: the one doing the calling (The Caller) and the one being called (The Callee).
+
+1. The "Call-Saved" Rules (r2–r17, r28–r29)
+    In these registers, the rule is: "If you break it, you bought it."
+    As the author of a function (the Callee), if you want to use r2 to store a local variable,
+    you are obligated to save its original value and restore it before you return.
+
+    You must save these registers if:
+        You are writing a subroutine/function.
+        You need a place to store a value that must survive while you call other subroutines.
+        You choose to use any register in the r2–r17 range for that storage.
+
+2. The "Call-Used" Rules (r18–r27, r30–r31)
+    In these registers, the rule is: "Use it and lose it."
+    These are "scratch" registers. A function can overwrite them without warning. You save these
+    only if you are the CALLER and you have data in them that you need to keep after a function returns.
+
+Feature         Call-Saved (r2–r17)                     Call-Used (r18–r25)
+Who saves it?   The Callee (The function being called)  The Caller (The function doing the calling)
+When?           At the very start of the function       Just before calling another function
+Best use?       Long-term variables, Loop counters      Temporary math, Function arguments
+Cost?           2 cycles to push, 2 to pop              0 cycles (if you don't care about the data)
+
+3. Understanding "Register Pressure"
+    Register Pressure is the technical term for "running out of registers."
+    AVR has 32 registers. In a complex math function (like a 32x32 division), you might need 12 registers
+    for the calculation, 4 for the result, and 2 for a loop counter.
+
+    Low Pressure: Your variables all fit into r18–r25. No push or pop needed. Very fast.
+    High Pressure: You need more than 8-10 variables. Now you are forced to use r2–r17. This "pressure"
+      forces you to add push and pop instructions to your code (the "tax").
+    Spilling: This is the "boiling point" of register pressure. If even r2–r31 isn't enough, you have
+      to "spill" variables onto the SRAM (Stack). Accessing the stack takes 2 cycles for std and 2 for ldd.
+      Compared to 1 cycle for a register, spilling kills performance.
+
+    Why r2–r17 are "Valued"
+    They are valued because of Nested Calls.
+    Imagine you have a main loop that calls FunctionA, which calls FunctionB, which calls FunctionC.
+
+    If you store your "Main Loop Counter" in a Call-Used register (like r18), every single function call will
+    destroy it. You would have to push and pop it constantly. If you store it in a Call-Saved register (like r2),
+    you push it once at the very beginning of the program. Because every subsequent function (A, B, and C) is
+    "legally bound" to restore r2 if they use it, your counter is guaranteed to be safe without you doing any extra work.
