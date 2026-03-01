@@ -18,6 +18,12 @@ DEFUN main                    ; ✅ Main Program
     rcall   toggle
     OS_DELAY_MS 1000
 
+/*    lds     r16, ONE_MS               ; 3c
+    rcall   Print_Char
+    lds     r16, ONE_MS+1             ; 3c
+    rcall   Print_Char
+    OS_DELAY_MS 100
+*/
     ldi     r16, 1                ; Clock/2 (PEN=1, PDIV = 0)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE

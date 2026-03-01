@@ -24,15 +24,15 @@ DEFUN main                    ; ✅ Main Program
     rcall HAL_CPU_SPEED
     rcall HAL_USART_UPDATE_BAUDRATE
     rcall toggle
-    ldi   r24, lo8( 65530 )
-    ldi   r25, hi8( 65530 )
-    ldi   r22, 3
-    ldi   r23, 0
-    rcall MATH_DIV_16_16
-    mov   r25, r23
-    mov   r24, r22
+;    ldi   r24, lo8( 65530 )
+;    ldi   r25, hi8( 65530 )
+;    ldi   r22, 3
+;    ldi   r23, 0
+;    rcall MATH_DIV_16_16
+;    mov   r25, r23
+;    mov   r24, r22
 
-    rcall Print_UInt16
+;    rcall Print_UInt16
     OS_DELAY_MS 1000
 
     ldi r16, 1                ; Clock/2 (PEN=1, PDIV = 0)

@@ -67,33 +67,34 @@ ENDF hal_UPDATE_ONE_MS
 
 DEFUN HAL_USART_UPDATE_BAUDRATE
   HAL_USART_UPDATE_BAUDRATE:
-    ; Calculate divisor = CPU_DIVISOR * 16 * USART_BAUD_RATE
+  PUSH_MANY r18, r19, r20, r21, r22, r23, r24, r25
+    ; Calculate divisor = CPU_DIVISOR * (16 * USART_BAUD_RATE / 1000)
     lds r22, CPU_DIVISOR                        ; Load CPU_DIVISOR into r23:r22
     ldi r23, 0
 
-    ldi r20, lo8( 16 * USART_BAUD_RATE / 1000)  ; Load (16 * USART_BAUD_RATE) into r21:r20
-    ldi r21, hi8( 16 * USART_BAUD_RATE / 1000)
+    ldi r18, lo8( 16 * USART_BAUD_RATE / 1000)  ; Load (16 * USART_BAUD_RATE / 1000) into r19:r18
+    ldi r19, hi8( 16 * USART_BAUD_RATE / 1000)
 
-    rcall MATH_MUL_16_32                       ; r19:r18:r17:r16 = r23:r22 * r21:r20
+    rcall MATH_MUL_16_32                       ; r25:r22 = r23:r22 * r19:r18
 
-    ; Calculate baud_reg = ( 10 * 64 * CLOCK_INT_KHZ ) / divisor
-    movw r20, r18
-    movw r18, r16
+    ; Move divisor to r21:r18
+    movw r18, r22
+    movw r20, r24
 
+    ; Calculate baud_reg = ( 64 * CLOCK_INT_KHZ ) / divisor
+    ; Load dividend (64 * CLOCK_INT_KHZ) into r25:r22
     ldi r22, lo8(  64 * CLOCK_INT_KHZ )
     ldi r23, hi8(  64 * CLOCK_INT_KHZ )
     ldi r24, hlo8( 64 * CLOCK_INT_KHZ )
     ldi r25, hhi8( 64 * CLOCK_INT_KHZ )
 
-    rcall MATH_UDIV_32_32
-
-    subi r18, 1                                 ; Subtract 1
-    sbci r19, 0
-
-    sts USART0_BAUDL, r18
-    sts USART0_BAUDH, r19
-
-    ret
+    rcall MATH_UDIV_32_32                       ; r21:r18 = r25:r22 / r21:r18
+    ;subi r18, 1                                 ; Subtract 1
+    ;sbci r19, 0
+    sts _(USART,_BAUDL), r18
+    sts _(USART,_BAUDH), r19
+  POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
+  ret
 ENDF HAL_USART_UPDATE_BAUDRATE
 
 DEFUN Print_Text_From_Flash

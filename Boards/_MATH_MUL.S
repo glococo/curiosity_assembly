@@ -6,12 +6,12 @@
 ; --- 64-bit (Double Precision) ---
 #define MATH_MUL_64_64    __muldi3       ; r25:r18 *= r17:r10
 
-; MATH_MUL_16_16        ; r23:r22 *= r19:r18 - Destroy r21:r20
-; MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Destroy r21:r20
-; MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Destroy r21:r20
-; MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Destroy r21:r20
-; MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Destroy r29:r28:r27:r26
-; MATH_MUL_32_64        ; r25:r18  = r25:r22 * r21:r18 - Destroy r29:r28:r27:r26:r13:r12:r11:r10
+; MATH_MUL_16_16        ; r23:r22 *= r19:r18 - Push/Pop r21:r20
+; MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Push/Pop r21:r20
+; MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
+; MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Push/Pop r21:r20
+; MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Push/Pop r29:r28:r27:r26
+; MATH_MUL_32_64        ; r25:r18  = r25:r22 * r21:r18 - Push/Pop r29:r28:r27:r26:r13:r12:r11:r10
 ; MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18
 ; MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
 
@@ -124,7 +124,7 @@ DEFUN MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
   ret
 ENDF MATH_MAC_32_64
 
-DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18 - Destroy r29:r28:r27:r26:r13:r12:r11:r10
+DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18 - Push/Pop r29:r28:r27:r26:r13:r12:r11:r10
   MATH_MUL_32_64:
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
     movw    r26, r18        ; mov -> r25:r18 = r13:r10 * r29:r26
@@ -215,7 +215,7 @@ DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18 - Destroy r29:r28:r27:
   ret
 ENDF MATH_MUL_32_64
 
-DEFUN MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Destroy r29:r28:r27:r26
+DEFUN MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Push/Pop r29:r28:r27:r26
   MATH_MUL_32_32:
     PUSH_MANY r26, r27, r28, r29
     movw    r26, r22
@@ -263,8 +263,9 @@ DEFUN MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Destroy r29:r28:r27:r26
   ret
 ENDF MATH_MUL_32_32
 
-DEFUN MATH_MUL_16_16        ; r23:r22 *= r19:r18 - Destroy r21:r20
+DEFUN MATH_MUL_16_16        ; r23:r22 *= r19:r18 - Push/Pop r21:r20
   MATH_MUL_16_16:
+  PUSH_MANY r20, r21
     mov     r20, r22
 
     mul     r20, r18        ; al*bl
@@ -273,11 +274,13 @@ DEFUN MATH_MUL_16_16        ; r23:r22 *= r19:r18 - Destroy r21:r20
     add     r23,  r0
     mul     r21, r18        ; ah*bl
     add     r23,  r0
+  POP_MANY r21, r20
   ret
 ENDF MATH_MUL_16_16
 
-DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Destroy r21:r20
+DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Push/Pop r21:r20
   MATH_MUL_16_32:
+  PUSH_MANY r20, r21
     movw    r20, r22
 
     mul     r20, r18        ; al*bl
@@ -294,12 +297,13 @@ DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Destroy r21:r20
     add     r23,  r0
     adc     r24,  r1
     adc     r25, r15
-
+  POP_MANY r21, r20
   ret
 ENDF MATH_MUL_16_32
 
-DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Destroy r21:r20
+DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Push/Pop r21:r20
   MATH_MUL_SU_16_32:
+  PUSH_MANY r20, r21
     movw    r20, r22
 
     mul     r20, r18        ; al*bl
@@ -318,11 +322,13 @@ DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Destroy r21:r20
     adc     r24,  r1
     adc     r25, r15
 
+  POP_MANY r21, r20
   ret
 ENDF MATH_MUL_SU_16_32
 
-DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Destroy r21:r20
+DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
   MATH_MUL_S_16_32:
+  PUSH_MANY r20, r21
     movw    r20, r22
 
     mul     r20, r18        ; al*bl
@@ -342,11 +348,13 @@ DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Destroy r21:r20
     adc     r24,  r1
     adc     r25, r15
 
+  POP_MANY r21, r20
   ret
 ENDF MATH_MUL_S_16_32
 
-DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Destroy r21:r20
+DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Push/Pop r21:r20
   MATH_MAC_16_32:
+  PUSH_MANY r20, r21
     mul     r20, r18        ; al*bl
     add     r22,  r0
     adc     r23,  r1
@@ -366,5 +374,6 @@ DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Destroy r21:r20
     adc     r24,  r1
     adc     r25, r15
 
+  POP_MANY r21, r20
   ret
 ENDF MATH_MAC_16_32
