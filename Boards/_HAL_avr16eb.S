@@ -1,98 +1,59 @@
-.section .progmem.data
-CLOCK_DIV_LOOKUP_TABLE:     .byte 2, 4, 8, 16, 32, 64, 0, 0, 6, 10, 12, 24, 48
 .section .bss
 ONE_MS:                     .byte 0, 0
-CPU_DIVISOR:                .byte 0
+CORE_DIVISOR:               .byte 0
 
 ; Receives a new clock divisor (DS40002522A p102) in r16, 0: PEN=0 (prescaler
 ; disabled, div /1), 1: PEN=1, PDIV=0 (div /2), 2: PEN=1, PDIV=1 (div /4), ...
 DEFUN HAL_CPU_SPEED
   HAL_CPU_SPEED:
-  PUSH_MANY r16, r17, r22, r30, r31
-
-    tst   r16
-    breq  write_divisor_register
-    dec   r16                                   ; enable PEN and set PDIV
-    lsl   r16
-    ori   r16, 1
+  PUSH_MANY r18, r22, r23
+    sts     CORE_DIVISOR, r18           ; Make sure r18 is never higher than 6 (/64 div)
+    tst     r18
+    breq    write_divisor_register
+    dec     r18                         ; enable PEN and set PDIV
+    lsl     r18
+    ori     r18, 1
 
   write_divisor_register:
-    ldi   r17, 0xD8                             ; Unlock CPU_CCP register
-    sts   CPU_CCP, r17
-    sts   CLKCTRL_MCLKCTRLB, r16
+    ldi     r22, 0xD8                   ; Unlock CPU_CCP register
+    sts     CPU_CCP, r22
+    sts     CLKCTRL_MCLKCTRLB, r18
 
-  update_CPU_DIVISOR:
-    sbrc  r16, 0                                ; Skip next instruction if PEN is 0
-    rjmp  prescaler_enabled                     ; PEN is disabled, divisor is 1
-    ldi   r22, 1
-    rjmp  save_CPU_DIVISOR
-  prescaler_enabled:
-    eor   r0, r0
-    lsr   r16
-    andi  r16, 0x0F
-    ldi   r30, lo8( CLOCK_DIV_LOOKUP_TABLE )
-    ldi   r31, hi8( CLOCK_DIV_LOOKUP_TABLE )
-    add   r30, r16
-    adc   r31, r0
-    lpm   r22, Z
-  save_CPU_DIVISOR:
-    sts   CPU_DIVISOR, r22
+  update_one_ms:
+    ldi     r22, lo8( CLOCK_INT_KHZ/4 )
+    ldi     r23, hi8( CLOCK_INT_KHZ/4 )
+    lds     r18, CORE_DIVISOR
+    rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18 - Logical Shift Right - Result = Input >> Count
+    sts     ONE_MS, r22
+    sts     ONE_MS+1, r23
 
-    rcall hal_UPDATE_ONE_MS
-
-  POP_MANY r31, r30, r22, r17, r16
+  POP_MANY r23, r22, r18
   ret
 ENDF HAL_CPU_SPEED
-
-DEFUN hal_UPDATE_ONE_MS
-  hal_UPDATE_ONE_MS:
-  PUSH_MANY r18, r19, r22, r23
-    ldi   r22, lo8( CLOCK_INT_KHZ/4 )
-    ldi   r23, hi8( CLOCK_INT_KHZ/4 )
-    lds   r18, CPU_DIVISOR
-    cpi   r18, 1
-    brne  needs_division                        ; Divisor is 1, skip division
-    rjmp  store_one_ms
-  needs_division:
-    ldi   r19, 0
-    rcall MATH_UDIV_16_16                       ; r23:r22 /= r19:r18
-  store_one_ms:
-    ; subi  r22, 3
-    ; sbci  r23, 0
-    sts   ONE_MS, r22
-    sts   ONE_MS+1, r23
-  POP_MANY r23, r22, r19, r18
-  ret
-ENDF hal_UPDATE_ONE_MS
 
 DEFUN HAL_USART_UPDATE_BAUDRATE
   HAL_USART_UPDATE_BAUDRATE:
   PUSH_MANY r18, r19, r20, r21, r22, r23, r24, r25
-    ; Calculate divisor = CPU_DIVISOR * (16 * USART_BAUD_RATE / 1000)
-    lds r22, CPU_DIVISOR                        ; Load CPU_DIVISOR into r23:r22
-    ldi r23, 0
+    ; Calculate Baud rate register
+    ; Optimized short function ( fClock << 3 ) / BaudRate
 
-    ldi r18, lo8( 16 * USART_BAUD_RATE / 1000)  ; Load (16 * USART_BAUD_RATE / 1000) into r19:r18
-    ldi r19, hi8( 16 * USART_BAUD_RATE / 1000)
+    ; Load dividend ( fClock in mhz << 2 ) into r25:r22
+    ldi     r22,  lo8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r23,  hi8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r24, hlo8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r25, hhi8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
+    ; MATH_LSR_32           ; r25:r22 = r25:r22 << r18
+    lds     r18, CORE_DIVISOR
+    rcall   MATH_LSR_32
 
-    rcall MATH_MUL_16_32                       ; r25:r22 = r23:r22 * r19:r18
-
-    ; Move divisor to r21:r18
-    movw r18, r22
-    movw r20, r24
-
-    ; Calculate baud_reg = ( 64 * CLOCK_INT_KHZ ) / divisor
-    ; Load dividend (64 * CLOCK_INT_KHZ) into r25:r22
-    ldi r22, lo8(  64 * CLOCK_INT_KHZ )
-    ldi r23, hi8(  64 * CLOCK_INT_KHZ )
-    ldi r24, hlo8( 64 * CLOCK_INT_KHZ )
-    ldi r25, hhi8( 64 * CLOCK_INT_KHZ )
-
-    rcall MATH_UDIV_32_32                       ; r21:r18 = r25:r22 / r21:r18
-    ;subi r18, 1                                 ; Subtract 1
-    ;sbci r19, 0
-    sts _(USART,_BAUDL), r18
-    sts _(USART,_BAUDH), r19
+    ; Load Divisor BaudRate into r21:r18
+    ldi     r18, lo8( USART_BAUD_RATE )
+    ldi     r19, hi8( USART_BAUD_RATE )
+    ldi     r20, 0
+    ldi     r21, 0
+    rcall   MATH_UDIV_32_32                       ; r21:r18 = r25:r22 / r21:r18
+    sts     _(USART,_BAUDL), r18
+    sts     _(USART,_BAUDH), r19
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
   ret
 ENDF HAL_USART_UPDATE_BAUDRATE

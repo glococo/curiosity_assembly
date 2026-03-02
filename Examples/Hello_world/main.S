@@ -12,7 +12,7 @@ DEFUN main                    ; ✅ Main Program
     sei
 
   loop:
-    ldi     r16, 0                ; Clock/1 (PEN=0, PDIV = 0)
+    ldi     r18, 0                ; Clock/1 (PEN=0, PDIV = 0)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
@@ -24,37 +24,37 @@ DEFUN main                    ; ✅ Main Program
     rcall   Print_Char
     OS_DELAY_MS 100
 */
-    ldi     r16, 1                ; Clock/2 (PEN=1, PDIV = 0)
+    ldi     r18, 1                ; Clock/2 (PEN=1, PDIV = 0)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
     OS_DELAY_MS 1000
 
-    ldi     r16, 2                ; Clock/4 (PEN=1, PDIV = 1)
+    ldi     r18, 2                ; Clock/4 (PEN=1, PDIV = 1)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
     OS_DELAY_MS 1000
 
-    ldi     r16, 3                ; Clock/8 (PEN=1, PDIV = 2)
+    ldi     r18, 3                ; Clock/8 (PEN=1, PDIV = 2)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
     OS_DELAY_MS 1000
 
-    ldi     r16, 4                ; Clock/16 (PEN=1, PDIV = 3)
+    ldi     r18, 4                ; Clock/16 (PEN=1, PDIV = 3)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
     OS_DELAY_MS 1000
 
-    ldi     r16, 5                ; Clock/32 (PEN=1, PDIV = 4)
+    ldi     r18, 5                ; Clock/32 (PEN=1, PDIV = 4)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
     OS_DELAY_MS 1000
 
-    ldi     r16, 6                ; Clock/64 (PEN=1, PDIV = 5)
+    ldi     r18, 6                ; Clock/64 (PEN=1, PDIV = 5)
     rcall   HAL_CPU_SPEED
     rcall   HAL_USART_UPDATE_BAUDRATE
     rcall   toggle
