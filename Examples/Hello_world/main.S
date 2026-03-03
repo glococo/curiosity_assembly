@@ -1,7 +1,7 @@
-; File: main.S
-; Description: Blinks the BOARD LED and send a MSG in UART0 at 1 Hz, while CPU scaling between 20, 10 and 5 mhz
-; Target: AVR16EB32 CURIOSITY NANO eval board
-#include "../../Boards/AVR16EB32_Curiosity_Nano.S"
+; Description: Blinks the BOARD LED and send a STRING in UART at 1 Hz, while scaling CPU divisor factor /1, /2 .. /64.
+; Target: CURIOSITY NANO eval boards
+; #include "../../Boards/AVR16EB32_Curiosity_Nano.S"
+#include "../../Boards/AVR128DB48_Curiosity_Nano.S"
 
 #define  REG_HELLO_OR_HOLA  r10
 #include "toggle.S"
@@ -11,67 +11,32 @@ DEFUN main                    ; ✅ Main Program
     rcall BOARD_SETUP_DEFAULT
     sei
 
+    ; r18 receive divisior, ej: 0=Clk/1 (PEN=0, PDIV=0), 1=Clk/2 (PEN=1, PDIV=0),
+    ;  1=Clk/4 (PEN=1, PDIV=1), 2=Clk/8 (PEN=1, PDIV=2), 3= Clk/16 ... max=6= /64
+
+    ldi     r18, 0
   loop:
-    ldi     r18, 0                ; Clock/1 (PEN=0, PDIV = 0)
-    rcall   HAL_CPU_SPEED
+    rcall   HAL_CORE_PRESCALER
     rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
+    rcall   my_toggle_function
     OS_DELAY_MS 1000
-
-/*    lds     r16, ONE_MS               ; 3c
-    rcall   Print_Char
-    lds     r16, ONE_MS+1             ; 3c
-    rcall   Print_Char
-    OS_DELAY_MS 100
-*/
-    ldi     r18, 1                ; Clock/2 (PEN=1, PDIV = 0)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    ldi     r18, 2                ; Clock/4 (PEN=1, PDIV = 1)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    ldi     r18, 3                ; Clock/8 (PEN=1, PDIV = 2)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    ldi     r18, 4                ; Clock/16 (PEN=1, PDIV = 3)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    ldi     r18, 5                ; Clock/32 (PEN=1, PDIV = 4)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    ldi     r18, 6                ; Clock/64 (PEN=1, PDIV = 5)
-    rcall   HAL_CPU_SPEED
-    rcall   HAL_USART_UPDATE_BAUDRATE
-    rcall   toggle
-    OS_DELAY_MS 1000
-
-    rjmp  loop
+    lds     r18, CORE_DIVISOR
+    inc     r18                 ; Increment divisor r18
+    cpi     r18, 7              ; Compare with 7 (6 max, 7=wrong value)
+    brlo    loop                ; Continue with loop while r18<7
+    ldi     r18, 0              ; if r18 >= 7, r18=0
+    rjmp    loop                ; goto loop
 
 ENDF main
 
-DEFUN PORTF_PORT_vect         ; ✅ Button Interrupt
-  PORTF_PORT_vect:            ; PUSH_BUTTON toggle LED and UART message
+DEFUN _(BUTTON_PORT,_PORT_vect)         ; ✅ Button Interrupt
+  _(BUTTON_PORT,_PORT_vect):            ; PUSH_BUTTON toggle LED and UART message
   ISR_START r18
 
     ldi     r18, 1
     eor     REG_HELLO_OR_HOLA, r18
-    ldi     r18, 0x40
-    sts     PORTF_INTFLAGS, r18
+    ldi     r18, BUTTON_PIN
+    sts     _(BUTTON_PORT,_INTFLAGS), r18
 
   ISR_END r18
-ENDF PORTF_PORT_vect
+ENDF _(BUTTON_PORT,_PORT_vect)

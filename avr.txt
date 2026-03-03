@@ -1,7 +1,7 @@
 ; .rodata append to the end of code in flash
 ; .progmem.data append to the end of the vector table in flash, before the code.
 ; .text append inside the code text in flash
-; .data sram initialized in flash but manually but not automatically copied
+; .data sram data UNinitialized, still in flash but not automatically copied
 ; .bss sram uninitialized
 
 In the AVR-GCC ABI, registers are split into two main camps:

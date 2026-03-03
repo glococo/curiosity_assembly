@@ -19,30 +19,33 @@
 #define USART_RX            PIN2_bm
 #define USART_PORT          PORTC
 #define USART_BAUD_RATE     38400
-#define USART_DOUBLE_SPEED  0
+#define USART_DOUBLE_SPEED  1
 #define CLOCK_INT_KHZ       20000
 #define CLOCK_RTC_HZ        0x8000 | 32768
 
-#include "_HAL_avr16eb.S"
+#include "_HAL_AVR_2020.S"
 
 DEFUN BOARD_SETUP_DEFAULT
   BOARD_SETUP_DEFAULT:
-    ldi     r16, 0
-    rcall   HAL_CPU_SPEED
+    ; OS SPEED AWARENESS
+    ldi     r18, 0
+    rcall   HAL_CORE_PRESCALER
     rcall   HAL_USART_UPDATE_BAUDRATE
 
-    ldi     r16, USART_TX                           ; PIN USART_TX output
-    sts     _(USART_PORT, _DIRSET), r16             ;
-    ldi     r16, PORTMUX_USART0_2_bm                ; 0x04 USART ALT4 func
-    sts     PORTMUX_USARTROUTEA, r16                ;
-    ldi     r16, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)      ; USART Enable
-    sts     USART0_CTRLB, r16                       ;
+    ; USART CONFIG
+    ldi     r18, USART_TX                           ; PIN USART_TX output
+    sts     _(USART_PORT, _DIRSET), r18             ;
+    ldi     r18, PORTMUX_USART0_2_bm                ; 0x04 USART ALT4 func
+    sts     PORTMUX_USARTROUTEA, r18                ;
+    ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)      ; USART Enable
+    sts     USART0_CTRLB, r18                       ;
 
-    ldi     r16, LED_PIN                            ; Enable LED_PIN output
-    sts     _(LED_PORT, _DIRSET), r16
-    sts     _(LED_PORT, _OUTTGL), r16
+    ; PIN LED CONFIG
+    ldi     r18, LED_PIN                            ; Enable LED_PIN output
+    sts     _(LED_PORT, _DIRSET), r18
 
-    ldi     r16, 0x0B                               ; Config BUTTON/SW0 Pin
-    sts     _(BUTTON_PORT, _PIN6CTRL), r16
+    ; PIN BUTTON CONFIG
+    ldi     r18, 0x0B                               ; Config BUTTON/SW0 Pin
+    sts     _(BUTTON_PORT, _PIN6CTRL), r18
   ret
 ENDF BOARD_SETUP_DEFAULT
