@@ -40,10 +40,12 @@
     reti
 .endm
 
-.macro OS_DELAY_MS milliseconds
+.macro HAL_DELAY_MS milliseconds
+  PUSH_MANY r18, r19
   ldi   r18, lo8( \milliseconds )
   ldi   r19, hi8( \milliseconds )
-  rcall OS_SOFT_DELAY_MS
+  rcall HAL_SOFT_DELAY_MS
+  POP_MANY  r19, r18
 .endm
 
 .macro	mov4  r_dest, r_src

@@ -1,13 +1,13 @@
 .section .bss
-ONE_MS:                     .byte 0, 0
-CORE_DIVISOR:               .byte 0
+HAL_ONE_MS:                     .byte 0, 0
+HAL_CORE_DIVISOR:               .byte 0
 
 ; Receives a new clock divisor (DS40002522A p102) in r16, 0: PEN=0 (prescaler
 ; disabled, div /1), 1: PEN=1, PDIV=0 (div /2), 2: PEN=1, PDIV=1 (div /4), ...
 DEFUN HAL_CORE_PRESCALER
   HAL_CORE_PRESCALER:
   PUSH_MANY r18, r22, r23
-    sts     CORE_DIVISOR, r18           ; Make sure r18 is never higher than 6 (/64 div)
+    sts     HAL_CORE_DIVISOR, r18           ; Make sure r18 is never higher than 6 (/64 div)
     tst     r18
     breq    write_divisor_register
     dec     r18                         ; enable PEN and set PDIV
@@ -22,17 +22,17 @@ DEFUN HAL_CORE_PRESCALER
   update_one_ms:
     ldi     r22, lo8( CLOCK_INT_KHZ/4 )
     ldi     r23, hi8( CLOCK_INT_KHZ/4 )
-    lds     r18, CORE_DIVISOR
+    lds     r18, HAL_CORE_DIVISOR
     rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18 - Logical Shift Right - Result = Input >> Count
-    sts     ONE_MS, r22
-    sts     ONE_MS+1, r23
+    sts     HAL_ONE_MS, r22
+    sts     HAL_ONE_MS+1, r23
 
   POP_MANY r23, r22, r18
   ret
 ENDF HAL_CORE_PRESCALER
 
-DEFUN HAL_USART_UPDATE_BAUDRATE
-  HAL_USART_UPDATE_BAUDRATE:
+DEFUN HAL_USART_BAUDRATE_UPD
+  HAL_USART_BAUDRATE_UPD:
   PUSH_MANY r18, r19, r20, r21, r22, r23, r24, r25
     ; Calculate Baud rate register
     ; Optimized short function ( fClock << 3 ) / BaudRate
@@ -43,7 +43,7 @@ DEFUN HAL_USART_UPDATE_BAUDRATE
     ldi     r24, hlo8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
     ldi     r25, hhi8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
     ; MATH_LSR_32           ; r25:r22 = r25:r22 << r18
-    lds     r18, CORE_DIVISOR
+    lds     r18, HAL_CORE_DIVISOR
     rcall   MATH_LSR_32
 
     ; Load Divisor BaudRate into r21:r18
@@ -56,7 +56,7 @@ DEFUN HAL_USART_UPDATE_BAUDRATE
     sts     _(USART,_BAUDH), r19
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
   ret
-ENDF HAL_USART_UPDATE_BAUDRATE
+ENDF HAL_USART_BAUDRATE_UPD
 
 DEFUN _HAL_UART_Print_Text_from_flash
   _HAL_UART_Print_Text_from_flash:

@@ -2,12 +2,12 @@
 ; /usr/lib/avr/include/avr/io.h
 ; https://github.com/avrdudes/avr-libc/ stuff
 #include <avr/io.h>
-#include "_OS_macro.S"
+#include "_HAL_Macro.S"
 #include "_MATH_MUL.S"
 #include "_MATH_DIV.S"
 #include "_MATH_SHIFTS.S"
-#include "_OS_delay.S"
-; #include "_OS_print.S"
+#include "_HAL_Delay.S"
+; #include "_HAL_Print.S"
 
 ; Board Config
 #define LED_PIN             PIN3_bm
@@ -25,8 +25,8 @@
 
 #include "_HAL_AVR_2020.S"
 
-DEFUN BOARD_SETUP_DEFAULT
-  BOARD_SETUP_DEFAULT:
+DEFUN HAL_BOARD_SETUP
+  HAL_BOARD_SETUP:
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
     ldi     r18, 0x09<<2
     ldi     r19, 0xD8                   ; Unlock CPU_CCP register
@@ -36,7 +36,7 @@ DEFUN BOARD_SETUP_DEFAULT
     ; OS SPEED AWARENESS
     ldi     r18, 0
     rcall   HAL_CORE_PRESCALER
-    rcall   HAL_USART_UPDATE_BAUDRATE
+    rcall   HAL_USART_BAUDRATE_UPD
 
     ; USART CONFIG
     ldi     r18, USART_TX                           ; PIN USART_TX output
@@ -52,4 +52,4 @@ DEFUN BOARD_SETUP_DEFAULT
     ldi     r18, 0x0B                               ; Config BUTTON/SW0 Pin
     sts     _(BUTTON_PORT, _PIN2CTRL), r18
   ret
-ENDF BOARD_SETUP_DEFAULT
+ENDF HAL_BOARD_SETUP
