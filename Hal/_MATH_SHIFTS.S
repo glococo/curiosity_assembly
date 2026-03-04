@@ -1,8 +1,3 @@
-; AVR-GCC libgcc core mathematical functions
-; Remember the "Social Contract":
-; - r1:r0 is destroyed (volatile scratch)
-; - r15 always is zero_reg
-
 ; Comparisons (Returning Flags)
 ; These are used when you need to compare 32-bit values for branches.
 #define MATH_CMP_32       __cmpsi2       ; Compare (Signed) r25:r22 with r21:r18

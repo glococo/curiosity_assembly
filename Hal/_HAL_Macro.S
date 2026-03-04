@@ -1,5 +1,3 @@
-; Assembly macros
-
 #define GLUE(a, b)          a##b
 #define _(p, r)             GLUE(p, r)
 

@@ -1,8 +1,3 @@
-; AVR-GCC libgcc core mathematical functions
-; Remember the "Social Contract":
-; - r1:r0 can be destroyed, volatile scratch
-; - r15 always is zero_reg
-
 ; Division and Modulo: The dividend is replaced by the remainder, and the divisor is usually replaced by the quotient.
 ; MATH_UDIV_08_08       ; r22 /= r18 - Remainder on Divisor (r18)
 ; MATH_SDIV_08_08       ; r22 /= r18 - Remainder on Divisor (r18)

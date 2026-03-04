@@ -1,8 +1,3 @@
-; AVR-GCC libgcc core mathematical functions
-; Remember the "Social Contract":
-; - r1:r0 is destroyed (volatile scratch)
-; - r15 always is zero_reg
-
 ; --- 64-bit (Double Precision) ---
 #define MATH_MUL_64_64    __muldi3       ; r25:r18 *= r17:r10
 
