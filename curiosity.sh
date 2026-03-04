@@ -1,4 +1,5 @@
 #!/bin/bash
+DEBUG=false
 
 # Check if MCU and BOARD are provided as command-line arguments
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
@@ -17,8 +18,10 @@ avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include Boar
 # Create HEX file
 avr-objcopy -O ihex main.elf main.hex
 
-# Disassemble HEX file for inspection
-avr-objdump -s -m avr6 -D main.hex
+if [ $DEBUG == true ]; then
+    # Disassemble HEX file for inspection
+    avr-objdump -s -m avr6 -D main.hex
+fi
 
 # Flash to device using avrdude
 avrdude -v -c pkobn_updi -p $MCU -U flash:w:main.hex
