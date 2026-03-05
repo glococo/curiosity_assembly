@@ -51,9 +51,9 @@ DEFUN HAL_USART_BAUDRATE_UPD
     ldi     r19, hi8( USART_BAUD_RATE )
     ldi     r20, 0
     ldi     r21, 0
-    rcall   MATH_UDIV_32_32                       ; r21:r18 = r25:r22 / r21:r18
-    sts     _(USART,_BAUDL), r18
-    sts     _(USART,_BAUDH), r19
+    rcall   MATH_UDIV_32_32                       ; r25:r22 = r25:r22 / r21:r18
+    sts     _(USART,_BAUDL), r22
+    sts     _(USART,_BAUDH), r23
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
   ret
 ENDF HAL_USART_BAUDRATE_UPD

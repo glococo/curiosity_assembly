@@ -3,8 +3,8 @@ DEBUG=false
 
 # Check if MCU and BOARD are provided as command-line arguments
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    echo "Usage: $0 <MCU> <BOARD_FILE> <PROGRAM_FILE>"
-    echo "Example: $0 avr16eb32 Boards/AVR16EB32_CNANO.S Examples/Hello_world/main.S"
+    echo "Usage: $0 <MCU> <BOARD_NAME> <PROGRAM_FILE>"
+    echo "Example: $0 avr16eb32 AVR16EB32_CNANO Examples/Hello_world/main.S"
     exit 1
 fi
 
