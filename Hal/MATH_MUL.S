@@ -17,100 +17,100 @@ DEFUN MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
     mul     r10, r26    ; A0*B0
     add     r18,  r0
     adc     r19,  r1
-    adc     r20, r15
-    adc     r21, r15
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r20, __zero_reg__
+    adc     r21, __zero_reg__
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r11, r26    ; A1*B0
     add     r19,  r0
     adc     r20,  r1
-    adc     r21, r15
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r21, __zero_reg__
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r10, r27    ; A0*B1
     add     r19,  r0
     adc     r20,  r1
-    adc     r21, r15
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r21, __zero_reg__
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
         ; -= byte 2 =-
     mul     r11, r27    ; A1*B1
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r12, r26    ; A2*B0
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r10, r28    ; A0*B2
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r22, __zero_reg__
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
         ; -= byte 3 =-
     mul     r13, r26    ; A3*B0
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r10, r29    ; A0*B3
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r12, r27    ; A2*B1
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r11, r28    ; A1*B2
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
-    adc     r25, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
         ; -= byte 4 =-
     mul     r13, r27    ; A3*B1
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r12, r28    ; A2*B2
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r11, r29    ; A1*B3
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
         ; -= byte 5 & 6 =-
     mul     r13, r28    ; A3*B2
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
     mul     r12, r29    ; A2*B3
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; -= byte 7 =-
     mul     r13, r29
     add     r24,  r0
@@ -141,66 +141,66 @@ DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18 - Push/Pop r29:r28:r27
     mul     r10, r27    ; A0*B1
     add     r19,  r0
     adc     r20,  r1
-    adc     r21, r15
+    adc     r21, __zero_reg__
         ; -= byte 2 =-
     mul     r11, r27    ; A1*B1
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
+    adc     r22, __zero_reg__
     mul     r12, r26    ; A2*B0
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
+    adc     r22, __zero_reg__
     mul     r10, r28    ; A0*B2
     add     r20,  r0
     adc     r21,  r1
-    adc     r22, r15
+    adc     r22, __zero_reg__
         ; -= byte 3 =-
     mul     r13, r26    ; A3*B0
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
     mul     r10, r29    ; A0*B3
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
     mul     r12, r27    ; A2*B1
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
     mul     r11, r28    ; A1*B2
     add     r21,  r0
     adc     r22,  r1
-    adc     r23, r15
-    adc     r24, r15
+    adc     r23, __zero_reg__
+    adc     r24, __zero_reg__
         ; -= byte 4 =-
     mul     r13, r27    ; A3*B1
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r12, r28    ; A2*B2
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r11, r29    ; A1*B3
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
         ; -= byte 5 & 6 =-
     mul     r13, r28    ; A3*B2
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
     mul     r12, r29    ; A2*B3
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; -= byte 7 =-
     mul     r13, r29
     add     r24,  r0
@@ -228,22 +228,22 @@ DEFUN MATH_MUL_32_32        ; r25:r22 *= r21:r18 - Push/Pop r29:r28:r27:r26
     add     r23,  r0
     adc     r24,  r1
     clr          r25
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; byte 2 - A1*B1
     mul     r27, r19
     add     r24,  r0
     adc     r25,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; byte 2 - A2*B0
     mul     r28, r18
     add     r24,  r0
     adc     r25,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; byte 2 - A0*B2
     mul     r26, r20
     add     r24,  r0
     adc     r25,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
         ; byte 3 (Lower bytes)
     mul     r29, r18    ; A3*B0
     add     r25,  r0
@@ -286,12 +286,12 @@ DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18 - Push/Pop r21:r20
     mul     r20, r19        ; al*bh
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
     mul     r21, r18        ; ah*bl
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
   POP_MANY r21, r20
   ret
 ENDF MATH_MUL_16_32
@@ -309,13 +309,13 @@ DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18 - Push/Pop r21:r20
     mul     r20, r19        ; al*bh
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
     mulsu   r21, r18        ; ah*bl
-    sbc     r25, r15
+    sbc     r25, __zero_reg__
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
   POP_MANY r21, r20
   ret
@@ -332,16 +332,16 @@ DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
     movw    r24,  r0
 
     mulsu   r19, r20        ; bh*al
-    sbc     r25, r15
+    sbc     r25, __zero_reg__
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
     mulsu   r21, r18        ; ah*bl
-    sbc     r25, r15
+    sbc     r25, __zero_reg__
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
   POP_MANY r21, r20
   ret
@@ -353,8 +353,8 @@ DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Push/Pop r21:r20
     mul     r20, r18        ; al*bl
     add     r22,  r0
     adc     r23,  r1
-    adc     r24, r15
-    adc     r25, r15
+    adc     r24, __zero_reg__
+    adc     r25, __zero_reg__
     mul     r21, r19        ; ah*bh
     add     r24,  r0
     adc     r25,  r1
@@ -362,12 +362,12 @@ DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Push/Pop r21:r20
     mul     r20, r19        ; al*bh
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
     mul     r21, r18        ; ah*bl
     add     r23,  r0
     adc     r24,  r1
-    adc     r25, r15
+    adc     r25, __zero_reg__
 
   POP_MANY r21, r20
   ret

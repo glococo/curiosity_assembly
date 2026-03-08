@@ -1,0 +1,70 @@
+Quick Summary Table – Where Sections End Up
+
+Section       , Ends up in, Copied at startup?, Cleared at startup? , Typical use case
+.text         , Flash     , No                , —                   , Program code
+.rodata       , Flash     , No                , —                   , const data
+.progmem.data , Flash     , No                , —                   , PROGMEM arrays/strings
+.data         , SRAM      , Yes               , No                  , Initialized variables in C, not ASM
+.bss          , SRAM      , No                , Yes (zeroed)        , Global variables initialized in C, not aSM 
+.noinit       , SRAM      , No                , No                  , Persistent across reset
+.eeprom       , EEPROM    , No                , No                  , "Configuration, counters"
+.fuse/.lock   , Fuse/Lock , No                , No                  , MCU configuration
+
+
+Examples – How They Look in Assembly
+
+.section .text                            ; code goes here
+    jmp main
+
+.section .rodata
+msg: .string "Hello AVR!"
+
+.section .progmem.data                    ; classic PROGMEM style
+my_table: .byte 1,2,3,4
+
+.section .data
+    .global counter
+counter: .word 1234                       ; initialized → copied from flash
+
+.section .bss
+    .lcomm big_buffer, 512                ; uninitialized, zeroed
+    .space  32
+
+.section .noinit
+persistent_flag: .byte 0                  ; survives reset
+
+.section .fuse
+    .byte 0xFF                            ; example fuse low byte
+
+
+Overview of the most common data definition / allocation directives used in AVR assembly
+ when using the GNU assembler (avr-as / gas) — the default in AVR-GCC toolchains.
+These directives tell the assembler how to place constants, strings, or reserve space in
+ the current section (.text, .data, .bss, .rodata, .progmem.data, .eeprom, etc.).
+
+; Constants in Flash / PROGMEM
+.section .progmem.data
+    my_byte:     .byte   42               ; one byte = 0x2A
+    my_word:     .word   0x1234           ; bytes: 34 12 (little-endian)
+    status_msg:  .asciz  "Sensor OK"      ; bytes + 0x00 at end
+    raw_text:    .ascii  "Raw"            ; no trailing zero
+
+; Initialized variables in SRAM (.data → copied from flash at startup)
+.section .data
+    counter:     .word   1000             ; 16-bit initialized variable
+    flag:        .byte   1
+    version_str: .string "v1.2.3"         ; usually null-terminated
+
+; Uninitialized (zeroed) in SRAM (.bss)
+.section .bss
+    buffer:      .space  128              ; 128 bytes, zeroed at startup
+    big_array:   .skip   512              ; synonym
+    temp:        .lcomm  4                ; 4 bytes, local symbol
+
+; EEPROM example
+.section .eeprom
+    eemagic:     .word   0xA5A5
+    eestring:    .asciz  "Config"
+
+
+(IA generated)

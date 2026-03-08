@@ -8,19 +8,18 @@ DEFUN my_toggle_function
   my_toggle_function:
   PUSH_MANY r18, r19, r30, r31
     tst     TOGGLE_REG
-    breq    hello
+    breq    1f
     ldi     r30, lo8( HOLA )
     ldi     r31, hi8( HOLA )
-    rjmp    print
-  hello:
+    rjmp    2f
+  1:
     ldi     r30, lo8( HELLO )
     ldi     r31, hi8( HELLO )
 
-  print:
-    rcall   HAL_UART_Print_Text_from_flash
+  2:
+    rcall   HAL_BBUF_PUSH_FROM_Z
 
-  blink:
-    ldi     r18, LED_PIN
+    ldi     r18, LED_PIN                ; Blink
     sts     _(LED_PORT,_OUTTGL), r18
   POP_MANY r31, r30, r19, r18
   ret

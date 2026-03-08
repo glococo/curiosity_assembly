@@ -1,3 +1,4 @@
+#define __zero_reg__        r15
 #define GLUE(a, b)          a##b
 #define _(p, r)             GLUE(p, r)
 
@@ -35,6 +36,25 @@
     pop  \r             ; Restore SREG into the work register
     out  SREG, \r
     pop  \r             ; Restore the work register
+    reti
+.endm
+
+.macro ISR_MANY_START r, regs:vararg
+    push    \r            ; Push dummy register
+    in      \r, SREG      ; Read SREG
+    push    \r            ; Push SREG
+    .irp reg, \regs
+      push \reg
+    .endr
+.endm
+
+.macro ISR_MANY_END r, regs:vararg
+    .irp reg, \regs
+      pop \reg
+    .endr
+    pop     \r            ; Restore SREG into the work register
+    out     SREG, \r
+    pop     \r            ; Restore the work register
     reti
 .endm
 

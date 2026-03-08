@@ -1,13 +1,5 @@
 ; Target: AVR128DB48 CURIOSITY NANO eval board
-; /usr/lib/avr/include/avr/io.h
-; https://github.com/avrdudes/avr-libc/ stuff
 #include <avr/io.h>
-#include "../Hal/_HAL_Macro.S"
-#include "../Hal/_MATH_MUL.S"
-#include "../Hal/_MATH_DIV.S"
-#include "../Hal/_MATH_SHIFTS.S"
-#include "../Hal/_HAL_Delay.S"
-; #include "../Hal/_HAL_Print.S"
 
 ; Board Config
 #define LED_PIN             PIN3_bm
@@ -23,7 +15,7 @@
 #define CLOCK_INT_KHZ       24000
 #define CLOCK_RTC_HZ        0x8000 | 32768
 
-#include "../Hal/_HAL_AVR_2020.S"
+#include "../Hal/ALL.S"
 
 DEFUN HAL_BOARD_SETUP
   HAL_BOARD_SETUP:

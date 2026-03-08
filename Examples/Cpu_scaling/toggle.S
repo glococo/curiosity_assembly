@@ -19,17 +19,17 @@ DEFUN my_toggle_function
     ldi     r31, hi8( HELLO )
 
   print:
-    rcall   _HAL_UART_Print_Text_from_flash
+    rcall   HAL_UART_Print_Text_from_flash
     ldi     r30, lo8( SPEED )
     ldi     r31, hi8( SPEED )
-    rcall   _HAL_UART_Print_Text_from_flash
+    rcall   HAL_UART_Print_Text_from_flash
     ldi     r19, 48
     lds     r18, HAL_CORE_DIVISOR
     add     r18, r19
-    rcall   _HAL_UART_Print_char
+    rcall   HAL_UART_Print_char
     ldi     r30, lo8( RETURN )
     ldi     r31, hi8( RETURN )
-    rcall   _HAL_UART_Print_Text_from_flash
+    rcall   HAL_UART_Print_Text_from_flash
 
   blink:
     ldi     r18, LED_PIN

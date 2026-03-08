@@ -1,5 +1,5 @@
 #!/bin/bash
-DEBUG=false
+DEBUG=true
 
 # Check if MCU and BOARD are provided as command-line arguments
 if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then

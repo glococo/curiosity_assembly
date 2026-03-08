@@ -62,7 +62,7 @@ Functions are defined using the `DEFUN` macro and can be called using `rcall`.
 
 DEFUN main
   main:
-    rcall HAL_BOARD_SETUP
+    rcall   HAL_BOARD_SETUP
     sei
 
   loop:
@@ -72,6 +72,21 @@ DEFUN main
     rjmp loop
 ENDF main
 ```
+
+## Programming "Social Contract" (ABI)
+
+To maintain high performance and consistency, this framework follows a "Social Contract" regarding register usage. Adhering to these conventions ensures that HAL modules and mathematical routines work together seamlessly.
+
+### Register Conventions
+
+- **`r15` (Zero Register)**: By convention, `r15` is treated as a permanent zero. It is used for efficient carry and borrow propagation (e.g., `adc rd, r15` or `sbc rd, r15`).
+  - **Contract**: Never write to `r15`. Could be initialized to zero at the start of the program (`clr r15`).
+- **`r1` (Scratch)**: Unlike the standard AVR GCC ABI, `r1` is *not* a permanent zero. It is used as a scratch register, especially since it is modified by `mul` instructions.
+- **`r10` (Persistent State)**: Often used as a dedicated register for global application state, such as the `TOGGLE_REG` in example projects.
+- **`r22` to `r25` (Primary Work)**: Standard registers for passing 8-bit, 16-bit and 32-bit arguments and return values.
+- **`r16-r23` (Volatile)**: Caller-saved registers used for temporary storage and additional function arguments.
+- **`X` (r27:r26), `Z` (r31:r30)**: Pointer registers. `Z` is the primary pointer for flash access (`lpm`), and `X` is used for RAM indexing.
+- **`Y` (r29:r28)**: Callee-saved register. Must be pushed and popped if used within a function.
 
 ## License
 
