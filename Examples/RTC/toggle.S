@@ -1,4 +1,4 @@
-; File: Examples/Hello_world/toggle.S
+; File: Examples/RTC/toggle.S
 ; Description: Toggle logic for LED and string selection for direct USART transmission.
 
 #define  TOGGLE_REG   r10

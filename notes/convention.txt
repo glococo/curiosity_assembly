@@ -1,50 +1,49 @@
-- The __zero_reg__ is r15
-  Never write to r15 unless you know what you are doing
+# AVR Assembly HAL: Convention & Social Contract
 
-- The "Scratch" Registers (r0, r1)
-  R0 and R1 are scratch registers for immediate operations, like MUL.
+To ensure high performance and seamless integration between HAL modules and user code, this framework follows a strict "Social Contract" regarding register usage and naming.
 
-- Pointer Register Preferences
-  AVR has three 16-bit pointer pairs: X (r27:r26), Y (r29:r28), and Z (r31:r30).
+## 1. Register Usage (The Social Contract)
 
-  X (r27:r26): Used for SRAM Buffer access, like Ring Buffer
-  Y (r29:r28): Used as the Frame Pointer. If you need to create "local variables" on the stack
-  Z (r31:r30): Primary use for Program Memory (LPM)
+### Specialized Registers
+- **`__zero_reg__` (r15)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r15`).
+  - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r15`.
+- **Scratch Registers (r0, r1)**: Volatile scratch registers.
+  - **Contract**: Can be modified by any function (and are modified by `mul`). Do not expect them to persist across calls.
 
-- Call-Saved registers
-  All, there are no Call-Used registers
-  For sake of security and simplicity, all written registers (beside returns) must be saved
+### Pointer Registers
+AVR has three 16-bit pointer pairs:
+- **X (r27:r26)**: Primary pointer for **SRAM Buffer** access (e.g., Ring Buffers, Structures).
+- **Y (r29:r28)**: **Callee-saved**. Typically used as a Frame Pointer or for local variables.
+  - **Contract**: If you use Y, you **must** push it at the start and pop it at the end of your function.
+- **Z (r31:r30)**: Primary pointer for **Program Memory** (LPM) and Indirect Jumps (`ijmp`).
 
-- Arguments passing
-  Arguments are passed in even-aligned register pairs, starting from r22 and moving upwards.
+### Function Arguments & Return Values
+Arguments are passed in registers starting from `r25` down to `r22`.
+- **8-bit**: Use `r22`.
+- **16-bit**: Use `r23:r22`.
+- **32-bit**: Use `r25:r22`.
+- **Return Values**: Follow the same register mapping as arguments.
 
-   8-bit argument: Use r22.
-  16-bit argument: Use r23:r22.
-  32-bit argument: Use r25:r24:r23:r22.
+### Volatile vs. Callee-Saved
+- **Volatile (r16 - r25, r26 - r27, r30 - r31)**: May be modified by the called function. The caller must save them if needed.
+- **Callee-Saved (r2 - r14, r28 - r29)**: The called function **must** preserve these. If a function uses them, it must PUSH/POP them.
 
-  ; Convention: Pass character in r22
-    ldi r22, 'A'
-    rcall HAL_UART_Transmit
+## 2. Macro Naming & Local Labels
 
-- Macro Naming & Local Labels
-  Prevent "Namespace Pollution" and utilize the assembler's local label features.
-  Every HAL macro should start with the peripheral name (e.g., HAL_GPIO_, HAL_UART_, HAL_ADC_).
-  Local Labels: Always use numeric labels (e.g., 1:, 2:) or the @ symbol inside macros.
-  This allows you to use the same macro multiple times in one file without "Duplicate Label" errors.
+### Namespace Discipline
+Every HAL macro must start with the peripheral name to prevent "Namespace Pollution":
+- `HAL_GPIO_`, `HAL_UART_`, `HAL_RTC_`, `MATH_`.
 
-  1. The "1b / 1f" Numeric Labels (The Best Way)
-  The GNU Assembler allows you to use single digits (0–9) as labels. These are not unique.
-  You can use 1: in every single function you write, and they will never collide.
- 
-  To jump to them, you append a b (backward) or an f (forward) to the number.
+### Local Labels (Avoiding "Duplicate Label" Errors)
+1. **Numeric Labels (1f/1b)**: The preferred way. Use single digits (0–9).
+   - `1: rjmp 1b` (jump backward to 1).
+   - `breq 2f` (jump forward to 2).
+2. **Hidden Labels (.L)**: Use `.L` prefix for descriptive labels that shouldn't appear in the Symbol Table.
+   - `.L_error_state:`
+3. **Unique Macro Labels (\@)**: Inside a macro, use `\@` to generate a unique suffix for every expansion.
+   - `loop_\@:`
 
-  2. The .L Prefix (Hidden Descriptive Labels)
-  If you want the label to have a name (like error_state:) but you don't want it to show up in
-  your Symbol Table or conflict with other files during linking, prefix it with .L.
-  The assembler treats any label starting with .L as a temporary local symbol.
-  They are invisible to the linker.
-
-  3. Unique Labels in Macros (\@)
-  If you put a label inside a macro and call that macro twice in the same file, you'll get
-  a "Redefinition of Label" error. To fix this, use the \@ special sequence. The assembler
-  replaces \@ with a unique number every time the macro is expanded.
+## 3. Atomic Operations
+Whenever possible, utilize the modern AVR hardware features for atomicity:
+- Use `_OUTTGL` for toggling pins without Read-Modify-Write.
+- Use `_DIRSET` / `_DIRCLR` for configuration.

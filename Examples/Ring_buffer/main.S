@@ -1,36 +1,38 @@
-; Description: Blinks the BOARD LED and send a STRING in UART at 1 Hz.
-; Target: CURIOSITY NANO eval boards
+; File: Examples/Ring_buffer/main.S
+; Description: Example of using a High-Performance Byte Ring Buffer for USART transmission.
+;              - Initializes a 64-byte ring buffer (HAL_USART_BUFFER_TX).
+;              - Toggles the BOARD LED and sends a string every 1 second.
+;              - Uses a Button Interrupt to toggle between two message states.
+; Target: CURIOSITY NANO eval boards (e.g., AVR16EB32 Curiosity Nano)
 
-HAL_BBUF_DEFINE HAL_UART_BUFFER_TX, 64
+HAL_BBUF_DEFINE   HAL_USART_BUFFER_TX, 64
+
 #include "toggle.S"
 
 DEFUN main                        ; ✅ Main Program
   main:
-    rcall HAL_BOARD_SETUP         ; BTN int fill fire on every click
-
-    ldi   XL, lo8( HAL_UART_BUFFER_TX )
-    ldi   XH, hi8( HAL_UART_BUFFER_TX )
-    ldi   r18, HAL_UART_BUFFER_TX_SIZE
-    rcall HAL_BBUF_INIT
-    sei
+    clr     TOGGLE_REG            ; Initialize state register (default: Hello World)
+    rcall   HAL_BOARD_SETUP       ; Hardware setup: Button int and USART config
+    HAL_BBUF_INITIALIZE HAL_USART_BUFFER_TX ; Initialize the USART ring buffer
+    sei                           ; Enable interrupts
 
   loop:
-    rcall   my_toggle_function    ; Soft delay will call toggle every second
-    rcall   HAL_BBUF_IS_EMPTY
-
-    HAL_DELAY_MS 1000
-    rjmp    loop                  ; goto loop
+    rcall   a_toggle_function     ; Push message to buffer and toggle LED
+    rcall   HAL_USART_X_SEND      ; Drain the USART ring buffer until empty
+    HAL_DELAY_MS 1000             ; Delay for 1 second
+    rjmp    loop                  ; Repeat indefinitely
 
 ENDF main
 
+
 DEFUN _(BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
-  _(BUTTON_PORT,_PORT_vect):      ; PUSH_BUTTON toggle LED and UART message
+  _(BUTTON_PORT,_PORT_vect):      ; Toggles the message state for the next cycle
   ISR_START r18
 
-    ldi     r18, 1                ; Toggle REG
+    ldi     r18, 1                ; Toggle state bit in TOGGLE_REG
     eor     TOGGLE_REG, r18
 
-    ldi     r18, BUTTON_PIN       ; Clear Button Int Flag
+    ldi     r18, BUTTON_PIN       ; Clear the button interrupt flag
     sts     _(BUTTON_PORT,_INTFLAGS), r18
 
   ISR_END r18

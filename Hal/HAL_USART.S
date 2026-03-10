@@ -25,24 +25,43 @@ DEFUN HAL_USART_BAUDRATE_UPD
   ret
 ENDF HAL_USART_BAUDRATE_UPD
 
-; Send chars over USART until \0
+; Send chars over USART until BBUF is empty
 DEFUN HAL_USART_X_SEND
   HAL_USART_X_SEND:
-  PUSH_MANY  r0, r1
+  PUSH_MANY  r18, r22
   0:
-    ld    r1, X+
-    tst   r1
-    breq  2f
+    rcall   HAL_BBUF_PULL
+    tst     r18
+    brne    2f
   1:
-    lds   r0, _(USART,_STATUS)
-    sbrs  r0, USART_DREIF_bp
+    lds   r18, _(USART,_STATUS)
+    sbrs  r18, USART_DREIF_bp
     rjmp  1b
-    sts   _(USART,_TXDATAL), r1
+    sts   _(USART,_TXDATAL), r22
     rjmp  0b
   2:
-  POP_MANY r1, r0
+  POP_MANY r22, r18
   ret
 ENDF HAL_USART_X_SEND
+
+; Send chars over USART from FLASH until \0
+DEFUN HAL_USART_Z_SEND
+  HAL_USART_Z_SEND:
+  PUSH_MANY  r0, r1
+  0:
+    lpm   r0, Z+
+    tst   r0
+    breq  2f                  ; exit
+  1:
+    lds   r1, _(USART,_STATUS)
+    sbrs  r1, USART_DREIF_bp
+    rjmp  1b                  ; wait_for_DREIF
+    sts   _(USART,_TXDATAL), r0
+    rjmp  0b                  ; read next char
+  2:
+  POP_MANY  r1, r0
+  ret
+ENDF HAL_USART_Z_SEND
 
 ; Send ONE char over USART from r22
 DEFUN HAL_USART_SEND

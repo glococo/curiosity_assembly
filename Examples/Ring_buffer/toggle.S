@@ -1,15 +1,22 @@
+; File: Examples/Ring_buffer/toggle.S
+; Description: Toggle logic for LED and string selection for the ring buffer.
+
 #define  TOGGLE_REG   r10
 
 .section    .progmem.rodata
 HELLO:      .asciz "Hello World!\r\n"
 HOLA:       .asciz "Hola Mundo!\r\n"
 
-DEFUN my_toggle_function
-  my_toggle_function:
+; DEFUN: a_toggle_function
+; Description: Checks TOGGLE_REG to pick a string (HELLO/HOLA),
+;              pushes it into the ring buffer (pointed by X),
+;              and toggles the BOARD LED.
+DEFUN a_toggle_function
+  a_toggle_function:
   PUSH_MANY r18, r19, r30, r31
-    tst     TOGGLE_REG
-    breq    1f
-    ldi     r30, lo8( HOLA )
+    tst     TOGGLE_REG                      ; Check the toggle state bit
+    breq    1f                              ; If 0, use HELLO
+    ldi     r30, lo8( HOLA )                ; If !0, use HOLA
     ldi     r31, hi8( HOLA )
     rjmp    2f
   1:
@@ -17,10 +24,13 @@ DEFUN my_toggle_function
     ldi     r31, hi8( HELLO )
 
   2:
-    rcall   HAL_BBUF_PUSH_FROM_Z
+    ; HAL_BBUF_PUSH_FROM_Z expects:
+    ; Z (r31:r30) = Flash pointer to string
+    ; X (r27:r26) = SRAM pointer to Ring Buffer
+    rcall   HAL_BBUF_PUSH_FROM_Z            ; Returns r18 -> 0:success | 1:full
 
-    ldi     r18, LED_PIN                ; Blink
-    sts     _(LED_PORT,_OUTTGL), r18
+    ldi     r19, LED_PIN                    ; Toggle the BOARD LED
+    sts     _(LED_PORT,_OUTTGL), r19
   POP_MANY r31, r30, r19, r18
   ret
-ENDF my_toggle_function
+ENDF a_toggle_function

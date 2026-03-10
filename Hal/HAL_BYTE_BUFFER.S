@@ -3,14 +3,13 @@
 ; This allows use of bitwise AND for wrapping instead of a slow division or comparison.
 ;
 ; Define different sized buffers
-;   HAL_BBUF_DEFINE UART_TX_BUF, 64
+;   HAL_BBUF_DEFINE USART_TX_BUF, 64
 ;   HAL_BBUF_DEFINE LOG_BUF, 128
 ;   HAL_BBUF_DEFINE SENSOR_BUF, 8
 ;
-;   ldi   XL, lo8( SENSOR_BUF )
-;   ldi   XH, hi8( SENSOR_BUF )
-;   ldi   r18, 8    ; Remember, size always power of 2, max 256 !
-;   rcall HAL_BBUF_INIT
+;   HAL_BBUF_INITIALIZE USART_TX_BUF
+;   HAL_BBUF_INITIALIZE LOG_BUF
+;   ...
 
 .macro HAL_BBUF_DEFINE name, size
     .section .bss
@@ -22,6 +21,12 @@
     .set \name\()_SIZE, \size   ; Assembler constant
 .endm
 
+.macro HAL_BBUF_INITIALIZE name
+    ldi   XL, lo8( \name )
+    ldi   XH, hi8( \name )
+    ldi   r18, \name\()_SIZE
+    rcall HAL_BBUF_INIT
+.endm
 
 ; Input: r18: size (power of 2), X (r27:r26) points to the Buffer Structure
 DEFUN HAL_BBUF_INIT
@@ -31,7 +36,7 @@ DEFUN HAL_BBUF_INIT
     dec   r18
     st    X, r18
     sbiw  X, 2              ; restore X pointer and
-    inc   r18               ; r18 input values
+    inc   r18               ;  r18 input values
   ret
 ENDF HAL_BBUF_INIT
 
@@ -42,11 +47,11 @@ DEFUN HAL_BBUF_IS_EMPTY
   PUSH_MANY r16, r17
     ld      r16, X+         ; r16 = Head
     ld      r17, X          ; r17 = Tail
-    sbiw    X, 1            ; Return pointer X intact
-    ldi     r18, 1
+    sbiw    X, 1            ; Return X intact
+    ldi     r18, 1          ; r18: 1 Empty
     cp      r16, r17        ; Check if Empty
-    breq    1f
-    ldi     r18, 0
+    breq    1f              ; if not
+    ldi     r18, 0          ; r18: 0 !empty
   1:
   POP_MANY r17, r16
   ret
@@ -60,14 +65,14 @@ DEFUN HAL_BBUF_IS_FULL
     ld      r16, X+         ; r16 = Head
     ld      r17, X+         ; r17 = Tail
     ld      r18, X          ; r18 = MASK
-    sbiw    X, 2            ; Return pointer X intact
+    sbiw    X, 2            ; Return X intact
 
     inc     r16             ; Inc Head
     and     r16, r18        ; Wrap using the stored mask
     ldi     r18, 1          ; r18= 1
     cp      r16, r17        ; If Full
-    breq    1f              ;   exit, r18=1
-    ldi     r18, 0          ;   else, r18=0
+    breq    1f              ;   exit, r18: 1 full
+    ldi     r18, 0          ;   else, r18: 0 !full
   1:
   POP_MANY r17, r16
   ret
@@ -81,6 +86,7 @@ DEFUN HAL_BBUF_IN_USE
     ld      r16, X+         ; r16 = Head
     ld      r17, X+         ; r17 = Tail
     ld      r18, X          ; r18 = MASK
+    sbiw    X, 2            ; Return X intact
 
     sub     r16, r17
     and     r16, r18
@@ -93,32 +99,18 @@ ENDF HAL_BBUF_IN_USE
 ; Output: r18 = 0 (Success), 1 (Full)
 DEFUN HAL_BBUF_PUSH_FROM_Z
 HAL_BBUF_PUSH_FROM_Z:
-    PUSH_MANY r16, r17, r19, r20
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X+         ; r17 = Tail
-    ld      r18, X          ; r18 = MASK
+  PUSH_MANY  r22
+    ldi     r18, 0
+  0:
+    lpm     r22, Z+
+    tst     r22
+    breq    1f                ; All done, exit
 
-    mov     r19, r16        ; Check if full
-    inc     r19
-    and     r19, r18        ; Wrap using the stored mask
-    cp      r19, r17
-    breq    1f              ; 1f = Full
-
-    ; Load Z data
-    ; Calculate Data Address: (X + 3) + Head
-    sbiw     X, 2           ; Go X back -2pos, from MASK to Head
-    st       X, r19         ; Update Head
-    adiw     X, 3           ; Go X forward +3pos, from Head to DATA
-    add     XL, r16         ; Add Head offset
-    adc     XH, __zero_reg__
-    st       X, r22         ; Store data
-
-    ldi     r18, 0          ; Success
-    rjmp    2f
+    rcall   HAL_BBUF_PUSH     ; Add byte to buffer
+    tst     r18
+    breq    0b
   1:
-    ldi     r18, 1          ; Full
-  2:
-  POP_MANY r19, r17, r16
+  POP_MANY  r22
   ret
 ENDF HAL_BBUF_PUSH_FROM_Z
 
@@ -126,7 +118,7 @@ ENDF HAL_BBUF_PUSH_FROM_Z
 ; Output: r18 = 0 (Success), 1 (Full)
 DEFUN HAL_BBUF_PUSH
 HAL_BBUF_PUSH:
-    PUSH_MANY r16, r17, r19
+    PUSH_MANY r16, r17, r19, XL, XH
     ld      r16, X+         ; r16 = Head
     ld      r17, X+         ; r17 = Tail
     ld      r18, X          ; r18 = MASK
@@ -150,7 +142,7 @@ HAL_BBUF_PUSH:
   1:
     ldi     r18, 1          ; Full
   2:
-  POP_MANY r19, r17, r16
+  POP_MANY XH, XL, r19, r17, r16
   ret
 ENDF HAL_BBUF_PUSH
 
@@ -158,7 +150,7 @@ ENDF HAL_BBUF_PUSH
 ; Output: r22 = Value, r18 = 0 (Success), 1 (Empty)
 DEFUN HAL_BBUF_PULL
   HAL_BBUF_PULL:
-  PUSH_MANY r16, r17, r19
+  PUSH_MANY r16, r17, r19, XL, XH
     ld      r16, X+         ; r16 = Head
     ld      r17, X+         ; r17 = Tail
     ld      r18, X          ; r18 = MASK
@@ -184,6 +176,6 @@ DEFUN HAL_BBUF_PULL
   1:
     ldi     r18, 1          ; Empty
   2:
-  POP_MANY r19, r17, r16
+  POP_MANY XH, XL, r19, r17, r16
   ret
 ENDF HAL_BBUF_PULL

@@ -5,23 +5,28 @@ A lightweight Hardware Abstraction Layer (HAL) and mathematical library for mode
 ## Project Structure
 
 - **`Hal/`**: Core library files.
-  - `_HAL_Macro.S`: Essential macros for function definitions, ISRs, and register management.
-  - `_HAL_AVR_2020.S`: Clock scaling, prescaler management, and USART baud rate calculations.
-  - `_HAL_Delay.S`: Cycle-accurate software delays aware of CPU frequency.
-  - `_HAL_Print.S`: String and number printing utilities for USART.
-  - `_MATH_*.S`: Optimized 16-bit and 32-bit mathematical routines (MUL, DIV, SHIFTS).
+  - `HAL_Macro.S`: Essential macros for function definitions (`DEFUN`/`ENDF`), ISRs, and register management.
+  - `HAL_CORE.S`: CPU clock scaling and prescaler management.
+  - `HAL_USART.S`: USART configuration and baud rate calculations.
+  - `HAL_BYTE_BUFFER.S`: High-performance power-of-two Byte Ring Buffer.
+  - `HAL_Delay.S`: Cycle-accurate software delays aware of dynamic CPU frequency.
+  - `HAL_RTC.S`: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) support.
+  - `MATH_*.S`: Optimized 16-bit and 32-bit mathematical routines (MUL, DIV, SHIFTS).
 - **`Boards/`**: Board-specific configurations and pin mappings for Curiosity Nano evaluation boards.
 - **`Examples/`**: Demonstration projects.
-  - `Hello_world`: Basic LED toggle and UART output.
-  - `Cpu_Scaling`: Demonstration of dynamic clock frequency adjustment.
+  - `Hello_world`: Basic LED toggle and direct USART output.
+  - `Clock_scaling`: Dynamic CPU frequency adjustment and peripheral re-calculation.
+  - `Ring_buffer`: Buffered USART transmission using the circular buffer.
+  - `RTC`: Timed events using the Real-Time Counter.
 - **`curiosity.sh`**: Main build and flash script.
 
 ## Key Features
 
-- **Structured Assembly**: Uses `DEFUN` and `ENDF` macros for clean, readable function definitions.
-- **Clock Awareness**: HAL routines automatically adjust to the current CPU frequency for accurate delays and baud rates.
+- **Structured Assembly**: Uses `DEFUN` and `ENDF` macros for clean, readable, and linkable function definitions.
+- **Clock Awareness**: HAL routines automatically adjust to the current CPU frequency for accurate delays and baud rates even after scaling.
 - **Optimized Math**: High-performance implementations of multiplication, division, and multi-byte shifts.
-- **Interrupt Support**: Streamlined ISR entry/exit macros (`ISR_START`, `ISR_END`).
+- **Efficient Buffering**: Power-of-two ring buffers using bitwise masking for ultra-fast wrapping.
+- **Interrupt Support**: Streamlined ISR entry/exit macros (`ISR_START`, `ISR_END`) that preserve SREG.
 - **Modern AVR Support**: Tailored for the latest AVR architectures with UPDI programming.
 
 ## Prerequisites
@@ -31,19 +36,20 @@ To build and flash this project, you need:
 - **AVR-Libc**: Standard library for AVR.
 - **AVRDude**: For flashing the compiled HEX files to the microcontroller.
 - **Hardware**: A supported Curiosity Nano board (e.g., AVR16EB32 CNANO).
+- **Ubuntu/Debian**: `sudo apt install gcc-avr avrdude avr-libc`
 
 ## Building and Flashing
 
 Use the provided `curiosity.sh` script to compile and flash an example. The script takes three arguments: the target MCU, the board file, and the main program file.
 
 ```bash
-./curiosity.sh <MCU> <BOARD_FILE> <PROGRAM_FILE>
+./curiosity.sh <MCU> <BOARD_NAME> <PROGRAM_FILE>
 ```
 
-### Example: Hello World on AVR16EB32
+### Example: Ring Buffer on AVR16EB32
 
 ```bash
-./curiosity.sh avr16eb32 Boards/AVR16EB32_CNANO.S Examples/Hello_world/main.S
+./curiosity.sh avr16eb32 AVR16EB32_CNANO Examples/Ring_buffer/main.S
 ```
 
 ### Utility Scripts
@@ -55,39 +61,43 @@ Use the provided `curiosity.sh` script to compile and flash an example. The scri
 
 ## Usage Example
 
-Functions are defined using the `DEFUN` macro and can be called using `rcall`.
+Functions are defined using the `DEFUN` macro and called via `rcall`. The HAL handles hardware complexity behind simple interfaces.
 
 ```assembly
-#include "Boards/AVR16EB32_CNANO.S"
-
+; Example of a main loop using HAL
 DEFUN main
   main:
-    rcall   HAL_BOARD_SETUP
-    sei
+    rcall   HAL_BOARD_SETUP       ; Basic board initialization
+    sei                           ; Global interrupt enable
 
   loop:
-    ; Toggle LED and delay for 1 second
-    rcall toggle_led
-    HAL_DELAY_MS 1000
-    rjmp loop
+    ldi     r19, LED_PIN
+    sts     _(LED_PORT, _OUTTGL), r19 ; Atomic pin toggle
+    HAL_DELAY_MS 1000             ; Frequency-aware delay
+    rjmp    loop
 ENDF main
 ```
 
-## Programming "Social Contract" (ABI)
+## HAL ABI (Social Contract)
 
-To maintain high performance and consistency, this framework follows a "Social Contract" regarding register usage. Adhering to these conventions ensures that HAL modules and mathematical routines work together seamlessly.
+To maintain high performance and consistency, this framework follows a specific register usage convention.
 
 ### Register Conventions
 
-- **`r15` (Zero Register)**: By convention, `r15` is treated as a permanent zero. It is used for efficient carry and borrow propagation (e.g., `adc rd, r15` or `sbc rd, r15`).
-  - **Contract**: Never write to `r15`. Could be initialized to zero at the start of the program (`clr r15`).
-- **`r1` (Scratch)**: Unlike the standard AVR GCC ABI, `r1` is *not* a permanent zero. It is used as a scratch register, especially since it is modified by `mul` instructions.
-- **`r10` (Persistent State)**: Often used as a dedicated register for global application state, such as the `TOGGLE_REG` in example projects.
-- **`r22` to `r25` (Primary Work)**: Standard registers for passing 8-bit, 16-bit and 32-bit arguments and return values.
-- **`r16-r23` (Volatile)**: Caller-saved registers used for temporary storage and additional function arguments.
-- **`X` (r27:r26), `Z` (r31:r30)**: Pointer registers. `Z` is the primary pointer for flash access (`lpm`), and `X` is used for RAM indexing.
-- **`Y` (r29:r28)**: Callee-saved register. Must be pushed and popped if used within a function.
+- **`__zero_reg__` (r15)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows.
+  - **Contract**: Initialized by the HAL. Never write to `r15`.
+- **`r16` to `r21` (Volatile)**: Caller-saved registers. Used for temporary storage and additional function arguments.
+- **`r22` to r25 (Primary Work)**: Standard registers for passing 8-bit, 16-bit, and 32-bit arguments and return values.
+- **`X` (r27:r26)**: Primary pointer for RAM indexing (Buffers and Structures).
+- **`Y` (r29:r28)**: Callee-saved register. Must be pushed/popped if used within a function.
+- **`Z` (r31:r30)**: Primary pointer for Flash access (`lpm`) and code jumping (`ijmp`).
 
 ## License
 
 This project is licensed under the **GNU General Public License v3.0**. See the `LICENSE` file for details.
+
+## Author's Note
+
+AVR was my first MCU family, and returning to it after years of ARM development has been a joy. The modern AVR-Dx and AVR-Ex series introduce impressive features like a unified memory map, UPDI, Event System (EVSYS), and Configurable Custom Logic (CCL). This project was born from a desire to create a high-performance assembly boilerplate that leverages these modern features while maintaining the simplicity and beauty of 8-bit assembly.
+
+This HAL was made with ❤️  for the AVR community.

@@ -1,70 +1,59 @@
-Quick Summary Table – Where Sections End Up
+# AVR GNU Assembler: Sections and Data Directives
 
-Section       , Ends up in, Copied at startup?, Cleared at startup? , Typical use case
-.text         , Flash     , No                , —                   , Program code
-.rodata       , Flash     , No                , —                   , const data
-.progmem.data , Flash     , No                , —                   , PROGMEM arrays/strings
-.data         , SRAM      , Yes               , No                  , Initialized variables in C, not ASM
-.bss          , SRAM      , No                , Yes (zeroed)        , Global variables initialized in C, not aSM 
-.noinit       , SRAM      , No                , No                  , Persistent across reset
-.eeprom       , EEPROM    , No                , No                  , "Configuration, counters"
-.fuse/.lock   , Fuse/Lock , No                , No                  , MCU configuration
+This document summarizes how the GNU Assembler (GAS) handles memory sections and data allocation for AVR microcontrollers.
 
+## 1. Memory Sections Summary
 
-Examples – How They Look in Assembly
+| Section         | Location | Startup Init?       | Typical Use Case |
+|-----------------|----------|---------------------|------------------|
+| `.text`         | Flash    | N/A                 | Executable program code. |
+| `.rodata`       | Flash    | N/A                 | Read-only constants (accessible via `lpm`). |
+| `.progmem.data` | Flash    | N/A                 | Large PROGMEM arrays and strings. |
+| `.data`         | SRAM     | **Yes** (Flash copy)| Initialized variables (copied from Flash at boot). |
+| `.bss`          | SRAM     | **Yes** (Zeroed)    | Uninitialized global variables (cleared at boot). |
+| `.noinit`       | SRAM     | **No**              | Persistent variables that survive a software reset. |
+| `.eeprom`       | EEPROM   | N/A                 | Non-volatile configuration and counters. |
+| `.fuse`         | Fuses    | N/A                 | Microcontroller hardware configuration. |
 
-.section .text                            ; code goes here
-    jmp main
+---
 
+## 2. Common Data Directives
+
+Directives tell the assembler how to allocate space in the current section.
+
+### Constants and Strings (Flash)
+```assembly
 .section .rodata
-msg: .string "Hello AVR!"
+    my_byte:     .byte   0x42             ; Allocate 1 byte
+    my_word:     .word   0x1234           ; Allocate 2 bytes (Little-Endian: 34 12)
+    status_msg:  .asciz  "System OK"      ; Null-terminated string
+    raw_text:    .ascii  "Wait"           ; Non-terminated string
+```
 
-.section .progmem.data                    ; classic PROGMEM style
-my_table: .byte 1,2,3,4
-
+### Initialized Variables (SRAM / `.data`)
+*Note: In pure assembly, you often use Flash directly. Use `.data` only if the value must be changed at runtime.*
+```assembly
 .section .data
-    .global counter
-counter: .word 1234                       ; initialized → copied from flash
+    runtime_limit: .word 5000             ; Copied from Flash to SRAM at startup
+```
 
+### Uninitialized Space (SRAM / `.bss` or `.noinit`)
+```assembly
 .section .bss
-    .lcomm big_buffer, 512                ; uninitialized, zeroed
-    .space  32
+    tx_buffer:   .space  64               ; Reserve 64 zeroed bytes
+    temp_var:    .lcomm  local_var, 2     ; Reserve 2 bytes for a local symbol
 
 .section .noinit
-persistent_flag: .byte 0                  ; survives reset
+    reset_count: .byte   0                ; Will not be zeroed on startup
+```
 
-.section .fuse
-    .byte 0xFF                            ; example fuse low byte
+---
 
+## 3. Best Practices for this HAL
 
-Overview of the most common data definition / allocation directives used in AVR assembly
- when using the GNU assembler (avr-as / gas) — the default in AVR-GCC toolchains.
-These directives tell the assembler how to place constants, strings, or reserve space in
- the current section (.text, .data, .bss, .rodata, .progmem.data, .eeprom, etc.).
-
-; Constants in Flash / PROGMEM
-.section .progmem.data
-    my_byte:     .byte   42               ; one byte = 0x2A
-    my_word:     .word   0x1234           ; bytes: 34 12 (little-endian)
-    status_msg:  .asciz  "Sensor OK"      ; bytes + 0x00 at end
-    raw_text:    .ascii  "Raw"            ; no trailing zero
-
-; Initialized variables in SRAM (.data → copied from flash at startup)
-.section .data
-    counter:     .word   1000             ; 16-bit initialized variable
-    flag:        .byte   1
-    version_str: .string "v1.2.3"         ; usually null-terminated
-
-; Uninitialized (zeroed) in SRAM (.bss)
-.section .bss
-    buffer:      .space  128              ; 128 bytes, zeroed at startup
-    big_array:   .skip   512              ; synonym
-    temp:        .lcomm  4                ; 4 bytes, local symbol
-
-; EEPROM example
-.section .eeprom
-    eemagic:     .word   0xA5A5
-    eestring:    .asciz  "Config"
-
-
-(IA generated)
+1. **Use `.text.<name>` for Functions**: When defining a function, use a specific subsection to allow the linker to perform garbage collection (`--gc-sections`).
+   ```assembly
+   .section .text.my_function, "ax", @progbits
+   ```
+2. **Prefer `.rodata` for strings**: Keep strings in Flash to save precious SRAM. Access them using the `Z` register and `lpm` instruction.
+3. **Atomic Toggles**: For modern AVR (Dx/Ex), use the `_OUTTGL` register instead of modifying variables in SRAM whenever possible.
