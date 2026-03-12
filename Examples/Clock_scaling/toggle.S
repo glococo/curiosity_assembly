@@ -12,8 +12,8 @@ RETURN:     .asciz "\r\n"
 ; DEFUN: my_toggle_function
 ; Description: Reports the current clock divisor index and a chosen string
 ;              (HELLO/HOLA) to the ring buffer, then toggles the LED.
-DEFUN my_toggle_function
-  my_toggle_function:
+DEFUN a_toggle_function
+  a_toggle_function:
   PUSH_MANY r18, r22, r30, r31
     tst     TOGGLE_REG                      ; Check the toggle state bit
     breq    0f                              ; If 0, use HELLO
@@ -49,4 +49,4 @@ DEFUN my_toggle_function
     sts     _(LED_PORT,_OUTTGL), r18
   POP_MANY r31, r30, r22, r18
   ret
-ENDF my_toggle_function
+ENDF a_toggle_function

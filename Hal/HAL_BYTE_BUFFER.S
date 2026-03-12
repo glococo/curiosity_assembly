@@ -1,16 +1,17 @@
-; High-performance Byte Ring Buffer (Circular Buffer) using X Register
-; For maximum assembly efficiency, this library use a Power of Two size (e.g., 64, 128, 256).
-; This allows use of bitwise AND for wrapping instead of a slow division or comparison.
+; File: Hal/HAL_BYTE_BUFFER.S
+; Description: High-performance Byte Ring Buffer (Circular Buffer).
 ;
-; Define different sized buffers
-;   HAL_BBUF_DEFINE USART_TX_BUF, 64
-;   HAL_BBUF_DEFINE LOG_BUF, 128
-;   HAL_BBUF_DEFINE SENSOR_BUF, 8
+; This library uses a Power-of-Two size (64, 128, 256) to allow bitwise masking
+; for head/tail wrapping, avoiding slow division or conditional branches.
 ;
-;   HAL_BBUF_INITIALIZE USART_TX_BUF
-;   HAL_BBUF_INITIALIZE LOG_BUF
-;   ...
+; Buffer Structure in SRAM:
+; [Offset 0] Head (Write index)
+; [Offset 1] Tail (Read index)
+; [Offset 2] Mask (Size - 1)
+; [Offset 3] Data... (Size bytes)
 
+; Macro: HAL_BBUF_DEFINE
+; Description: Allocates SRAM space for a ring buffer.
 .macro HAL_BBUF_DEFINE name, size
     .section .bss
     \name:
@@ -18,9 +19,12 @@
         .byte 0                 ; Tail
         .byte 0                 ; Mask
         .space \size            ; Data storage
-    .set \name\()_SIZE, \size   ; Assembler constant
+    .set \name\()_SIZE, \size   ; Assembler constant for size
 .endm
 
+; Macro: HAL_BBUF_INITIALIZE
+; Description: Prepares a ring buffer for use (calculates mask).
+; Input: name - Name of the buffer defined with HAL_BBUF_DEFINE.
 .macro HAL_BBUF_INITIALIZE name
     ldi   XL, lo8( \name )
     ldi   XH, hi8( \name )
@@ -28,154 +32,170 @@
     rcall HAL_BBUF_INIT
 .endm
 
-; Input: r18: size (power of 2), X (r27:r26) points to the Buffer Structure
+; Function: HAL_BBUF_INIT
+; Description: Initializes the buffer metadata.
+; Input:  X (r27:r26) - Points to Buffer Structure.
+;         r18 - Buffer size (MUST be power of 2).
 DEFUN HAL_BBUF_INIT
   HAL_BBUF_INIT:
-    st    X+, __zero_reg__
-    st    X+, __zero_reg__
-    dec   r18
-    st    X, r18
-    sbiw  X, 2              ; restore X pointer and
-    inc   r18               ;  r18 input values
+    st    X+, __zero_reg__  ; Reset Head
+    st    X+, __zero_reg__  ; Reset Tail
+    dec   r18               ; Create Mask (Size - 1)
+    st    X, r18            ; Store Mask
+    sbiw  X, 2              ; Restore X to point to Head
+    inc   r18               ; Restore r18 input value
   ret
 ENDF HAL_BBUF_INIT
 
-; Input: X (r27:r26) points to the Buffer Structure
-; Return: r18: 1 if empty, otherwise 0
+; Function: HAL_BBUF_IS_EMPTY
+; Description: Checks if the buffer has no data.
+; Input:  X - Points to Buffer Structure.
+; Return: r18 - 1 if Empty, 0 otherwise.
 DEFUN HAL_BBUF_IS_EMPTY
   HAL_BBUF_IS_EMPTY:
-  PUSH_MANY r16, r17
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X          ; r17 = Tail
-    sbiw    X, 1            ; Return X intact
-    ldi     r18, 1          ; r18: 1 Empty
-    cp      r16, r17        ; Check if Empty
-    breq    1f              ; if not
-    ldi     r18, 0          ; r18: 0 !empty
+  PUSH r19
+    ld      r18, X+         ; r18 = Head
+    ld      r19, X          ; r19 = Tail
+    sbiw    X, 1            ; Restore X
+    cp      r18, r19        ; Compare Head and Tail
+    ldi     r18, 1          ; Assume Empty
+    breq    1f
+    ldi     r18, 0          ; Not Empty
   1:
-  POP_MANY r17, r16
+  POP r19
   ret
 ENDF HAL_BBUF_IS_EMPTY
 
-; Input: X (r27:r26) points to the Buffer Structure
-; Return: r18: 1 if full, otherwise 0
+; Function: HAL_BBUF_IS_FULL
+; Description: Checks if the buffer is at capacity.
+; Input:  X - Points to Buffer Structure.
+; Return: r18 - 1 if Full, 0 otherwise.
 DEFUN HAL_BBUF_IS_FULL
   HAL_BBUF_IS_FULL:
-  PUSH_MANY r16, r17
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X+         ; r17 = Tail
-    ld      r18, X          ; r18 = MASK
-    sbiw    X, 2            ; Return X intact
-
-    inc     r16             ; Inc Head
-    and     r16, r18        ; Wrap using the stored mask
-    ldi     r18, 1          ; r18= 1
-    cp      r16, r17        ; If Full
-    breq    1f              ;   exit, r18: 1 full
-    ldi     r18, 0          ;   else, r18: 0 !full
+  PUSH_MANY r19, r20
+    ld      r18, X+         ; r18 = Head
+    ld      r19, X+         ; r19 = Tail
+    ld      r20, X          ; r20 = Mask
+    sbiw    X, 2            ; Restore X
+    inc     r18             ; Next Head
+    and     r18, r20        ; Wrap
+    cp      r18, r19        ; Compare with Tail
+    ldi     r18, 1          ; Assume Full
+    breq    1f
+    ldi     r18, 0          ; Not Full
   1:
-  POP_MANY r17, r16
+  POP_MANY r20, r19
   ret
 ENDF HAL_BBUF_IS_FULL
 
-; Input: X (r27:r26) points to the Buffer Structure
-; Return: r18: size in use
+; Function: HAL_BBUF_IN_USE
+; Description: Calculates how many bytes are currently in the buffer.
+; Input:  X - Points to Buffer Structure.
+; Return: r18 - Number of bytes used.
 DEFUN HAL_BBUF_IN_USE
   HAL_BBUF_IN_USE:
-  PUSH_MANY r16, r17
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X+         ; r17 = Tail
-    ld      r18, X          ; r18 = MASK
-    sbiw    X, 2            ; Return X intact
-
-    sub     r16, r17
-    and     r16, r18
-    mov     r18, r16
-  POP_MANY r17, r16
+  PUSH_MANY r19, r20
+    ld      r18, X+         ; r18 = Head
+    ld      r19, X+         ; r19 = Tail
+    ld      r20, X          ; r20 = Mask
+    sbiw    X, 2            ; Restore X
+    sub     r18, r19        ; Diff = Head - Tail
+    and     r18, r20        ; Apply Mask for wrap-around
+  POP_MANY r20, r19
   ret
 ENDF HAL_BBUF_IN_USE
 
-; Input:  X points to SRAM Buffer, Z points to FLASH .asciz string
-; Output: r18 = 0 (Success), 1 (Full)
-DEFUN HAL_BBUF_PUSH_FROM_Z
-HAL_BBUF_PUSH_FROM_Z:
-  PUSH_MANY  r22
-    ldi     r18, 0
-  0:
-    lpm     r22, Z+
-    tst     r22
-    breq    1f                ; All done, exit
-
-    rcall   HAL_BBUF_PUSH     ; Add byte to buffer
-    tst     r18
-    breq    0b
-  1:
-  POP_MANY  r22
-  ret
-ENDF HAL_BBUF_PUSH_FROM_Z
-
-; Input:  X points to Buffer, r22 = Value
-; Output: r18 = 0 (Success), 1 (Full)
+; Function: HAL_BBUF_PUSH
+; Description: Adds a single byte to the buffer.
+; Input:  X - Points to Buffer Structure.
+;         r22 - Value to store.
+; Output: r18 - 0 (Success), 1 (Full).
 DEFUN HAL_BBUF_PUSH
 HAL_BBUF_PUSH:
-    PUSH_MANY r16, r17, r19, XL, XH
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X+         ; r17 = Tail
-    ld      r18, X          ; r18 = MASK
+  PUSH_MANY r19, r20, r21, XL, XH        ; Preserve X for the caller
+    ld      r18, X+         ; r18 = Current Head
+    ld      r19, X+         ; r19 = Tail
+    ld      r20, X          ; r20 = Mask
 
-    mov     r19, r16        ; Check if full
-    inc     r19
-    and     r19, r18        ; Wrap using the stored mask
-    cp      r19, r17
-    breq    1f              ; 1f = Full
+    mov     r21, r18        ; Calculate New Head
+    inc     r21
+    and     r21, r20
+    cp      r21, r19        ; Is it Full?
+    breq    .L_bbuf_full
 
-    ; Calculate Data Address: (X + 3) + Head
-    sbiw     X, 2           ; Go X back -2pos, from MASK to Head
-    st       X, r19         ; Update Head
-    adiw     X, 3           ; Go X forward +3pos, from Head to DATA
-    add     XL, r16         ; Add Head offset
+    sbiw    X, 2            ; Back to Head offset
+    st      X, r21          ; Update Head with new value
+    adiw    X, 3            ; Move to Data start
+    add     XL, r18         ; Offset to Data[Head]
     adc     XH, __zero_reg__
-    st       X, r22         ; Store data
+    st      X, r22          ; Write data
 
-    ldi     r18, 0          ; Success
-    rjmp    2f
-  1:
-    ldi     r18, 1          ; Full
-  2:
-  POP_MANY XH, XL, r19, r17, r16
+    ldi     r18, 0          ; Return Success
+    rjmp    .L_bbuf_push_done
+
+  .L_bbuf_full:
+    ldi     r18, 1          ; Return Full
+
+  .L_bbuf_push_done:
+  POP_MANY XH, XL, r21, r20, r19
   ret
 ENDF HAL_BBUF_PUSH
 
-; Input: X points to Buffer
-; Output: r22 = Value, r18 = 0 (Success), 1 (Empty)
+; Function: HAL_BBUF_PULL
+; Description: Removes a single byte from the buffer.
+; Input:  X - Points to Buffer Structure.
+; Output: r22 - Value retrieved.
+;         r18 - 0 (Success), 1 (Empty).
 DEFUN HAL_BBUF_PULL
   HAL_BBUF_PULL:
-  PUSH_MANY r16, r17, r19, XL, XH
-    ld      r16, X+         ; r16 = Head
-    ld      r17, X+         ; r17 = Tail
-    ld      r18, X          ; r18 = MASK
+  PUSH_MANY r19, r20, r21, XL, XH        ; Preserve X for the caller
+    ld      r18, X+         ; r18 = Head
+    ld      r19, X+         ; r19 = Tail
+    ld      r20, X          ; r20 = Mask
 
-    cp      r16, r17        ; Check if Empty
-    breq    1f
+    cp      r18, r19        ; Is it Empty?
+    breq    .L_bbuf_empty
 
-    mov     r19, r17
-    inc     r19             ; Update Tail
-    and     r19, r18        ; Wrap using dynamic mask
-    sbiw     X, 1           ; Go X back -1pos, from MASK to Tail
-    st       X, r19         ; Update Tail
+    mov     r21, r19        ; Calculate New Tail
+    inc     r21
+    and     r21, r20
+    sbiw    X, 1            ; Back to Tail offset
+    st      X, r21          ; Update Tail with new value
 
-    ; Calculate Data Address: (X + 3) + Tail
-    adiw     X, 2           ; Move X pointer from Tail to DATA
-    add     XL, r17         ; Add Tail offset
+    adiw    X, 2            ; Move to Data start
+    add     XL, r19         ; Offset to Data[Tail]
     adc     XH, __zero_reg__
-    ld      r22, X          ; Pull byte
+    ld      r22, X          ; Read data
 
-    ldi     r18, 0          ; Success
-    rjmp    2f
+    ldi     r18, 0          ; Return Success
+    rjmp    .L_bbuf_pull_done
 
-  1:
-    ldi     r18, 1          ; Empty
-  2:
-  POP_MANY XH, XL, r19, r17, r16
+  .L_bbuf_empty:
+    ldi     r18, 1          ; Return Empty
+
+  .L_bbuf_pull_done:
+  POP_MANY XH, XL, r21, r20, r19
   ret
 ENDF HAL_BBUF_PULL
+
+; Function: HAL_BBUF_PUSH_FROM_Z
+; Description: Pushes a null-terminated string from Flash into the buffer.
+; Input:  X - Points to Buffer Structure.
+;         Z - Points to Flash string (.asciz).
+; Output: r18 - 0 (Success), 1 (Full).
+DEFUN HAL_BBUF_PUSH_FROM_Z
+HAL_BBUF_PUSH_FROM_Z:
+  PUSH_MANY  r22
+  .L_push_loop:
+    lpm     r22, Z+
+    tst     r22
+    breq    .L_push_done    ; Found null terminator
+
+    rcall   HAL_BBUF_PUSH
+    tst     r18
+    breq    .L_push_loop    ; Continue if push succeeded
+    ; If full, r18 is already 1
+  .L_push_done:
+  POP_MANY  r22
+  ret
+ENDF HAL_BBUF_PUSH_FROM_Z

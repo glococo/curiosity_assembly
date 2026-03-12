@@ -98,6 +98,11 @@ This project is licensed under the **GNU General Public License v3.0**. See the 
 
 ## Author's Note
 
-AVR was my first MCU family, and returning to it after years of ARM development has been a joy. The modern AVR-Dx and AVR-Ex series introduce impressive features like a unified memory map, UPDI, Event System (EVSYS), and Configurable Custom Logic (CCL). This project was born from a desire to create a high-performance assembly boilerplate that leverages these modern features while maintaining the simplicity and beauty of 8-bit assembly.
+AVR was the family that started it all for me. Returning to it after years of development on other platforms has been a total joy.
 
-This HAL was made with ❤️  for the AVR community.
+The modern AVR-Dx and AVR-Ex series introduce a powerhouse of features: a Unified Memory Map, UPDI, the Event System (EVSYS), and Configurable Custom Logic (CCL). Combined with Multi-Voltage I/O (MVIO), Atomic Port manipulation, crystal-less USB, and revamped peripherals (USART, ADC, and Timers), this architecture is a massive leap forward.
+
+This project was born from a desire to create a high-performance Assembly boilerplate that leverages these modern features while capturing the elegant simplicity of writing in Assembly.
+
+This HAL was made with ❤️ for the AVR community.
+

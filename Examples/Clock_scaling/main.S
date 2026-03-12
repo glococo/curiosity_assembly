@@ -29,7 +29,7 @@ DEFUN main                    ; ✅ Main Program
   loop:
     rcall   HAL_CORE_PRESCALER    ; Apply new clock divisor
     rcall   HAL_USART_BAUDRATE_UPD ; Re-calculate baud rate based on new clock
-    rcall   my_toggle_function    ; Push message and toggle LED
+    rcall   a_toggle_function    ; Push message and toggle LED
     rcall   HAL_USART_X_SEND      ; Drain the ring buffer
     HAL_DELAY_MS 1000             ; Delay 1 second (stays accurate due to HAL scaling)
 
