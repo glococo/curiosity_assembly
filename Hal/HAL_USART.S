@@ -16,8 +16,8 @@ DEFUN HAL_USART_BAUDRATE_UPD
     ; Load Divisor BaudRate into r21:r18
     ldi     r18, lo8( USART_BAUD_RATE )
     ldi     r19, hi8( USART_BAUD_RATE )
-    ldi     r20, 0
-    ldi     r21, 0
+    ldi     r20, hlo8( USART_BAUD_RATE )
+    ldi     r21, hhi8( USART_BAUD_RATE )
     rcall   MATH_UDIV_32_32                       ; r25:r22 = r25:r22 / r21:r18
     sts     _(USART,_BAUDL), r22
     sts     _(USART,_BAUDH), r23

@@ -12,10 +12,9 @@ To ensure high performance and seamless integration between HAL modules and user
 
 ### Pointer Registers
 AVR has three 16-bit pointer pairs:
-- **X (r27:r26)**: Primary pointer for **SRAM Buffer** access (e.g., Ring Buffers, Structures).
-- **Y (r29:r28)**: **Callee-saved**. Typically used as a Frame Pointer or for local variables.
-  - **Contract**: If you use Y, you **must** push it at the start and pop it at the end of your function.
-- **Z (r31:r30)**: Primary pointer for **Program Memory** (LPM) and Indirect Jumps (`ijmp`).
+- **X (r27:r26)**: **Callee-saved** Primary pointer for **SRAM Buffer** access (e.g., Ring Buffers, Structures).
+- **Y (r29:r28)**: **Callee-saved** Typically used as a Frame Pointer or for local variables.
+- **Z (r31:r30)**: **Callee-saved** Primary pointer for **Program Memory** (LPM) and Indirect Jumps (`ijmp`).
 
 ### Function Arguments & Return Values
 Arguments are passed in registers starting from `r25` down to `r22`.
@@ -25,8 +24,8 @@ Arguments are passed in registers starting from `r25` down to `r22`.
 - **Return Values**: Follow the same register mapping as arguments.
 
 ### Volatile vs. Callee-Saved
-- **Volatile (r16 - r25, r26 - r27, r30 - r31)**: May be modified by the called function. The caller must save them if needed.
-- **Callee-Saved (r2 - r14, r28 - r29)**: The called function **must** preserve these. If a function uses them, it must PUSH/POP them.
+- **Volatile**: There are no Volatile registers right now
+- **Callee-Saved (r2 - r14, r16 - r31)**: The called function **must** preserve all the register it uses, it must PUSH/POP them
 
 ## 2. Macro Naming & Local Labels
 

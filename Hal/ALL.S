@@ -5,8 +5,7 @@
 #include "HAL_BYTE_BUFFER.S"
 #include "HAL_Delay.S"
 #include "HAL_RTC.S"
-; #include "HAL_Print.S"
+#include "HAL_PRINT.S"
 
 #include "HAL_CORE.S"
 #include "HAL_USART.S"
-#include "HAL_USART_PRINT.S"

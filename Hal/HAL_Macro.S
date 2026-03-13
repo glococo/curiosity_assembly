@@ -1,6 +1,10 @@
 #define __zero_reg__        r15
+
 #define GLUE(a, b)          a##b
 #define _(p, r)             GLUE(p, r)
+
+#define DEF_TO_STR(x) #x
+#define STRINGIFY(x) DEF_TO_STR(x)
 
 .macro DEFUN name
   .section .text.\name, "ax", @progbits
