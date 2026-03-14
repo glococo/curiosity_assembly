@@ -12,27 +12,27 @@
 ;******************************************************************************
 ;* @macro INC_32_REG
 ;* @brief 32-bit addition/increment using registers
-;* @param @0 Target Register LSB (e.g., 22 for r22)
-;* @param @1 Value Register (The amount to add, e.g., r18)
+;* @param \0 Target Register LSB (e.g., 22 for r22)
+;* @param \1 Value Register (The amount to add, e.g., r18)
 ;******************************************************************************
 .macro INC_32_REG
-    add     @0,   @1
-    adc     @0+1, __zero_reg__
-    adc     @0+2, __zero_reg__
-    adc     @0+3, __zero_reg__
+    add     \0,   \1
+    adc     \0+1, __zero_reg__
+    adc     \0+2, __zero_reg__
+    adc     \0+3, __zero_reg__
 .endm
 
 ;******************************************************************************
 ;* @macro DEC_32_REG
 ;* @brief 32-bit substract/decrement using registers
-;* @param @0 Target Register LSB (e.g., 22 for r22)
-;* @param @1 Value Register (The amount to substract, e.g., r18)
+;* @param \0 Target Register LSB (e.g., 22 for r22)
+;* @param \1 Value Register (The amount to substract, e.g., r18)
 ;******************************************************************************
 .macro DEC_32_REG
-    sub     @0,   @1
-    sbc     @0+1, __zero_reg__
-    sbc     @0+2, __zero_reg__
-    sbc     @0+3, __zero_reg__
+    sub     \0,   \1
+    sbc     \0+1, __zero_reg__
+    sbc     \0+2, __zero_reg__
+    sbc     \0+3, __zero_reg__
 .endm
 
 ; MATH_LSL_16           ; r23:r22 = r23:r22 << r18 - Logical Shift Left - Result = Input << Count

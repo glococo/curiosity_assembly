@@ -9,17 +9,18 @@
 ; [Offset 1] Tail (Read index)
 ; [Offset 2] Mask (Size - 1)
 ; [Offset 3] Data... (Size bytes)
+;
 
 ; Macro: HAL_BBUF_DEFINE
 ; Description: Allocates SRAM space for a ring buffer.
 .macro HAL_BBUF_DEFINE name, size
     .section .bss
     \name:
-        .byte 0                 ; Head
-        .byte 0                 ; Tail
-        .byte 0                 ; Mask
-        .space \size            ; Data storage
-    .set \name\()_SIZE, \size   ; Assembler constant for size
+        .byte 0                   ; Head
+        .byte 0                   ; Tail
+        .byte 0                   ; Mask
+        .space (\size-1)          ; Data storage
+    .set \name\()_SIZE, (\size-1) ; Assembler constant for size
 .endm
 
 ; Macro: HAL_BBUF_INITIALIZE
@@ -40,10 +41,10 @@ DEFUN HAL_BBUF_INIT
   HAL_BBUF_INIT:
     st    X+, __zero_reg__  ; Reset Head
     st    X+, __zero_reg__  ; Reset Tail
-    dec   r18               ; Create Mask (Size - 1)
+;    dec   r18               ; Create Mask (Size - 1)
     st    X, r18            ; Store Mask
     sbiw  X, 2              ; Restore X to point to Head
-    inc   r18               ; Restore r18 input value
+;    inc   r18               ; Restore r18 input value
   ret
 ENDF HAL_BBUF_INIT
 

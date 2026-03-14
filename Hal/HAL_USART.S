@@ -5,10 +5,10 @@ DEFUN HAL_USART_BAUDRATE_UPD
     ; Optimized short function ( fClock << 3 ) / BaudRate
 
     ; Load dividend ( fClock in mhz << 2 ) into r25:r22
-    ldi     r22,  lo8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
-    ldi     r23,  hi8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
-    ldi     r24, hlo8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
-    ldi     r25, hhi8( (CLOCK_INT_KHZ * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r22,  lo8( (BOARD_CLOCK_MAIN * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r23,  hi8( (BOARD_CLOCK_MAIN * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r24, hlo8( (BOARD_CLOCK_MAIN * 1000) << (2+USART_DOUBLE_SPEED) )
+    ldi     r25, hhi8( (BOARD_CLOCK_MAIN * 1000) << (2+USART_DOUBLE_SPEED) )
     ; MATH_LSR_32           ; r25:r22 = r25:r22 << r18
     lds     r18, HAL_CORE_DIVISOR
     rcall   MATH_LSR_32

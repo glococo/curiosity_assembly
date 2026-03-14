@@ -1,13 +1,28 @@
 #define   HAL_PRINT_FROM_Z    HAL_BBUF_PUSH_FROM_Z
 #define   HAL_PRINT_A_CHAR    HAL_BBUF_PUSH
 
-; Push "\r\n" into X-Byte-Buffer
+.macro PRINT_STR str:vararg
+    .pushsection .progmem.rodata
+    .L_str_\@: .asciz \str
+    .popsection
+    ldi     ZL, lo8(.L_str_\@)
+    ldi     ZH, hi8(.L_str_\@)
+    rcall   HAL_PRINT_FROM_Z
+.endm
+
+.macro PRINT_STR_Z ascii_str
+    ldi     ZL, lo8( \ascii_str )
+    ldi     ZH, hi8( \ascii_str )
+    rcall   HAL_PRINT_FROM_Z
+.endm
+
+; Push "\r\n" to X-BufferT
 DEFUN HAL_PRINT_NEW_LINE
   HAL_PRINT_NEW_LINE:
   PUSH r22
-    ldi   r22, '\r'
-    rcall HAL_PRINT_A_CHAR
     ldi   r22, '\n'
+    rcall HAL_PRINT_A_CHAR
+    ldi   r22, '\r'
     rcall HAL_PRINT_A_CHAR
   POP r22
   ret
@@ -17,7 +32,6 @@ ENDF HAL_PRINT_NEW_LINE
 ; Register-Based Decimal Printing (Unsigned)
 ; ==============================================================================
 ; Inputs: Value in r25:18 (64-bits), r25:r22 (32-bit), r23:r22 (16-bit), r22 (8-bit)
-;         X points to the Buffer structure (preserved).
 ; Callee-Saved: All used Registers preserved
 
 DEFUN HAL_PRINT_UINT8_REG
@@ -27,7 +41,7 @@ DEFUN HAL_PRINT_UINT8_REG
   1:
     ldi   r18, 10
     rcall MATH_UDIV_08_08       ; r22 /= 10, rem in r18
-    subi  r18, 0xD0
+    subi  r18, -'0'
     push  r18
     inc   r14
     tst   r22
@@ -49,11 +63,11 @@ DEFUN HAL_PRINT_UINT16_REG
     ldi   r18, 10
     clr   r19
     rcall MATH_UDIV_16_16       ; r23:r22 /= 10, rem in r18
-    subi  r18, 0xD0   ; -'0'
+    subi  r18, -'0'
     push  r18
     inc   r14
     mov   r16, r22
-    or r16, r23
+    or    r16, r23
     brne  1b
   2:                            ; Print loop (MSD first)
     pop   r22

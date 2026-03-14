@@ -5,8 +5,8 @@ To ensure high performance and seamless integration between HAL modules and user
 ## 1. Register Usage (The Social Contract)
 
 ### Specialized Registers
-- **`__zero_reg__` (r15)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r15`).
-  - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r15`.
+- **`__zero_reg__` (r2)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
+  - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r2`.
 - **Scratch Registers (r0, r1)**: Volatile scratch registers.
   - **Contract**: Can be modified by any function (and are modified by `mul`). Do not expect them to persist across calls.
 
@@ -25,13 +25,13 @@ Arguments are passed in registers starting from `r25` down to `r22`.
 
 ### Volatile vs. Callee-Saved
 - **Volatile**: There are no Volatile registers right now
-- **Callee-Saved (r2 - r14, r16 - r31)**: The called function **must** preserve all the register it uses, it must PUSH/POP them
+- **Callee-Saved (r3 - r31)**: The called function **must** preserve all the register it uses, it must PUSH/POP them
 
 ## 2. Macro Naming & Local Labels
 
 ### Namespace Discipline
 Every HAL macro must start with the peripheral name to prevent "Namespace Pollution":
-- `HAL_GPIO_`, `HAL_UART_`, `HAL_RTC_`, `MATH_`.
+- `HAL_GPIO_`, `HAL_USART_`, `HAL_RTC_`, `MATH_`.
 
 ### Local Labels (Avoiding "Duplicate Label" Errors)
 1. **Numeric Labels (1f/1b)**: The preferred way. Use single digits (0–9).

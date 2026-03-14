@@ -84,8 +84,8 @@ To maintain high performance and consistency, this framework follows a specific 
 
 ### Register Conventions
 
-- **`__zero_reg__` (r15)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows.
-  - **Contract**: Initialized by the HAL. Never write to `r15`.
+- **`__zero_reg__` (r2)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows.
+  - **Contract**: Initialized by the HAL. Never write to `r2`.
 - **`r16` to `r21` (Volatile)**: Caller-saved registers. Used for temporary storage and additional function arguments.
 - **`r22` to r25 (Primary Work)**: Standard registers for passing 8-bit, 16-bit, and 32-bit arguments and return values.
 - **`X` (r27:r26)**: Primary pointer for RAM indexing (Buffers and Structures).

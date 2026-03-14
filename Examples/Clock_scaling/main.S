@@ -9,12 +9,12 @@ HAL_BBUF_DEFINE   HAL_USART_BUFFER_TX, 128
 
 #include "toggle.S"
 
-DEFUN main                    ; ✅ Main Program
+DEFUN main                          ; ✅ Main Program
   main:
-    clr     TOGGLE_REG            ; Initialize state register (default: Hello World)
-    rcall   HAL_BOARD_SETUP       ; Hardware setup: Button int and USART config
+    clr     TOGGLE_REG              ; Initialize state register (default: Hello World)
+    rcall   HAL_BOARD_SETUP         ; Hardware setup: Button int and USART config
     HAL_BBUF_INITIALIZE HAL_USART_BUFFER_TX ; Initialize the USART ring buffer
-    sei                           ; Enable interrupts
+    sei                             ; Enable interrupts
 
     ; HAL_CORE_PRESCALER input (r18):
     ; 0: /1 (PEN=0, PDIV=0)
@@ -41,15 +41,15 @@ DEFUN main                    ; ✅ Main Program
 
 ENDF main
 
-DEFUN _(BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
-  _(BUTTON_PORT,_PORT_vect):      ; Toggles the message state for the next cycle
+DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)             ; ✅ Button Interrupt
+  _(BOARD_BUTTON_PORT,_PORT_vect):                ; Toggles the message state for the next cycle
   ISR_START r18
 
-    ldi     r18, 1                ; Toggle state bit in TOGGLE_REG
+    ldi     r18, 1                                ; Toggle state bit in TOGGLE_REG
     eor     TOGGLE_REG, r18
 
-    ldi     r18, BUTTON_PIN       ; Clear the button interrupt flag
-    sts     _(BUTTON_PORT,_INTFLAGS), r18
+    ldi     r18, BOARD_BUTTON_PIN                 ; Clear the button interrupt flag
+    sts     _(BOARD_BUTTON_PORT,_INTFLAGS), r18
 
   ISR_END r18
-ENDF _(BUTTON_PORT,_PORT_vect)
+ENDF _(BOARD_BUTTON_PORT,_PORT_vect)

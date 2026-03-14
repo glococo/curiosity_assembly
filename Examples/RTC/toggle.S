@@ -28,8 +28,8 @@ DEFUN a_toggle_function
     ; Z (r31:r30) = Flash pointer to string
     rcall   HAL_USART_Z_SEND            ; Send the string until the null terminator
 
-    ldi     r19, LED_PIN                ; Toggle the BOARD LED
-    sts     _(LED_PORT,_OUTTGL), r19
+    ldi     r19, BOARD_LED_PIN          ; Toggle the BOARD_LED_PIN
+    sts     _(BOARD_LED_PORT,_OUTTGL), r19
   POP_MANY r31, r30, r19, r18
   ret
 ENDF a_toggle_function

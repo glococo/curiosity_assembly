@@ -29,8 +29,8 @@ DEFUN a_toggle_function
     ; X (r27:r26) = SRAM pointer to Ring Buffer
     rcall   HAL_BBUF_PUSH_FROM_Z            ; Returns r18 -> 0:success | 1:full
 
-    ldi     r19, LED_PIN                    ; Toggle the BOARD LED
-    sts     _(LED_PORT,_OUTTGL), r19
+    ldi     r19, BOARD_LED_PIN              ; Toggle the BOARD_LED_PIN
+    sts     _(BOARD_LED_PORT,_OUTTGL), r19
   POP_MANY r31, r30, r19, r18
   ret
 ENDF a_toggle_function

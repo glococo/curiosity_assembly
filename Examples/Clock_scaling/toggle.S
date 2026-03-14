@@ -27,7 +27,7 @@ DEFUN a_toggle_function
     ldi     r31, hi8( HELLO )
 
   1:
-    ; No need to redefine USAR BUFFER in X pointer since we haven't overwrited it
+    ; No need to redefine USAR BUFFER in X pointer since we haven't overwritten it
     ; ldi   XL, lo8( HAL_USART_BUFFER_TX )
     ; ldi   XH, hi8( HAL_USART_BUFFER_TX )
 
@@ -64,8 +64,8 @@ DEFUN a_toggle_function
     rcall   HAL_PRINT_NEW_LINE
 
   blink:
-    ldi     r18, LED_PIN                    ; Toggle the BOARD LED
-    sts     _(LED_PORT,_OUTTGL), r18
+    ldi     r18, BOARD_LED_PIN                    ; Toggle the BOARD_LED_PIN
+    sts     _(BOARD_LED_PORT,_OUTTGL), r18
   POP_MANY r31, r30, r22, r19, r18
   ret
 ENDF a_toggle_function

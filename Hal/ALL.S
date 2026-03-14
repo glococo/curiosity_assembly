@@ -1,9 +1,9 @@
-#include "HAL_Macro.S"
+#include "HAL_MACRO.S"
 #include "MATH_MUL.S"
 #include "MATH_DIV.S"
 #include "MATH_SHIFTS.S"
 #include "HAL_BYTE_BUFFER.S"
-#include "HAL_Delay.S"
+#include "HAL_DELAY.S"
 #include "HAL_RTC.S"
 #include "HAL_PRINT.S"
 

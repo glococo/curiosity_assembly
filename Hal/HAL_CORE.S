@@ -20,8 +20,8 @@ DEFUN HAL_CORE_PRESCALER
     sts     CLKCTRL_MCLKCTRLB, r18
 
   update_one_ms:
-    ldi     r22, lo8( CLOCK_INT_KHZ/4 )
-    ldi     r23, hi8( CLOCK_INT_KHZ/4 )
+    ldi     r22, lo8( BOARD_CLOCK_MAIN/4 )
+    ldi     r23, hi8( BOARD_CLOCK_MAIN/4 )
     lds     r18, HAL_CORE_DIVISOR
     rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18 - Logical Shift Right - Result = Input >> Count
     sts     HAL_ONE_MS, r22

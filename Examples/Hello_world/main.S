@@ -19,15 +19,15 @@ DEFUN main                        ; ✅ Main Program
 
 ENDF main
 
-DEFUN _(BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
-  _(BUTTON_PORT,_PORT_vect):      ; Toggles the message state on every press
+DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)           ; ✅ Button Interrupt
+  _(BOARD_BUTTON_PORT,_PORT_vect):              ; Toggles the message state on every press
   ISR_START r18
 
-    ldi     r18, 1                ; Toggle state bit in TOGGLE_REG
+    ldi     r18, 1                              ; Toggle state bit in TOGGLE_REG
     eor     TOGGLE_REG, r18
 
-    ldi     r18, BUTTON_PIN       ; Clear the button interrupt flag
-    sts     _(BUTTON_PORT,_INTFLAGS), r18
+    ldi     r18, BOARD_BUTTON_PIN               ; Clear the button interrupt flag
+    sts     _(BOARD_BUTTON_PORT,_INTFLAGS), r18
 
   ISR_END r18
-ENDF _(BUTTON_PORT,_PORT_vect)
+ENDF _(BOARD_BUTTON_PORT,_PORT_vect)

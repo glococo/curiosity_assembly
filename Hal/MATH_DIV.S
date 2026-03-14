@@ -199,8 +199,8 @@ DEFUN MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
     dec     r20             ;decrement counter
     brne    d16_16u_2       ;if done
     movw    r18, r24        ;(move remainder to divisor)
-    POP_MANY r25, r24, r20
-    ret                     ;    return
+  POP_MANY r25, r24, r20
+  ret                       ;    return
   d16_16u_2:
     rol     r24             ;shift dividend into remainder
     rol     r25
