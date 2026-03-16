@@ -14,6 +14,7 @@
 #define BOARD_BUTTON_PORT     PORTF
 
 ; USART Config
+#define USART0_ADDR           USART0_RXDATAL
 #define USART                 USART0
 #define USART_TX              PIN1_bm
 #define USART_RX              PIN2_bm
@@ -23,8 +24,7 @@
 
 #include "../Hal/ALL.S"
 
-DEFUN HAL_BOARD_SETUP
-  HAL_BOARD_SETUP:
+FUNC HAL_BOARD_SETUP
     ; HAL SPEED AWARENESS
     ldi     r18, 0
     rcall   HAL_CORE_PRESCALER
@@ -36,7 +36,7 @@ DEFUN HAL_BOARD_SETUP
     ldi     r18, PORTMUX_USART0_2_bm                      ; 0x04 USART ALT4 func
     sts     PORTMUX_USARTROUTEA, r18                      ;
     ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
-    sts     USART0_CTRLB, r18                             ;
+    sts     _(USART,_CTRLB), r18                          ;
 
     ; PIN LED CONFIG
     ldi     r18, BOARD_LED_PIN                            ; Enable BOARD_LED_PIN output

@@ -47,7 +47,6 @@
 ; MATH_ASR_32           ; r25:r22 = r25:r22 >> r18 (Sign extended)
 
 DEFUN MATH_LSL_16       ; r23:r22 << r18
-  MATH_LSL_16:
     tst     r18
     breq    exit_lsl_16
   loop_lsl_16:
@@ -59,7 +58,6 @@ DEFUN MATH_LSL_16       ; r23:r22 << r18
     ret
 ENDF MATH_LSL_16
 DEFUN MATH_LSL_24       ; r24:r22 << r18
-  MATH_LSL_24:
     tst     r18
     breq    exit_lsl_24
   loop_lsl_24:
@@ -72,7 +70,6 @@ DEFUN MATH_LSL_24       ; r24:r22 << r18
     ret
 ENDF MATH_LSL_24
 DEFUN MATH_LSL_32       ; r25:r22 << r18
-  MATH_LSL_32:
     tst     r18
     breq    exit_lsl_32
   loop_lsl_32:
@@ -86,7 +83,6 @@ DEFUN MATH_LSL_32       ; r25:r22 << r18
     ret
 ENDF MATH_LSL_32
 DEFUN MATH_LSR_16       ; r23:r22 >> r18
-  MATH_LSR_16:
     tst     r18
     breq    exit_lsr_16
   loop_lsr_16:
@@ -98,7 +94,6 @@ DEFUN MATH_LSR_16       ; r23:r22 >> r18
     ret
 ENDF MATH_LSR_16
 DEFUN MATH_LSR_24       ; r24:r22 >> r18
-  MATH_LSR_24:
     tst     r18
     breq    exit_lsr_24
   loop_lsr_24:
@@ -111,7 +106,6 @@ DEFUN MATH_LSR_24       ; r24:r22 >> r18
     ret
 ENDF MATH_LSR_24
 DEFUN MATH_LSR_32       ; r25:r22 >> r18
-  MATH_LSR_32:
     tst     r18
     breq    exit_lsr_32
   loop_lsr_32:
@@ -126,7 +120,6 @@ DEFUN MATH_LSR_32       ; r25:r22 >> r18
 ENDF MATH_LSR_32
 
 DEFUN MATH_ASR_16       ; r23:r22 >> r18
-  MATH_ASR_16:
     tst     r18
     breq    exit_asr_16
   loop_asr_16:
@@ -138,7 +131,6 @@ DEFUN MATH_ASR_16       ; r23:r22 >> r18
     ret
 ENDF MATH_ASR_16
 DEFUN MATH_ASR_24       ; r24:r22 >> r18
-  MATH_ASR_24:
     tst     r18
     breq    exit_asr_24
   loop_asr_24:
@@ -151,7 +143,6 @@ DEFUN MATH_ASR_24       ; r24:r22 >> r18
     ret
 ENDF MATH_ASR_24
 DEFUN MATH_ASR_32       ; r25:r22 >> r18
-  MATH_ASR_32:
     tst     r18
     breq    exit_asr_32
   loop_asr_32:

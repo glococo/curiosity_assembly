@@ -15,7 +15,6 @@ BAUDCLK:    .asciz "Auto-configured Baudrate clock: "
 ; Description: Reports the current clock divisor index and a chosen string
 ;              (HELLO/HOLA) to the ring buffer, then toggles the LED.
 DEFUN a_toggle_function
-  a_toggle_function:
   PUSH_MANY r18, r19, r22, r30, r31
     tst     TOGGLE_REG                      ; Check the toggle state bit
     breq    0f                              ; If 0, use HELLO

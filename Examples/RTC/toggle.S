@@ -12,7 +12,6 @@ HOLA:       .asciz "Hola Mundo!\r\n"
 ;              sends it directly over USART (from Flash),
 ;              and toggles the BOARD LED.
 DEFUN a_toggle_function
-  a_toggle_function:
   PUSH_MANY r18, r19, r30, r31
     tst     TOGGLE_REG                  ; Check the toggle state bit
     breq    1f                          ; If 0, use HELLO

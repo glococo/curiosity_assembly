@@ -9,7 +9,6 @@ STR_START:      .asciz "    AVR-DEV Math Library Test Suite"
 STR_HLINE:      .asciz "\r\n----------------------------------------\r\n"
 
 DEFUN main
-  main:
     rcall   HAL_BOARD_SETUP
     HAL_BBUF_INITIALIZE HAL_USART_BUFFER_TX       ; Initialize the USART ring buffer
 

@@ -5,7 +5,6 @@ HAL_CORE_DIVISOR:               .byte 0
 ; Receives a new clock divisor (DS40002522A p102) in r16, 0: PEN=0 (prescaler
 ; disabled, div /1), 1: PEN=1, PDIV=0 (div /2), 2: PEN=1, PDIV=1 (div /4), ...
 DEFUN HAL_CORE_PRESCALER
-  HAL_CORE_PRESCALER:
   PUSH_MANY r18, r22, r23
     sts     HAL_CORE_DIVISOR, r18           ; Make sure r18 is never higher than 6 (/64 div)
     tst     r18

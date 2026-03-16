@@ -10,7 +10,7 @@ A lightweight Hardware Abstraction Layer (HAL) and mathematical library for mode
   - `HAL_USART.S`: USART configuration and baud rate calculations.
   - `HAL_BYTE_BUFFER.S`: High-performance power-of-two Byte Ring Buffer.
   - `HAL_Delay.S`: Cycle-accurate software delays aware of dynamic CPU frequency.
-  - `HAL_RTC.S`: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) support.
+  - `HAL_RTC.S`: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) support with sync-safe helpers and ready-to-use 1 s / 3 s presets.
   - `MATH_*.S`: Optimized 16-bit and 32-bit mathematical routines (MUL, DIV, SHIFTS).
 - **`Boards/`**: Board-specific configurations and pin mappings for Curiosity Nano evaluation boards.
 - **`Examples/`**: Demonstration projects.
@@ -27,6 +27,7 @@ A lightweight Hardware Abstraction Layer (HAL) and mathematical library for mode
 - **Optimized Math**: High-performance implementations of multiplication, division, and multi-byte shifts.
 - **Efficient Buffering**: Power-of-two ring buffers using bitwise masking for ultra-fast wrapping.
 - **Interrupt Support**: Streamlined ISR entry/exit macros (`ISR_START`, `ISR_END`) that preserve SREG.
+- **RTC/PIT Helpers**: Sync-safe RTC configuration, compile-time period macros (`HAL_RTC_INIT_MS`), PIT helpers, and ready-to-use 1 s / 3 s presets.
 - **Modern AVR Support**: Tailored for the latest AVR architectures with UPDI programming.
 
 ## Prerequisites
@@ -105,4 +106,3 @@ The modern AVR-Dx and AVR-Ex series introduce a powerhouse of features: a Unifie
 This project was born from a desire to create a high-performance Assembly boilerplate that leverages these modern features while capturing the elegant simplicity of writing in Assembly.
 
 This HAL was made with ❤️ for the AVR community.
-

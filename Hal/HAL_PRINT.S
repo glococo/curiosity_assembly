@@ -1,24 +1,28 @@
-#define   HAL_PRINT_FROM_Z    HAL_BBUF_PUSH_FROM_Z
-#define   HAL_PRINT_A_CHAR    HAL_BBUF_PUSH
+; ==============================================================================
+; PRINT functions
+; These functions send characters to X/Z-Pointer Buffer
+; ==============================================================================
+
+#define   HAL_PRINT_FROM_Z    HAL_DEV_BUFFER_Y_PUSH_FROM_Z
+#define   HAL_PRINT_A_CHAR    HAL_DEV_BUFFER_Y_PUSH
 
 .macro PRINT_STR str:vararg
     .pushsection .progmem.rodata
     .L_str_\@: .asciz \str
     .popsection
-    ldi     ZL, lo8(.L_str_\@)
-    ldi     ZH, hi8(.L_str_\@)
+    ldi     ZL, lo8( MAPPED_PROGMEM_START + (.L_str_\@) )
+    ldi     ZH, hi8( MAPPED_PROGMEM_START + (.L_str_\@) )
     rcall   HAL_PRINT_FROM_Z
 .endm
 
 .macro PRINT_STR_Z ascii_str
-    ldi     ZL, lo8( \ascii_str )
-    ldi     ZH, hi8( \ascii_str )
+    ldi     ZL, lo8( MAPPED_PROGMEM_START + (\ascii_str) )
+    ldi     ZH, hi8( MAPPED_PROGMEM_START + (\ascii_str) )
     rcall   HAL_PRINT_FROM_Z
 .endm
 
 ; Push "\r\n" to X-BufferT
 DEFUN HAL_PRINT_NEW_LINE
-  HAL_PRINT_NEW_LINE:
   PUSH r22
     ldi   r22, '\n'
     rcall HAL_PRINT_A_CHAR
@@ -35,7 +39,6 @@ ENDF HAL_PRINT_NEW_LINE
 ; Callee-Saved: All used Registers preserved
 
 DEFUN HAL_PRINT_UINT8_REG
-  HAL_PRINT_UINT8_REG:          ; Input: r22
     PUSH_MANY r14, r18, r22
     clr   r14                   ; Digit count
   1:
@@ -56,7 +59,6 @@ DEFUN HAL_PRINT_UINT8_REG
 ENDF HAL_PRINT_UINT8_REG
 
 DEFUN HAL_PRINT_UINT16_REG
-  HAL_PRINT_UINT16_REG:         ; Input: r23:r22
     PUSH_MANY r14, r16, r18, r19, r22, r23
     clr   r14
   1:
@@ -79,7 +81,6 @@ DEFUN HAL_PRINT_UINT16_REG
 ENDF HAL_PRINT_UINT16_REG
 
 DEFUN HAL_PRINT_UINT32_REG
-  HAL_PRINT_UINT32_REG:         ; Input: r25:r22
     PUSH_MANY r14, r16, r18, r19, r20, r21, r22, r23, r24, r25
     clr   r14
   1:
@@ -101,7 +102,6 @@ DEFUN HAL_PRINT_UINT32_REG
 ENDF HAL_PRINT_UINT32_REG
 
 DEFUN HAL_PRINT_UINT64_REG
-  HAL_PRINT_UINT64_REG:         ; Input: r25:r18
     PUSH_MANY r14, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25
     clr   r14
   1:
@@ -140,7 +140,6 @@ ENDF HAL_PRINT_UINT64_REG
 ; ==============================================================================
 
 DEFUN HAL_PRINT_INT8_REG
-  HAL_PRINT_INT8_REG:
     sbrs  r22, 7
     rjmp  HAL_PRINT_UINT8_REG
     PUSH  r22
@@ -152,7 +151,6 @@ DEFUN HAL_PRINT_INT8_REG
 ENDF HAL_PRINT_INT8_REG
 
 DEFUN HAL_PRINT_INT16_REG
-  HAL_PRINT_INT16_REG:
     sbrs  r23, 7
     rjmp  HAL_PRINT_UINT16_REG
     PUSH  r22
@@ -166,7 +164,6 @@ DEFUN HAL_PRINT_INT16_REG
 ENDF HAL_PRINT_INT16_REG
 
 DEFUN HAL_PRINT_INT32_REG
-  HAL_PRINT_INT32_REG:
     sbrs  r25, 7
     rjmp  HAL_PRINT_UINT32_REG
     PUSH  r22
@@ -180,7 +177,6 @@ DEFUN HAL_PRINT_INT32_REG
 ENDF HAL_PRINT_INT32_REG
 
 DEFUN HAL_PRINT_INT64_REG
-  HAL_PRINT_INT64_REG:
     sbrs  r25, 7
     rjmp  HAL_PRINT_UINT64_REG
     PUSH  r22

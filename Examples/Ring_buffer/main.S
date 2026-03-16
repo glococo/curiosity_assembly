@@ -5,16 +5,15 @@
 ;              - Uses a Button Interrupt to toggle between two message states.
 ; Target: CURIOSITY NANO eval boards (e.g., AVR16EB32 Curiosity Nano)
 
-HAL_BBUF_DEFINE   HAL_USART_BUFFER_TX, 64
+HAL_BYTE_BUFFER_NEW   HAL_USART0_TX_BUFFER, 64, 0
 
 #include "toggle.S"
 
-DEFUN main                        ; ✅ Main Program
-  main:
-    clr     TOGGLE_REG            ; Initialize state register (default: Hello World)
-    rcall   HAL_BOARD_SETUP       ; Hardware setup: Button int and USART config
-    HAL_BBUF_INITIALIZE HAL_USART_BUFFER_TX ; Initialize the USART ring buffer
-    sei                           ; Enable interrupts
+FUNC main                                      ; ✅ Main Program
+    clr     TOGGLE_REG                          ; Initialize state register (default: Hello World)
+    rcall   HAL_BOARD_SETUP                     ; Hardware setup: Button int and USART config
+    HAL_BYTE_BUFFER_INIT HAL_USART0_TX_BUFFER   ; Initialize the USART ring buffer
+    sei                                         ; Enable interrupts
 
   loop:
     rcall   a_toggle_function     ; Push message to buffer and toggle LED
@@ -25,8 +24,7 @@ DEFUN main                        ; ✅ Main Program
 ENDF main
 
 
-DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
-  _(BOARD_BUTTON_PORT,_PORT_vect):      ; Toggles the message state for the next cycle
+FUNC _(BOARD_BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
   ISR_START r18
 
     ldi     r18, 1                ; Toggle state bit in TOGGLE_REG

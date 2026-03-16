@@ -7,7 +7,6 @@
 #include "toggle.S"
 
 DEFUN main                        ; ✅ Main Program
-  main:
     clr     TOGGLE_REG            ; Initialize state register (default: Hello World)
     rcall   HAL_BOARD_SETUP       ; Hardware setup: Button int and USART config
     sei                           ; Enable interrupts
@@ -19,14 +18,13 @@ DEFUN main                        ; ✅ Main Program
 
 ENDF main
 
-DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)           ; ✅ Button Interrupt
-  _(BOARD_BUTTON_PORT,_PORT_vect):              ; Toggles the message state on every press
+DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)     ; ✅ Button Interrupt, toggles the message state on every press
   ISR_START r18
 
-    ldi     r18, 1                              ; Toggle state bit in TOGGLE_REG
+    ldi     r18, 1                         ; Toggle state bit in TOGGLE_REG
     eor     TOGGLE_REG, r18
 
-    ldi     r18, BOARD_BUTTON_PIN               ; Clear the button interrupt flag
+    ldi     r18, BOARD_BUTTON_PIN          ; Clear the button interrupt flag
     sts     _(BOARD_BUTTON_PORT,_INTFLAGS), r18
 
   ISR_END r18

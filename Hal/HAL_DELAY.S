@@ -7,7 +7,6 @@
 .endm
 
 DEFUN HAL_SOFT_DELAY_MS         ; Receives a 16bit millisecond number in r23:r22
-  HAL_SOFT_DELAY_MS:
   PUSH_MANY r24, r25
 
   outer_loop:

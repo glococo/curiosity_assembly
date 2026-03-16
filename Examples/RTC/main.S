@@ -8,7 +8,6 @@
 #include "toggle.S"
 
 DEFUN main                        ; ✅ Main Program
-  main:
     clr     TOGGLE_REG            ; Initialize state register (default: Hello World)
     rcall   HAL_BOARD_SETUP       ; Hardware setup: Button int and USART config
     rcall   RTC_INIT_THREE_SECOND ; Configure RTC to trigger every 3 seconds
@@ -23,7 +22,6 @@ ENDF main
 
 
 DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)   ; ✅ Button Interrupt
-  _(BOARD_BUTTON_PORT,_PORT_vect):      ; Toggles the message state on every press
   ISR_START r18
 
     ldi     r18, 1                ; Toggle state bit in TOGGLE_REG
@@ -37,7 +35,6 @@ ENDF _(BOARD_BUTTON_PORT,_PORT_vect)
 
 
 DEFUN RTC_CNT_vect                ; ✅ RTC Overflow Interrupt
-  RTC_CNT_vect:                   ; Toggles the message state every 3 seconds
   ISR_START r18
 
     ldi     r18, 1                ; Toggle state bit in TOGGLE_REG

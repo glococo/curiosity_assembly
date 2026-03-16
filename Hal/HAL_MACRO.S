@@ -39,12 +39,13 @@
 
 #define DEF_TO_STR(x)     #x
 #define STRINGIFY(x)      DEF_TO_STR(x)
-
-.macro DEFUN name
+#define DEFUN             FUNC          // DEFUN to be purged. (old function definition)
+.macro FUNC name
   .section .text.\name, "ax", @progbits
   .global \name
   .type \name, @function
   .func \name
+  \name:
 .endm
 
 .macro ENDF name
