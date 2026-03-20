@@ -2,21 +2,22 @@
 ; Description: Comprehensive math library tests with USART output.
 ; Target: AVR Dx Ex Family Cores
 
-HAL_BBUF_DEFINE   HAL_USART_BUFFER_TX, 256
-
 .section        .progmem.rodata
 STR_START:      .asciz "    AVR-DEV Math Library Test Suite"
 STR_HLINE:      .asciz "\r\n----------------------------------------\r\n"
 
+; Define a 64-byte Dev-Ring-Buffer for USART0 (regular speed)
+HAL_DEVICEBUFFER_DEFINE  USART0_TX_DEVBUFFER, 256, USART0_ADDR
+
 DEFUN main
     rcall   HAL_BOARD_SETUP
-    HAL_BBUF_INITIALIZE HAL_USART_BUFFER_TX       ; Initialize the USART ring buffer
+    HAL_DEVICEBUFFER_INIT USART0_TX_DEVBUFFER     ; Initialize the USART ring buffer
 
-    PRINT_STR_Z STR_HLINE
-    PRINT_STR_Z STR_START                         ; Welcome to MATH test
-    PRINT_STR_Z STR_HLINE
+    PRINT_STR_X STR_HLINE
+    PRINT_STR_X STR_START                         ; Welcome to MATH test
+    PRINT_STR_X STR_HLINE
 
-    ; PRINT_STR do not check dupicates, avoid using for repeated strings since it will copy again the same string.
+    ; Function PRINT_STR do not check for duplicates, avoid using for repeated strings since it will copy again the same string.
     PRINT_STR "\r\nTesting hw mul 8-bit Operation:\r\n" ; --- 8-bit Tests ---
     PRINT_STR "  MUL 8x8: 246 * 251 = "                 ; MUL 8 x 8: 246 * 251 = 61746
 
@@ -26,7 +27,7 @@ DEFUN main
     movw    r22, r0
     rcall   HAL_PRINT_UINT16_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MULS 8x8: 89 * -102 = "
     ldi     r22, 89
@@ -35,7 +36,7 @@ DEFUN main
     movw    r22, r0
     rcall   HAL_PRINT_INT16_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MULSU 8x8: 189 * -102 = "
     ldi     r22, 189
@@ -44,7 +45,7 @@ DEFUN main
     movw    r22, r0
     rcall   HAL_PRINT_INT16_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "\r\nMATH MUL 16-bit Operations:\r\n"  ; --- 16-bit Tests ---
     PRINT_STR "  MUL 16x16_16: 123 * 456 = "           ; MATH_MUL_16_16: 123 * 456 = 56088
@@ -55,7 +56,7 @@ DEFUN main
     rcall   MATH_MUL_16_16
     rcall   HAL_PRINT_UINT16_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MUL 16x16_32: 1623 * 4256 = "           ; MATH_MUL_16_32: 1623 * 456 =
     ldi     r22, lo8(1623)
@@ -65,7 +66,7 @@ DEFUN main
     rcall   MATH_MUL_16_32
     rcall   HAL_PRINT_UINT32_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MAC 16x16_16: 1000 + (10 * 20) = "      ; MATH_MAC_16_16: 1000 + (10 * 20) = 1200
     ldi     r22, lo8(1000)
@@ -75,11 +76,11 @@ DEFUN main
     ldi     r20, lo8(20)
     ldi     r21, hi8(20)
     rcall   MATH_MAC_16_16
-    ldi   XL, lo8( HAL_USART_BUFFER_TX )
-    ldi   XH, hi8( HAL_USART_BUFFER_TX )
+    ldi   XL, lo8( USART0_TX_DEVBUFFER )
+    ldi   XH, hi8( USART0_TX_DEVBUFFER )
     rcall   HAL_PRINT_UINT16_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MAC 16x16_32: 1234 + (810 * 1120) = "      ; MATH_MAC_16_16: 1234 + (810 * 1120) =
     ldi     r22, lo8(1234)
@@ -89,11 +90,11 @@ DEFUN main
     ldi     r20, lo8(1120)
     ldi     r21, hi8(1120)
     rcall   MATH_MAC_16_32
-    ldi   XL, lo8( HAL_USART_BUFFER_TX )
-    ldi   XH, hi8( HAL_USART_BUFFER_TX )
+    ldi   XL, lo8( USART0_TX_DEVBUFFER )
+    ldi   XH, hi8( USART0_TX_DEVBUFFER )
     rcall   HAL_PRINT_UINT32_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MUL_S 16_32: -100 * 500 = "          ; MATH_MUL_S_16_32: -100 * 500 = -50000
     ldi     r22, lo8(-100)
@@ -103,7 +104,7 @@ DEFUN main
     rcall   MATH_MUL_S_16_32
     rcall   HAL_PRINT_INT32_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "\r\nMATH_MUL 32-bit Operations:\r\n"    ; --- 32-bit Tests ---
     PRINT_STR "  MUL 32x32_32: 10000 * 20000 = "         ; MATH_MUL_32_32: 10000 * 20000 = 200,000,000
@@ -118,7 +119,7 @@ DEFUN main
     rcall   MATH_MUL_32_32
     rcall   HAL_PRINT_UINT32_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MUL 32x32_64: 24231033 * 9827352 = "
     ldi     r22, lo8(24231033)
@@ -130,11 +131,11 @@ DEFUN main
     ldi     r20, hlo8(9827352)
     ldi     r21, hhi8(9827352)
     rcall   MATH_MUL_32_64
-    ldi   XL, lo8( HAL_USART_BUFFER_TX )
-    ldi   XH, hi8( HAL_USART_BUFFER_TX )
+    ldi   XL, lo8( USART0_TX_DEVBUFFER )
+    ldi   XH, hi8( USART0_TX_DEVBUFFER )
     rcall   HAL_PRINT_UINT64_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MAC 32_32: 515 + (105 * 92) = "
     ldi     r22, lo8(515)
@@ -150,11 +151,11 @@ DEFUN main
     ldi     r28, 0
     ldi     r29, 0
     rcall   MATH_MAC_32_32
-    ldi   XL, lo8( HAL_USART_BUFFER_TX )
-    ldi   XH, hi8( HAL_USART_BUFFER_TX )
+    ldi   XL, lo8( USART0_TX_DEVBUFFER )
+    ldi   XH, hi8( USART0_TX_DEVBUFFER )
     rcall   HAL_PRINT_UINT32_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "  MUL_S 32_64: -1124 * 1234567 = "
     ; A = -1124
@@ -170,7 +171,7 @@ DEFUN main
     rcall   MATH_MUL_S_32_64
     rcall   HAL_PRINT_INT64_REG
     rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     PRINT_STR "\r\nMATH_MUL 64-bit Operations:\r\n"    ; --- 64-bit Tests ---
     PRINT_STR "  MUL 64_64: 12345678 * 89 = "
@@ -185,14 +186,14 @@ DEFUN main
     ldi     r21, hhi8(12345678)
     CLR_BLOCK r22, 4
     rcall   MATH_MUL_64_64
-    ldi   XL, lo8( HAL_USART_BUFFER_TX )
-    ldi   XH, hi8( HAL_USART_BUFFER_TX )
+    ldi   XL, lo8( USART0_TX_DEVBUFFER )
+    ldi   XH, hi8( USART0_TX_DEVBUFFER )
     rcall   HAL_PRINT_UINT64_REG
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
-    PRINT_STR_Z STR_HLINE
+    PRINT_STR_X STR_HLINE
     PRINT_STR "Tests Completed.\r\n"
-    rcall   HAL_USART_X_SEND
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
   loop:
     rjmp    loop

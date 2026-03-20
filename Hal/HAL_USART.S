@@ -5,9 +5,6 @@
 ;  - HAL_USART_
 ;  - HAL_USART_
 ;  - HAL_USART_
-;  - HAL_USART_
-;  - HAL_USART_
-;  - HAL_USART_
 
 ;------------------------------------------------------------------------------
 ; Function: HAL_USART_BAUDRATE_UPD
@@ -38,162 +35,31 @@ FUNC HAL_USART_BAUDRATE_UPD
   ret
 ENDF HAL_USART_BAUDRATE_UPD
 
-
-;------------------------------------------------------------------------------
-; Function: HAL_USART_FLUSH_DEV_X
-; Block until TX complete, then clear TXCIF.
-;------------------------------------------------------------------------------
-FUNC HAL_USART_SEND_FLUSH_DEV_X
-  PUSH_MANY r18, ZL, ZH
-    ld      ZL, X+                          ; [ BBuf + 3 ] USART_BASE_ADDRESS_L
-    ld      ZH, X                           ; [ BBuf + 4 ] USART_BASE_ADDRESS_H
-    sbiw    X, 1
+; Function: HAL_USART_SEND_LENGTH
+; Description: Send bytes from Unified-Memory-Map to USART Base Address.
+; Input:  r22 - Length
+;           Y - Points to USART Base Address.
+;           Z - Pointer to Data
+FUNC HAL_USART_SEND_LENGTH
+  PUSH_MANY  r24, r25
   0:
-    ldd     r18, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r18, USART_TXCIF_bp
-    rjmp    0b
-  POP_MANY  ZH, ZL, r18
-  ret
-ENDF HAL_USART_SEND_FLUSH_DEV_X
-;------------------------------------------------------------------------------
-; Function: HAL_USART_FLUSH_DEV_Y
-; Block until TX complete, then clear TXCIF.
-;------------------------------------------------------------------------------
-FUNC HAL_USART_SEND_FLUSH_DEV_Y
-  PUSH_MANY r18, ZL, ZH
-    ldd     ZL, Y+3                         ; [ BBuf + 3 ] USART_BASE_ADDRESS_L
-    ldd     ZH, Y+4                         ; [ BBuf + 4 ] USART_BASE_ADDRESS_H
-  0:
-    ldd     r18, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r18, USART_TXCIF_bp
-    rjmp    0b
-  POP_MANY  ZH, ZL, r18
-  ret
-ENDF HAL_USART_SEND_FLUSH_DEV_Y
-
-;------------------------------------------------------------------------------
-; Function: HAL_USART_RECEIVE_TO_DEV_X
-; If RXCIF set, pulls one byte and pushes into ring dev buffer at X.
-; Returns r18: 0=stored, 1=buffer full, 2?=no data
-;------------------------------------------------------------------------------
-FUNC HAL_USART_RECEIVE_TO_DEV_X
-  PUSH_MANY r22, ZL, ZH
-    ld      ZL, X+                          ; [ BBuf + 3 ] USART_BASE_ADDRESS_L
-    ld      ZH, X                           ; [ BBuf + 4 ] USART_BASE_ADDRESS_H
-    sbiw    X, 1
-  0:
-    ld      r22, Z
-    rcall   HAL_DEV_BUFFER_X_PUSH           ; r18: 0 ok, 1 full
-
-    ldd     r22, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrc    r22, USART_RXCIF_bp
-    rjmp    0b
-  POP_MANY ZH, ZL, r22
-  ret
-ENDF HAL_USART_RECEIVE_TO_DEV_X
-;------------------------------------------------------------------------------
-; Function: HAL_USART_RECEIVE_TO_DEV_Y
-; If RXCIF set, pulls one byte and pushes into ring buffer at X.
-; Returns r18: 0=stored, 1=buffer full, 2?=no data
-;------------------------------------------------------------------------------
-FUNC HAL_USART_RECEIVE_TO_DEV_Y
-  PUSH_MANY r22, ZL, ZH
-    ldd     ZL, Y+3                         ; [ BBuf + 3 ] USART_BASE_ADDRESS_L
-    ldd     ZH, Y+4                         ; [ BBuf + 4 ] USART_BASE_ADDRESS_H
-  0:
-    ld      r22, Z
-    rcall   HAL_DEV_BUFFER_Y_PUSH          ; r18: 0 ok, 1 full
-
-    ldd     r22, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrc    r22, USART_RXCIF_bp
-    rjmp    0b
-  POP_MANY ZH, ZL, r22
-  ret
-ENDF HAL_USART_RECEIVE_TO_DEV_Y
-
-; Send chars over USART until BBUF is empty
-FUNC HAL_USART_SEND_FROM_DEV_Y
-  PUSH_MANY  r18, r22, ZL, ZH
-  0:
-    rcall   HAL_DEV_BUFFER_Y_PULL
-    tst     r18
-    brne    2f
-    ldd     ZL, Y+3                         ; [ DevBuf + 3 ] USART_BASE_ADDRESS_L
-    ldd     ZH, Y+4                         ; [ DevBuf + 4 ] USART_BASE_ADDRESS_H
+    ld      r24, Z+
   1:
-    ldd     r18, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r18, USART_DREIF_bp
-    rjmp    1b
-    std     Z+2, r22                        ; USART_TXDATAL
-    rjmp    0b
-  2:
-  POP_MANY ZH, ZL, r22, r18
-  ret
-ENDF HAL_USART_SEND_FROM_DEV_Y
-
-; Send chars over USART until BBUF is empty
-FUNC HAL_USART_SEND_FROM_DEV_X
-  PUSH_MANY  r18, r22, ZL, ZH
-  0:
-    rcall   HAL_DEV_BUFFER_X_PULL
-    tst     r18
-    brne    2f
-    ld      ZL, X+                          ; [ DevBuf + 0 ] USART_BASE_ADDRESS_L
-    ld      ZH, X                           ; [ DevBuf + 1 ] USART_BASE_ADDRESS_H
-    sbiw    X, 1                            ; Restore X pointer
-  1:
-    ldd     r18, Z+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r18, USART_DREIF_bp
-    rjmp    1b
-    std     Z+2, r22                        ; USART_TXDATAL
-    rjmp    0b
-  2:
-  POP_MANY ZH, ZL, r22, r18
-  ret
-ENDF HAL_USART_SEND_FROM_DEV_X
-
-; Function: HAL_USART_SEND_FROM_YZ
-; Description: Send a null-terminated string from Mapped Flash to Y-Pointed USART Base Address.
-; Input:  Y - Points to USART Base Address.
-;         Z - Points to Mapped Flash string (.asciz).
-FUNC HAL_USART_SEND_FROM_YZ
-  PUSH_MANY  r22, r23
-  0:
-    ld      r22, Z+
-    tst     r22
-    breq    2f
-  1:
-    ldd     r23, Y+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r23, USART_DREIF_bp
+    ldd     r25, Y+4                        ; [ USART + 4 ] USART_STATUS
+    sbrs    r25, USART_DREIF_bp
     rjmp    1b                              ; wait_for_DREIF
-    std     Y+2, r22                        ; USART_TXDATAL
-    rjmp    0b                              ; read next char
-  2:
-  POP_MANY  r23, r22
+    std     Y+2, r24                        ; USART_TXDATAL
+    dec     r22
+    brne    0b                              ; read next char
+  POP_MANY  r25, r24
   ret
-ENDF HAL_USART_SEND_FROM_YZ
-
-; Function: HAL_USART_SEND_BYTES_YX
-; Send N bytes from SRAM buffer at X (length in r25:r24).
-; Input:   Y - Points to USART Base Address.
-;          X - Points to data.
-;     r24:25 - Data Length.
-FUNC HAL_USART_SEND_BYTES_YX
-  PUSH r22
-  0:
-    ld      r22, X+
-    rcall   HAL_USART_SEND_BYTE_Y
-    sbiw    r24, 1
-    brne    0b
-  POP r22
-  ret
-ENDF HAL_USART_SEND_BYTES_YX
+ENDF HAL_USART_SEND_LENGTH
 
 ; Function: HAL_USART_SEND_BYTE
-; Description: Send a byte from r22 to Y-Pointed USART Base Address.
-; Input:   Y - Points to USART Base Address.
-;        r22 - Data.
-FUNC HAL_USART_SEND_BYTE_Y
+; Description: Send a byte to USART Base Address.
+; Input:  r22 - Data
+;           Y - Points to USART Base Address.
+FUNC HAL_USART_SEND_BYTE
   PUSH r23
   1:
     ldd     r23, Y+4                        ; [ USART + 4 ] USART_STATUS
@@ -202,25 +68,48 @@ FUNC HAL_USART_SEND_BYTE_Y
     std     Y+2, r22                        ; USART_TXDATAL
   POP  r23
   ret
-ENDF HAL_USART_SEND_BYTE_Y
+ENDF HAL_USART_SEND_BYTE
 
-; Function: HAL_USART_FLUSH_Y
-; Block until TX complete, then clear TXCIF
-FUNC HAL_USART_SEND_FLUSH_Y
-  PUSH_MANY r18
+;------------------------------------------------------------------------------
+; Function: HAL_USART_FLUSH_DEVICEBUFFER
+; Send chars over USART until DEVICEBUFFER is empty
+; Returns r18: 0=done, 1=empty
+;------------------------------------------------------------------------------
+FUNC HAL_USART_FLUSH_DEVICEBUFFER
+  PUSH_MANY  r18, r22, YL, YH
   0:
+    rcall   HAL_DEVICEBUFFER_PULL
+    tst     r18
+    brne    2f
+    ldd     YL, Z+3                         ; [ DevBuf + 3 ] USART_BASE_ADDRESS_L
+    ldd     YH, Z+4                         ; [ DevBuf + 4 ] USART_BASE_ADDRESS_H
+  1:
     ldd     r18, Y+4                        ; [ USART + 4 ] USART_STATUS
-    sbrs    r18, USART_TXCIF_bp
+    sbrs    r18, USART_DREIF_bp
+    rjmp    1b
+    std     Y+2, r22                        ; USART_TXDATAL
     rjmp    0b
-  POP_MANY  r18
+  2:
+  POP_MANY YH, YL, r22, r18
   ret
-ENDF HAL_USART_SEND_FLUSH_Y
+ENDF HAL_USART_FLUSH_DEVICEBUFFER
 
-; Function: HAL_USART_RECEIVE_BYTE_Y ( seems to be pointless )
-; Input:    Y - Points to USART Base Address.
-; Output: r22 - Data.
-FUNC HAL_USART_RECEIVE_BYTE_Y
+;------------------------------------------------------------------------------
+; Function: HAL_USART_RECEIVE_DEVICEBUFFER
+; If RXCIF set, pulls one byte and pushes into ring buffer at Y.
+; Returns r18: 0=stored, 1=buffer full, 2?=no data
+;------------------------------------------------------------------------------
+FUNC HAL_USART_RECEIVE_DEVICEBUFFER
+  PUSH_MANY r22, YL, YH
+    ldd     YL, Z+3                         ; [ BBuf + 3 ] USART_BASE_ADDRESS_L
+    ldd     YH, Z+4                         ; [ BBuf + 4 ] USART_BASE_ADDRESS_H
   0:
     ld      r22, Y
+    rcall   HAL_DEVICEBUFFER_PUSH           ; r18: 0 ok, 1 full
+
+    ldd     r22, Y+4                        ; [ USART + 4 ] USART_STATUS
+    sbrc    r22, USART_RXCIF_bp
+    rjmp    0b
+  POP_MANY YH, YL, r22
   ret
-ENDF HAL_USART_RECEIVE_BYTE_Y
+ENDF HAL_USART_RECEIVE_DEVICEBUFFER

@@ -12,16 +12,16 @@ To ensure high performance and seamless integration between HAL modules and user
 
 ### Pointer Registers
 AVR has three 16-bit pointer pairs:
-- **X (r27:r26)**: **Callee-saved** Primary pointer for **SRAM Buffer** access (e.g., Ring Buffers, Structures).
-- **Y (r29:r28)**: **Callee-saved** Typically used as a Frame Pointer or for local variables.
-- **Z (r31:r30)**: **Callee-saved** Primary pointer for **Program Memory** (LPM) and Indirect Jumps (`ijmp`).
+- **X (r27:r26)**: **Callee-saved** Primary pointer for Streaming (printing strings, moving arrays)
+- **Y (r29:r28)**: **Callee-saved** Primary pointer for DevAddress, Local variables (stack frame)
+- **Z (r31:r30)**: **Callee-saved** Primary pointer for Structures, Ring Buffers, Double Buffers
 
 ### Function Arguments & Return Values
 Arguments are passed in registers starting from `r25` down to `r22`.
 - **8-bit**: Use `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
-- **Return Values**: Follow the same register mapping as arguments.
+- **Return Values**: Follow the same register mapping as arguments. Sometimes r18 holds success/fail
 
 ### Volatile vs. Callee-Saved
 - **Volatile**: There are no Volatile registers right now

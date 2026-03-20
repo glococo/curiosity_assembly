@@ -3,34 +3,48 @@
 ; These functions send characters to X/Z-Pointer Buffer
 ; ==============================================================================
 
-#define   HAL_PRINT_FROM_Z    HAL_DEV_BUFFER_Y_PUSH_FROM_Z
-#define   HAL_PRINT_A_CHAR    HAL_DEV_BUFFER_Y_PUSH
-
 .macro PRINT_STR str:vararg
     .pushsection .progmem.rodata
-    .L_str_\@: .asciz \str
+    str_\@: .asciz \str
     .popsection
-    ldi     ZL, lo8( MAPPED_PROGMEM_START + (.L_str_\@) )
-    ldi     ZH, hi8( MAPPED_PROGMEM_START + (.L_str_\@) )
-    rcall   HAL_PRINT_FROM_Z
+    PRINT_STR_X str_\@
 .endm
 
-.macro PRINT_STR_Z ascii_str
-    ldi     ZL, lo8( MAPPED_PROGMEM_START + (\ascii_str) )
-    ldi     ZH, hi8( MAPPED_PROGMEM_START + (\ascii_str) )
-    rcall   HAL_PRINT_FROM_Z
+.macro PRINT_STR_X ascii_str
+    ldi     XL, lo8( MAPPED_PROGMEM_START + (\ascii_str) )
+    ldi     XH, hi8( MAPPED_PROGMEM_START + (\ascii_str) )
+    rcall   HAL_PRINT_STR
 .endm
 
-; Push "\r\n" to X-BufferT
+; Push "\r\n" to Dev-Buffer
 DEFUN HAL_PRINT_NEW_LINE
   PUSH r22
     ldi   r22, '\n'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     ldi   r22, '\r'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
   POP r22
   ret
 ENDF HAL_PRINT_NEW_LINE
+
+; Function: HAL_PRINT_STR
+; Description: Pushes a null-terminated string into the Dev-buffer.
+; Input:  Z - Points to Buffer Structure.
+;         X - Points to Memory string (.asciz).
+; Output: r18 - 0 (Success), 1 (Full).
+FUNC HAL_PRINT_STR
+  PUSH  r22
+  0:
+    ld      r22, X+
+    tst     r22
+    breq    1f                  ; Found null terminator
+    rcall   HAL_DEVICEBUFFER_PUSH
+    tst     r18
+    breq    0b                  ; Continue if push succeeded
+  1:                            ; If full, r18 is already 1
+  POP  r22
+  ret
+ENDF HAL_PRINT_STR
 
 ; ==============================================================================
 ; Register-Based Decimal Printing (Unsigned)
@@ -51,7 +65,7 @@ DEFUN HAL_PRINT_UINT8_REG
     brne  1b
   2:                            ; Print loop (MSD first)
     pop   r22
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     dec   r14
     brne  2b
   POP_MANY r22, r18, r14
@@ -73,7 +87,7 @@ DEFUN HAL_PRINT_UINT16_REG
     brne  1b
   2:                            ; Print loop (MSD first)
     pop   r22
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     dec   r14
     brne  2b
   POP_MANY r23, r22, r19, r18, r16, r14
@@ -94,7 +108,7 @@ DEFUN HAL_PRINT_UINT32_REG
     brne  1b
   2:                            ; Print loop (MSD first)
     pop   r22
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     dec   r14
     brne  2b
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r16, r14
@@ -128,7 +142,7 @@ DEFUN HAL_PRINT_UINT64_REG
     brne  1b
   2:                            ; Print loop (MSD first)
     pop   r22
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     dec   r14
     brne  2b
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r17, r16, r14
@@ -144,7 +158,7 @@ DEFUN HAL_PRINT_INT8_REG
     rjmp  HAL_PRINT_UINT8_REG
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     POP   r22
     neg   r22
     rjmp  HAL_PRINT_UINT8_REG
@@ -155,7 +169,7 @@ DEFUN HAL_PRINT_INT16_REG
     rjmp  HAL_PRINT_UINT16_REG
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     POP   r22
     com   r23
     neg   r22
@@ -168,7 +182,7 @@ DEFUN HAL_PRINT_INT32_REG
     rjmp  HAL_PRINT_UINT32_REG
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     POP   r22
     com   r25 $ com r24 $ com r23
     neg   r22
@@ -181,7 +195,7 @@ DEFUN HAL_PRINT_INT64_REG
     rjmp  HAL_PRINT_UINT64_REG
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_PRINT_A_CHAR
+    rcall HAL_DEVICEBUFFER_PUSH
     POP   r22
     com r25 $ com r24 $ com r23 $ com r22 $ com r21 $ com r20 $ com r19
     neg r18
