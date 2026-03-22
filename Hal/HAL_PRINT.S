@@ -17,14 +17,13 @@
 .endm
 
 ; Push "\r\n" to Dev-Buffer
-DEFUN HAL_PRINT_NEW_LINE
+FUNC HAL_PRINT_NEW_LINE
   PUSH r22
     ldi   r22, '\n'
     rcall HAL_DEVICEBUFFER_PUSH
     ldi   r22, '\r'
     rcall HAL_DEVICEBUFFER_PUSH
   POP r22
-  ret
 ENDF HAL_PRINT_NEW_LINE
 
 ; Function: HAL_PRINT_STR
@@ -43,7 +42,6 @@ FUNC HAL_PRINT_STR
     breq    0b                  ; Continue if push succeeded
   1:                            ; If full, r18 is already 1
   POP  r22
-  ret
 ENDF HAL_PRINT_STR
 
 ; ==============================================================================
@@ -52,7 +50,7 @@ ENDF HAL_PRINT_STR
 ; Inputs: Value in r25:18 (64-bits), r25:r22 (32-bit), r23:r22 (16-bit), r22 (8-bit)
 ; Callee-Saved: All used Registers preserved
 
-DEFUN HAL_PRINT_UINT8_REG
+FUNC HAL_PRINT_UINT8_REG
     PUSH_MANY r14, r18, r22
     clr   r14                   ; Digit count
   1:
@@ -69,10 +67,9 @@ DEFUN HAL_PRINT_UINT8_REG
     dec   r14
     brne  2b
   POP_MANY r22, r18, r14
-  ret
 ENDF HAL_PRINT_UINT8_REG
 
-DEFUN HAL_PRINT_UINT16_REG
+FUNC HAL_PRINT_UINT16_REG
     PUSH_MANY r14, r16, r18, r19, r22, r23
     clr   r14
   1:
@@ -91,10 +88,9 @@ DEFUN HAL_PRINT_UINT16_REG
     dec   r14
     brne  2b
   POP_MANY r23, r22, r19, r18, r16, r14
-  ret
 ENDF HAL_PRINT_UINT16_REG
 
-DEFUN HAL_PRINT_UINT32_REG
+FUNC HAL_PRINT_UINT32_REG
     PUSH_MANY r14, r16, r18, r19, r20, r21, r22, r23, r24, r25
     clr   r14
   1:
@@ -112,10 +108,9 @@ DEFUN HAL_PRINT_UINT32_REG
     dec   r14
     brne  2b
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r16, r14
-  ret
 ENDF HAL_PRINT_UINT32_REG
 
-DEFUN HAL_PRINT_UINT64_REG
+FUNC HAL_PRINT_UINT64_REG
     PUSH_MANY r14, r16, r17, r18, r19, r20, r21, r22, r23, r24, r25
     clr   r14
   1:
@@ -146,14 +141,13 @@ DEFUN HAL_PRINT_UINT64_REG
     dec   r14
     brne  2b
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r17, r16, r14
-  ret
 ENDF HAL_PRINT_UINT64_REG
 
 ; ==============================================================================
 ; Register-Based Decimal Printing (Signed)
 ; ==============================================================================
 
-DEFUN HAL_PRINT_INT8_REG
+FUNC HAL_PRINT_INT8_REG
     sbrs  r22, 7
     rjmp  HAL_PRINT_UINT8_REG
     PUSH  r22
@@ -164,7 +158,7 @@ DEFUN HAL_PRINT_INT8_REG
     rjmp  HAL_PRINT_UINT8_REG
 ENDF HAL_PRINT_INT8_REG
 
-DEFUN HAL_PRINT_INT16_REG
+FUNC HAL_PRINT_INT16_REG
     sbrs  r23, 7
     rjmp  HAL_PRINT_UINT16_REG
     PUSH  r22
@@ -177,7 +171,7 @@ DEFUN HAL_PRINT_INT16_REG
     rjmp  HAL_PRINT_UINT16_REG
 ENDF HAL_PRINT_INT16_REG
 
-DEFUN HAL_PRINT_INT32_REG
+FUNC HAL_PRINT_INT32_REG
     sbrs  r25, 7
     rjmp  HAL_PRINT_UINT32_REG
     PUSH  r22
@@ -190,7 +184,7 @@ DEFUN HAL_PRINT_INT32_REG
     rjmp  HAL_PRINT_UINT32_REG
 ENDF HAL_PRINT_INT32_REG
 
-DEFUN HAL_PRINT_INT64_REG
+FUNC HAL_PRINT_INT64_REG
     sbrs  r25, 7
     rjmp  HAL_PRINT_UINT64_REG
     PUSH  r22

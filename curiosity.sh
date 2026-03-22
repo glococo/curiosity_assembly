@@ -1,19 +1,34 @@
 #!/bin/bash
 DEBUG=true
 
-# Check if MCU and BOARD are provided as command-line arguments
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
-    echo "Usage: $0 <MCU> <BOARD_NAME> <PROGRAM_FILE>"
-    echo "Example: $0 avr16eb32 AVR16EB32_CNANO Examples/Hello_world/main.S"
+# Check if BOARD and PROGRAM are provided as command-line arguments
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <BOARD_NAME> <PROGRAM_FILE>"
+    echo "Example: $0 AVR16EB32_CNANO Examples/Hello_world/main.S"
     exit 1
 fi
 
-MCU=$1
-BOARD=$2
-PROGRAM=$3
+BOARD=$1
+PROGRAM=$2
+
+# Extract MCU from the first line of the board file
+# Expects: ; Core: <MCU>
+BOARD_FILE="Boards/$BOARD.S"
+if [ ! -f "$BOARD_FILE" ]; then
+    echo "Error: Board file $BOARD_FILE not found."
+    exit 1
+fi
+
+MCU=$(head -n 1 "$BOARD_FILE" | sed -n 's/^; Core: //p' | tr -d '\r' | xargs)
+
+if [ -z "$MCU" ]; then
+    echo "Error: Could not extract MCU from first line of $BOARD_FILE"
+    echo "Expected format: ; Core: <MCU>"
+    exit 1
+fi
 
 # Compile and link
-avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include Boards/$BOARD.S $PROGRAM
+avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM"
 
 # Create HEX file
 avr-objcopy -O ihex main.elf main.hex

@@ -6,7 +6,7 @@
   POP_MANY  r23, r22
 .endm
 
-DEFUN HAL_SOFT_DELAY_MS         ; Receives a 16bit millisecond number in r23:r22
+FUNC HAL_SOFT_DELAY_MS         ; Receives a 16bit millisecond number in r23:r22
   PUSH_MANY r24, r25
 
   outer_loop:
@@ -22,5 +22,4 @@ DEFUN HAL_SOFT_DELAY_MS         ; Receives a 16bit millisecond number in r23:r22
     brne  outer_loop            ; 2c/1c
 
   POP_MANY r25, r24
-  ret
 ENDF HAL_SOFT_DELAY_MS

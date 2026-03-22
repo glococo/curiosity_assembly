@@ -83,7 +83,7 @@
 ; Low-level synchronisation helpers
 ; -----------------------------------------------------------------------------
 
-DEFUN HAL_RTC_WRITE_CTRLA            ; r18 = new CTRLA value
+FUNC HAL_RTC_WRITE_CTRLA            ; r18 = new CTRLA value
   HAL_RTC_WRITE_CTRLA:
   PUSH  r20
   0:  lds   r20, RTC_STATUS
@@ -94,10 +94,9 @@ DEFUN HAL_RTC_WRITE_CTRLA            ; r18 = new CTRLA value
       sbrc  r20, RTC_CTRLBUSY_bp
       rjmp 1b                      ; wait for write to complete
   POP  r20
-  ret
 ENDF HAL_RTC_WRITE_CTRLA
 
-DEFUN HAL_RTC_SET_PERIOD             ; r23:r22 = PER value
+FUNC HAL_RTC_SET_PERIOD             ; r23:r22 = PER value
   HAL_RTC_SET_PERIOD:
   PUSH  r20
   0:  lds   r20, RTC_STATUS
@@ -106,10 +105,9 @@ DEFUN HAL_RTC_SET_PERIOD             ; r23:r22 = PER value
       sts   RTC_PERL, r22
       sts   RTC_PERH, r23
   POP  r20
-  ret
 ENDF HAL_RTC_SET_PERIOD
 
-DEFUN HAL_RTC_SET_COUNT              ; r23:r22 = CNT value
+FUNC HAL_RTC_SET_COUNT              ; r23:r22 = CNT value
   HAL_RTC_SET_COUNT:
   PUSH  r20
   0:  lds   r20, RTC_STATUS
@@ -118,10 +116,9 @@ DEFUN HAL_RTC_SET_COUNT              ; r23:r22 = CNT value
       sts   RTC_CNTL, r22
       sts   RTC_CNTH, r23
   POP  r20
-  ret
 ENDF HAL_RTC_SET_COUNT
 
-DEFUN HAL_RTC_GET_COUNT              ; return r23:r22 = CNT
+FUNC HAL_RTC_GET_COUNT              ; return r23:r22 = CNT
   HAL_RTC_GET_COUNT:
   PUSH  r20
   0:  lds   r20, RTC_STATUS
@@ -130,10 +127,9 @@ DEFUN HAL_RTC_GET_COUNT              ; return r23:r22 = CNT
       lds   r22, RTC_CNTL
       lds   r23, RTC_CNTH
   POP  r20
-  ret
 ENDF HAL_RTC_GET_COUNT
 
-DEFUN HAL_RTC_SET_COMPARE            ; r23:r22 = CMP value
+FUNC HAL_RTC_SET_COMPARE            ; r23:r22 = CMP value
   HAL_RTC_SET_COMPARE:
   PUSH  r20
   0:  lds   r20, RTC_STATUS
@@ -142,7 +138,6 @@ DEFUN HAL_RTC_SET_COMPARE            ; r23:r22 = CMP value
       sts   RTC_CMPL, r22
       sts   RTC_CMPH, r23
   POP  r20
-  ret
 ENDF HAL_RTC_SET_COMPARE
 
 ; -----------------------------------------------------------------------------
@@ -153,7 +148,7 @@ ENDF HAL_RTC_SET_COMPARE
 ;   r23:r22 -> PER value (ticks)
 ;   r19     -> INTCTRL mask (e.g., RTC_OVF_bm | RTC_CMP_bm)
 ;   r18     -> CTRLA value (prescaler | runstdby | RTC_RTCEN_bm)
-DEFUN HAL_RTC_CONFIG
+FUNC HAL_RTC_CONFIG
   HAL_RTC_CONFIG:
   PUSH_MANY r20, r21
     push    r18                      ; save requested CTRLA bits
@@ -184,10 +179,9 @@ DEFUN HAL_RTC_CONFIG
       pop   r18
       rcall HAL_RTC_WRITE_CTRLA
   POP_MANY r21, r20
-  ret
 ENDF HAL_RTC_CONFIG
 
-DEFUN HAL_RTC_STOP
+FUNC HAL_RTC_STOP
   HAL_RTC_STOP:
   PUSH  r19
   0:  lds   r19, RTC_STATUS
@@ -198,10 +192,9 @@ DEFUN HAL_RTC_STOP
       mov   r18, r19
       rcall HAL_RTC_WRITE_CTRLA
   POP  r19
-  ret
 ENDF HAL_RTC_STOP
 
-DEFUN HAL_RTC_START
+FUNC HAL_RTC_START
   HAL_RTC_START:
   PUSH  r19
   0:  lds   r19, RTC_STATUS
@@ -212,11 +205,10 @@ DEFUN HAL_RTC_START
       mov   r18, r19
       rcall HAL_RTC_WRITE_CTRLA
   POP  r19
-  ret
 ENDF HAL_RTC_START
 
 ; PIT setup: r18 = PITCTRLA value (RTC_PERIOD_*_gc | RTC_PITEN_bm), r19 = INTCTRL
-DEFUN HAL_RTC_PIT_CONFIG
+FUNC HAL_RTC_PIT_CONFIG
   HAL_RTC_PIT_CONFIG:
   PUSH  r20
       sts   RTC_PITINTCTRL, r19
@@ -224,31 +216,27 @@ DEFUN HAL_RTC_PIT_CONFIG
       sts   RTC_PITINTFLAGS, r20
       sts   RTC_PITCTRLA, r18
   POP  r20
-  ret
 ENDF HAL_RTC_PIT_CONFIG
 
-DEFUN HAL_RTC_PIT_OFF
+FUNC HAL_RTC_PIT_OFF
   HAL_RTC_PIT_OFF:
   PUSH  r18
       sts   RTC_PITCTRLA, __zero_reg__
       sts   RTC_PITINTCTRL, __zero_reg__
       sts   RTC_PITINTFLAGS, __zero_reg__
   POP  r18
-  ret
 ENDF HAL_RTC_PIT_OFF
 
 ; -----------------------------------------------------------------------------
 ; Compatibility & convenience wrappers
 ; -----------------------------------------------------------------------------
 
-DEFUN RTC_INIT_ONE_SECOND
+FUNC RTC_INIT_ONE_SECOND
   RTC_INIT_ONE_SECOND:
     HAL_RTC_INIT_MS 1000, 256, RTC_PRESCALER_DIV256_gc
-    ret
 ENDF RTC_INIT_ONE_SECOND
 
-DEFUN RTC_INIT_THREE_SECOND
+FUNC RTC_INIT_THREE_SECOND
   RTC_INIT_THREE_SECOND:
     HAL_RTC_INIT_MS 3000, 256, RTC_PRESCALER_DIV256_gc
-    ret
 ENDF RTC_INIT_THREE_SECOND

@@ -1,3 +1,4 @@
+; Core: avr128db48
 ; Target: AVR128DB48 CURIOSITY NANO eval board
 #include <avr/io.h>
 
@@ -23,7 +24,7 @@
 
 #include "../Hal/ALL.S"
 
-DEFUN HAL_BOARD_SETUP
+FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
     ldi     r18, 0x09<<2
@@ -49,5 +50,4 @@ DEFUN HAL_BOARD_SETUP
     ; PIN BUTTON CONFIG
     ldi     r18, 0x0B                               ; Config BOARD_BUTTON/SW0 Pin
     sts     _(BOARD_BUTTON_PORT, _PIN2CTRL), r18
-  ret
 ENDF HAL_BOARD_SETUP

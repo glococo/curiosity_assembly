@@ -5,11 +5,11 @@
 HELLO:      .asciz "Hello World!\r\n"
 HOLA:       .asciz "Hola Mundo!\r\n"
 
-; DEFUN: a_toggle_function
+; FUNC: a_toggle_function
 ; Description: Checks TOGGLE_REG to pick a string (HELLO/HOLA),
 ;              pushes it into the ring buffer (pointed by X),
 ;              and toggles the BOARD LED.
-DEFUN a_toggle_function
+FUNC a_toggle_function
   PUSH_MANY r18, r19, XL, XH
     tst     TOGGLE_REG                              ; Check the toggle state bit
     breq    1f                                      ; If 0, use HELLO

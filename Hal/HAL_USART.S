@@ -32,7 +32,6 @@ FUNC HAL_USART_BAUDRATE_UPD
     sts     _(USART,_BAUDL), r22
     sts     _(USART,_BAUDH), r23
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
-  ret
 ENDF HAL_USART_BAUDRATE_UPD
 
 ; Function: HAL_USART_SEND_LENGTH
@@ -41,7 +40,7 @@ ENDF HAL_USART_BAUDRATE_UPD
 ;           Y - Points to USART Base Address.
 ;           Z - Pointer to Data
 FUNC HAL_USART_SEND_LENGTH
-  PUSH_MANY  r24, r25
+  PUSH_MANY  r24, r25, ZL, ZH
   0:
     ld      r24, Z+
   1:
@@ -51,8 +50,7 @@ FUNC HAL_USART_SEND_LENGTH
     std     Y+2, r24                        ; USART_TXDATAL
     dec     r22
     brne    0b                              ; read next char
-  POP_MANY  r25, r24
-  ret
+  POP_MANY  ZH, ZL, r25, r24
 ENDF HAL_USART_SEND_LENGTH
 
 ; Function: HAL_USART_SEND_BYTE
@@ -67,7 +65,6 @@ FUNC HAL_USART_SEND_BYTE
     rjmp    1b                              ; wait_for_DREIF
     std     Y+2, r22                        ; USART_TXDATAL
   POP  r23
-  ret
 ENDF HAL_USART_SEND_BYTE
 
 ;------------------------------------------------------------------------------
@@ -91,7 +88,6 @@ FUNC HAL_USART_FLUSH_DEVICEBUFFER
     rjmp    0b
   2:
   POP_MANY YH, YL, r22, r18
-  ret
 ENDF HAL_USART_FLUSH_DEVICEBUFFER
 
 ;------------------------------------------------------------------------------
@@ -111,5 +107,4 @@ FUNC HAL_USART_RECEIVE_DEVICEBUFFER
     sbrc    r22, USART_RXCIF_bp
     rjmp    0b
   POP_MANY YH, YL, r22
-  ret
 ENDF HAL_USART_RECEIVE_DEVICEBUFFER

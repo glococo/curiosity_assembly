@@ -71,7 +71,6 @@ FUNC HAL_DEVICEBUFFER_PUSH
     ldi     r18, 0          ; Return Success
   0:
   POP_MANY ZH, ZL, r21, r20, r19
-  ret
 ENDF HAL_DEVICEBUFFER_PUSH
 
 ; Function: HAL_DEVICEBUFFER_PULL
@@ -102,7 +101,6 @@ FUNC HAL_DEVICEBUFFER_PULL
     ldi     r18, 0          ; Return Success
   0:
   POP_MANY ZH, ZL, r21, r20, r19
-  ret
 ENDF HAL_DEVICEBUFFER_PULL
 
 
@@ -123,7 +121,6 @@ FUNC HAL_DEVICEBUFFER_IS_EMPTY
     ldi     r18, 0          ; Not Empty
   1:
   POP r19
-  ret
 ENDF HAL_DEVICEBUFFER_IS_EMPTY
 
 ; Function: HAL_DEVICEBUFFER_IS_FULL
@@ -143,7 +140,6 @@ FUNC HAL_DEVICEBUFFER_IS_FULL
     ldi     r18, 0          ; Not Full
   1:
   POP_MANY r20, r19
-  ret
 ENDF HAL_DEVICEBUFFER_IS_FULL
 
 ; Function: HAL_DEVICEBUFFER_IN_USE
@@ -158,5 +154,4 @@ FUNC HAL_DEVICEBUFFER_IN_USE
     sub     r18, r19        ; Diff = Head - Tail
     and     r18, r20        ; Apply Mask for wrap-around
   POP_MANY r20, r19
-  ret
 ENDF HAL_DEVICEBUFFER_IN_USE

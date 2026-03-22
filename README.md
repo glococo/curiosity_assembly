@@ -41,23 +41,36 @@ To build and flash this project, you need:
 
 ## Building and Flashing
 
-Use the provided `curiosity.sh` script to compile and flash an example. The script takes three arguments: the target MCU, the board file, and the main program file.
+Use the provided `curiosity.sh` script to compile and flash an example. The script takes two arguments: the board name (without .S) and the main program file. The target MCU is automatically determined from the board file's first line.
 
 ```bash
-./curiosity.sh <MCU> <BOARD_NAME> <PROGRAM_FILE>
+./curiosity.sh <BOARD_NAME> <PROGRAM_FILE>
 ```
 
-### Example: Ring Buffer on AVR16EB32
+Example:
 
 ```bash
-./curiosity.sh avr16eb32 AVR16EB32_CNANO Examples/Ring_buffer/main.S
+./curiosity.sh AVR16EB32_CNANO Examples/Ring_buffer/main.S
 ```
+
 
 ### Utility Scripts
 
-- **`curiosity_fuses.sh`**: Reads and displays the fuse settings for the connected microcontroller.
+- **`avr_fuses.sh`**: Reads or writes fuse settings.
   ```bash
-  ./curiosity_fuses.sh avr16eb32
+  # Read all common fuses
+  ./avr_fuses.sh <MCU> read
+
+  # Read a specific fuse
+  ./avr_fuses.sh <MCU> read <FUSE_NAME>
+
+  # Write a specific fuse
+  ./avr_fuses.sh <MCU> write <FUSE_NAME> <VALUE>
+  ```
+  Example:
+  ```bash
+  ./avr_fuses.sh avr16eb32 read
+  ./avr_fuses.sh avr16eb32 write fuse2 0x02
   ```
 
 ## Usage Example

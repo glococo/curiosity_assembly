@@ -13,7 +13,7 @@
 ; #define MATH_SDIV_24_24   __divmodpsi4  ; r25:r23=Rem, r22:r20=Quot = r25:r23 / r22:r20 (Signed)
 ; #define MATH_SDIV_32_32   __divmodsi4   ; r25:r22=Rem, r21:r18=Quot = r25:r22 / r21:r18 (Signed)
 
-DEFUN MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
+FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
   PUSH_MANY r16, r17
     clr     r16             ; Sign Storage
     ; bit 0: Final Quotient Sign (Dividend Sign XOR Divisor Sign)
@@ -81,7 +81,7 @@ DEFUN MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
   ret
 ENDF MATH_SDIV_32_32
 
-DEFUN MATH_UDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
+FUNC MATH_UDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
   PUSH_MANY r17, r26, r27, r28, r29
     clr     r26             ; Clear temp remainder (Low to High)
     clr     r27
@@ -133,7 +133,7 @@ DEFUN MATH_UDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
   ret
 ENDF MATH_UDIV_32_32
 
-DEFUN MATH_SDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
+FUNC MATH_SDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
     PUSH_MANY r20, r21, r24, r25
     mov     r21, r23        ;move dividend High to sign register
     eor     r21, r19        ;xor divisor High with sign register
@@ -184,7 +184,7 @@ DEFUN MATH_SDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
     rjmp    d16_16s_3
 ENDF MATH_SDIV_16_16
 
-DEFUN MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
+FUNC MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
     PUSH_MANY r20, r24, r25
     clr     r24             ;clear remainder Low byte
     sub     r25, r25        ;clear remainder High byte and carry
@@ -212,7 +212,7 @@ DEFUN MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
     rjmp    d16_16u_1
 ENDF MATH_UDIV_16_16
 
-DEFUN MATH_UDIV_08_08       ; r22 /= r18 - Remainder on r18
+FUNC MATH_UDIV_08_08       ; r22 /= r18 - Remainder on r18
     PUSH_MANY r19, r23
     sub     r23, r23        ; clear remainder and carry
     ldi     r19, 9          ; init loop counter
@@ -235,7 +235,7 @@ DEFUN MATH_UDIV_08_08       ; r22 /= r18 - Remainder on r18
     rjmp    d8_8_1
 ENDF MATH_UDIV_08_08
 
-DEFUN MATH_SDIV_08_08       ; r22 /= r18 - Remainer on r18 Destroy r20, r19
+FUNC MATH_SDIV_08_08       ; r22 /= r18 - Remainer on r18 Destroy r20, r19
     PUSH_MANY r19, r20, r23
     mov     r20, r22        ;move dividend to sign register
     eor     r20, r18        ;xor sign with divisor

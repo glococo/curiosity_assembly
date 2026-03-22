@@ -1,3 +1,4 @@
+; Core: avr16eb32
 ; Target: AVR16EB32 CURIOSITY NANO eval board
 #include <avr/io.h>
 
@@ -45,5 +46,4 @@ FUNC HAL_BOARD_SETUP
     ; PIN BUTTON CONFIG
     ldi     r18, 0x0B                                     ; Config BOARD_BUTTON/SW0 Pin
     sts     _(BOARD_BUTTON_PORT, _PIN6CTRL), r18
-  ret
 ENDF HAL_BOARD_SETUP

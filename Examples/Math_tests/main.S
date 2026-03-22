@@ -9,7 +9,7 @@ STR_HLINE:      .asciz "\r\n----------------------------------------\r\n"
 ; Define a 64-byte Dev-Ring-Buffer for USART0 (regular speed)
 HAL_DEVICEBUFFER_DEFINE  USART0_TX_DEVBUFFER, 256, USART0_ADDR
 
-DEFUN main
+FUNC main
     rcall   HAL_BOARD_SETUP
     HAL_DEVICEBUFFER_INIT USART0_TX_DEVBUFFER     ; Initialize the USART ring buffer
 

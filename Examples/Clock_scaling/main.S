@@ -11,7 +11,7 @@
 ; 1. Define a 64-byte Dev-Ring-Buffer for USART0 (regular speed)
 HAL_DEVICEBUFFER_DEFINE  USART0_TX_DEVBUFFER, 128, USART0_ADDR
 
-DEFUN main                                    ; ✅ Main Program
+FUNC main                                    ; ✅ Main Program
   main:
     clr     TOGGLE_REG                        ; Initialize state register (default: Hello World)
     rcall   HAL_BOARD_SETUP                   ; Hardware setup: Button int and USART config
@@ -43,7 +43,7 @@ DEFUN main                                    ; ✅ Main Program
 
 ENDF main
 
-DEFUN _(BOARD_BUTTON_PORT,_PORT_vect)             ; ✅ Button Interrupt
+FUNC _(BOARD_BUTTON_PORT,_PORT_vect)             ; ✅ Button Interrupt
   ISR_START r18
 
     ldi     r18, 1                                ; Toggle state bit in TOGGLE_REG

@@ -39,7 +39,7 @@
 
 #define DEF_TO_STR(x)     #x
 #define STRINGIFY(x)      DEF_TO_STR(x)
-#define DEFUN             FUNC          // DEFUN to be purged. (old function definition)
+
 .macro FUNC name
   .section .text.\name, "ax", @progbits
   .global \name
@@ -47,8 +47,27 @@
   .func \name
   \name:
 .endm
-
 .macro ENDF name
+    ret
+  .endfunc
+  .size \name, .-\name
+.endm
+
+.macro ISR_START name, r
+  .section .text.\name, "ax", @progbits
+  .global \name
+  .type \name, @function
+  .func \name
+  \name:
+    push \r             ; Push the work register (e.g., r24)
+    in   \r, SREG
+    push \r             ; Push SREG
+.endm
+.macro ISR_END name, r
+    pop  \r             ; Restore SREG into the work register
+    out  SREG, \r
+    pop  \r             ; Restore the work register
+    reti
   .endfunc
   .size \name, .-\name
 .endm
@@ -85,17 +104,4 @@
         movw \dest + 2*_i, \src + 2*_i
         .set _i, _i + 1
     .endr
-.endm
-
-.macro ISR_START r
-    push \r             ; Push the work register (e.g., r24)
-    in   \r, SREG
-    push \r             ; Push SREG
-.endm
-
-.macro ISR_END r
-    pop  \r             ; Restore SREG into the work register
-    out  SREG, \r
-    pop  \r             ; Restore the work register
-    reti
 .endm

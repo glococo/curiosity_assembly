@@ -52,7 +52,7 @@
 #define MATH_MUL_SU_64_64 MATH_MUL_64_64
 ; --- 64-bit (Double Precision) ---
 ; MATH_MUL_64_64    ; r25:r18 *= r17:r10 - Product is 64-bit
-DEFUN MATH_MUL_64_64
+FUNC MATH_MUL_64_64
     PUSH_MANY r4, r5, r6, r7, r8, r9, r26, r27
     ; Save initial r25:r18 into r9:r4 and r27:r26
     MOVW_BLOCK r4, r18, 3    ; r4-r9 = r18-r23
@@ -109,7 +109,7 @@ DEFUN MATH_MUL_64_64
     ret
 ENDF MATH_MUL_64_64
 
-DEFUN MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
+FUNC MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
     ; Offset 0
     MATH_MADD 18, r10, r26, 25
     ; Offset 1
@@ -136,14 +136,14 @@ DEFUN MATH_MAC_32_64        ; r25:r18 += r29:r26 * r13:r10
     ret
 ENDF MATH_MAC_32_64
 
-DEFUN MATH_MAC_SU_32_64     ; r25:r18 += r29:r26 (S) * r13:r10 (U)
+FUNC MATH_MAC_SU_32_64     ; r25:r18 += r29:r26 (S) * r13:r10 (U)
     rcall   MATH_MAC_32_64
     ; Adjustment: if A < 0, res_high -= B
     MATH_SIGN_ADJUST r29, 22, 10, 4, 25
     ret
 ENDF MATH_MAC_SU_32_64
 
-DEFUN MATH_MAC_S_32_64      ; r25:r18 += r29:r26 (S) * r13:r10 (S)
+FUNC MATH_MAC_S_32_64      ; r25:r18 += r29:r26 (S) * r13:r10 (S)
     rcall   MATH_MAC_32_64
     ; Adjustment: if A < 0, res_high -= B; if B < 0, res_high -= A
     MATH_SIGN_ADJUST r29, 22, 10, 4, 25
@@ -151,7 +151,7 @@ DEFUN MATH_MAC_S_32_64      ; r25:r18 += r29:r26 (S) * r13:r10 (S)
     ret
 ENDF MATH_MAC_S_32_64
 
-DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18
+FUNC MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
     MOVW_BLOCK r26, r18, 2
     MOVW_BLOCK r10, r22, 2
@@ -161,7 +161,7 @@ DEFUN MATH_MUL_32_64        ; r25:r18 = r25:r22 * r21:r18
   ret
 ENDF MATH_MUL_32_64
 
-DEFUN MATH_MUL_SU_32_64     ; r25:r18 = r25:r22 (S) * r21:r18 (U)
+FUNC MATH_MUL_SU_32_64     ; r25:r18 = r25:r22 (S) * r21:r18 (U)
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
     MOVW_BLOCK r26, r18, 2   ; B (U)
     MOVW_BLOCK r10, r22, 2   ; A (S)
@@ -171,7 +171,7 @@ DEFUN MATH_MUL_SU_32_64     ; r25:r18 = r25:r22 (S) * r21:r18 (U)
   ret
 ENDF MATH_MUL_SU_32_64
 
-DEFUN MATH_MUL_S_32_64      ; r25:r18 = r25:r22 (S) * r21:r18 (S)
+FUNC MATH_MUL_S_32_64      ; r25:r18 = r25:r22 (S) * r21:r18 (S)
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
     MOVW_BLOCK r26, r18, 2   ; B (S)
     MOVW_BLOCK r10, r22, 2   ; A (S)
@@ -181,7 +181,7 @@ DEFUN MATH_MUL_S_32_64      ; r25:r18 = r25:r22 (S) * r21:r18 (S)
   ret
 ENDF MATH_MUL_S_32_64
 
-DEFUN MATH_MUL_32_32        ; r25:r22 *= r21:r18
+FUNC MATH_MUL_32_32        ; r25:r22 *= r21:r18
     PUSH_MANY r26, r27, r28, r29
     MOVW_BLOCK r26, r22, 2
     CLR_BLOCK r22, 4
@@ -203,7 +203,7 @@ ENDF MATH_MUL_32_32
 #define MATH_MUL_S_32_32  MATH_MUL_32_32
 #define MATH_MUL_SU_32_32 MATH_MUL_32_32
 
-DEFUN MATH_MAC_32_32        ; r25:r22 += r21:r18 * r29:r26
+FUNC MATH_MAC_32_32        ; r25:r22 += r21:r18 * r29:r26
     MATH_MADD 22, r18, r26, 25
     MATH_MADD 23, r19, r26, 25
     MATH_MADD 23, r18, r27, 25
@@ -217,7 +217,7 @@ DEFUN MATH_MAC_32_32        ; r25:r22 += r21:r18 * r29:r26
     ret
 ENDF MATH_MAC_32_32
 
-DEFUN MATH_MUL_16_16        ; r23:r22 *= r19:r18
+FUNC MATH_MUL_16_16        ; r23:r22 *= r19:r18
   PUSH_MANY r20, r21
     movw    r20, r22
     mul     r20, r18        ; al*bl
@@ -230,14 +230,14 @@ DEFUN MATH_MUL_16_16        ; r23:r22 *= r19:r18
   ret
 ENDF MATH_MUL_16_16
 
-DEFUN MATH_MAC_16_16        ; r23:r22 += r21:r20 * r19:r18
+FUNC MATH_MAC_16_16        ; r23:r22 += r21:r20 * r19:r18
     MATH_MADD 22, r20, r18, 23
     MATH_MADD 23, r21, r18, 23
     MATH_MADD 23, r20, r19, 23
     ret
 ENDF MATH_MAC_16_16
 
-DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18
+FUNC MATH_MUL_16_32        ; r25:r22 *= r19:r18
   PUSH_MANY r20, r21
     movw    r20, r22
     CLR_BLOCK r22, 4
@@ -249,7 +249,7 @@ DEFUN MATH_MUL_16_32        ; r25:r22 *= r19:r18
   ret
 ENDF MATH_MUL_16_32
 
-DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18
+FUNC MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18
   PUSH_MANY r20, r21
     movw    r20, r22
     mul     r20, r18        ; al*bl
@@ -269,7 +269,7 @@ DEFUN MATH_MUL_SU_16_32     ; r25:r22 *= r19:r18
   ret
 ENDF MATH_MUL_SU_16_32
 
-DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
+FUNC MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
   PUSH_MANY r20, r21
     movw    r20, r22
     mul     r20, r18        ; al*bl
@@ -290,7 +290,7 @@ DEFUN MATH_MUL_S_16_32      ; r25:r22 *= r19:r18 - Push/Pop r21:r20
   ret
 ENDF MATH_MUL_S_16_32
 
-DEFUN MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Push/Pop r21:r20
+FUNC MATH_MAC_16_32        ; r25:r22 += r21:r20 * r19:r18 - Push/Pop r21:r20
   PUSH_MANY r20, r21
     MATH_MADD 22, r20, r18, 25
     MATH_MADD 23, r21, r18, 25
