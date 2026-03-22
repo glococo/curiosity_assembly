@@ -1,5 +1,14 @@
+; File: Hal/MATH_SHIFTS.S
+; Description: Multi-byte bitwise shift and arithmetic routines.
+;              Supports 16, 24, and 32-bit operations.
+;
+; Example Usage:
+;   ldi     r22, lo8(0x1234)
+;   ldi     r23, hi8(0x1234)
+;   ldi     r18, 4
+;   rcall   MATH_LSL_16                 ; 0x1234 << 4 = 0x2340
+
 ; Comparisons (Returning Flags)
-; These are used when you need to compare 32-bit values for branches.
 #define MATH_CMP_32       __cmpsi2       ; Compare (Signed) r25:r22 with r21:r18
 #define MATH_UCMP_32      __ucmpsi2      ; Compare (Unsigned) r25:r22 with r21:r18
 
@@ -9,149 +18,173 @@
 #define MATH_CTZ_16       __ctzhi2       ; Count Trailing Zeros in r25:r24
 #define MATH_POPCOUNT_16  __popcounthi2  ; Population Count (bit count) in r25:r24
 
-;******************************************************************************
-;* @macro INC_32_REG
-;* @brief 32-bit addition/increment using registers
-;* @param \0 Target Register LSB (e.g., 22 for r22)
-;* @param \1 Value Register (The amount to add, e.g., r18)
-;******************************************************************************
-.macro INC_32_REG
-    add     \0,   \1
-    adc     \0+1, __zero_reg__
-    adc     \0+2, __zero_reg__
-    adc     \0+3, __zero_reg__
+; Macro: INC_32_REG
+; Description: 32-bit addition of a register value to a 32-bit register pair.
+.macro INC_32_REG reg_start, value_reg
+    add     \reg_start,   \value_reg
+    adc     \reg_start+1, __zero_reg__
+    adc     \reg_start+2, __zero_reg__
+    adc     \reg_start+3, __zero_reg__
 .endm
 
-;******************************************************************************
-;* @macro DEC_32_REG
-;* @brief 32-bit substract/decrement using registers
-;* @param \0 Target Register LSB (e.g., 22 for r22)
-;* @param \1 Value Register (The amount to substract, e.g., r18)
-;******************************************************************************
-.macro DEC_32_REG
-    sub     \0,   \1
-    sbc     \0+1, __zero_reg__
-    sbc     \0+2, __zero_reg__
-    sbc     \0+3, __zero_reg__
+; Macro: DEC_32_REG
+; Description: 32-bit subtraction of a register value from a 32-bit register pair.
+.macro DEC_32_REG reg_start, value_reg
+    sub     \reg_start,   \value_reg
+    sbc     \reg_start+1, __zero_reg__
+    sbc     \reg_start+2, __zero_reg__
+    sbc     \reg_start+3, __zero_reg__
 .endm
 
-; MATH_LSL_16           ; r23:r22 = r23:r22 << r18 - Logical Shift Left - Result = Input << Count
-; MATH_LSL_24           ; r24:r22 = r24:r22 << r18
-; MATH_LSL_32           ; r25:r22 = r25:r22 << r18
-; MATH_LSR_16           ; r23:r22 = r23:r22 >> r18 - Logical Shift Right - Result = Input >> Count
-; MATH_LSR_24           ; r24:r22 = r24:r22 >> r18
-; MATH_LSR_32           ; r25:r22 = r25:r22 >> r18
-; Arithmetic Shift Right: Result = (signed)Input >> Count. It preserves the sign bit (MSB)
-; MATH_ASR_16           ; r23:r22 = r23:r22 >> r18 (Sign extended)
-; MATH_ASR_24           ; r24:r22 = r24:r22 >> r18 (Sign extended)
-; MATH_ASR_32           ; r25:r22 = r25:r22 >> r18 (Sign extended)
-
-FUNC MATH_LSL_16       ; r23:r22 << r18
-    tst     r18
-    breq    exit_lsl_16
-  loop_lsl_16:
-    lsl     r22
-    rol     r23
-    dec     r18
-    brne    loop_lsl_16
-  exit_lsl_16:
-    ret
+; Function: MATH_LSL_16
+; Description: Logical Shift Left (16-bit).
+; Inputs:  r23:r22 - 16-bit value
+;          r18     - Shift count
+; Outputs: r23:r22 - Result
+FUNC MATH_LSL_16
+    tst     r18                         ; Check if count is zero
+    breq    1f                          ; Exit if 0
+  0:
+    lsl     r22                         ; Shift low byte
+    rol     r23                         ; Rotate through carry to high byte
+    dec     r18                         ; Decrement count
+    brne    0b                          ; Loop
+  1:
 ENDF MATH_LSL_16
-FUNC MATH_LSL_24       ; r24:r22 << r18
+
+; Function: MATH_LSL_24
+; Description: Logical Shift Left (24-bit).
+; Inputs:  r24:r22 - 24-bit value
+;          r18     - Shift count
+; Outputs: r24:r22 - Result
+FUNC MATH_LSL_24
     tst     r18
-    breq    exit_lsl_24
-  loop_lsl_24:
+    breq    1f
+  0:
     lsl     r22
     rol     r23
     rol     r24
     dec     r18
-    brne    loop_lsl_24
-  exit_lsl_24:
-    ret
+    brne    0b
+  1:
 ENDF MATH_LSL_24
-FUNC MATH_LSL_32       ; r25:r22 << r18
+
+; Function: MATH_LSL_32
+; Description: Logical Shift Left (32-bit).
+; Inputs:  r25:r22 - 32-bit value
+;          r18     - Shift count
+; Outputs: r25:r22 - Result
+FUNC MATH_LSL_32
     tst     r18
-    breq    exit_lsl_32
-  loop_lsl_32:
+    breq    1f
+  0:
     lsl     r22
     rol     r23
     rol     r24
     rol     r25
     dec     r18
-    brne    loop_lsl_32
-  exit_lsl_32:
-    ret
+    brne    0b
+  1:
 ENDF MATH_LSL_32
-FUNC MATH_LSR_16       ; r23:r22 >> r18
+
+; Function: MATH_LSR_16
+; Description: Logical Shift Right (16-bit).
+; Inputs:  r23:r22 - 16-bit value
+;          r18     - Shift count
+; Outputs: r23:r22 - Result
+FUNC MATH_LSR_16
     tst     r18
-    breq    exit_lsr_16
-  loop_lsr_16:
-    lsr     r23
-    ror     r22
+    breq    1f
+  0:
+    lsr     r23                         ; Shift high byte
+    ror     r22                         ; Rotate through carry to low byte
     dec     r18
-    brne    loop_lsr_16
-  exit_lsr_16:
-    ret
+    brne    0b
+  1:
 ENDF MATH_LSR_16
-FUNC MATH_LSR_24       ; r24:r22 >> r18
+
+; Function: MATH_LSR_24
+; Description: Logical Shift Right (24-bit).
+; Inputs:  r24:r22 - 24-bit value
+;          r18     - Shift count
+; Outputs: r24:r22 - Result
+FUNC MATH_LSR_24
     tst     r18
-    breq    exit_lsr_24
-  loop_lsr_24:
+    breq    1f
+  0:
     lsr     r24
     ror     r23
     ror     r22
     dec     r18
-    brne    loop_lsr_24
-  exit_lsr_24:
-    ret
+    brne    0b
+  1:
 ENDF MATH_LSR_24
-FUNC MATH_LSR_32       ; r25:r22 >> r18
+
+; Function: MATH_LSR_32
+; Description: Logical Shift Right (32-bit).
+; Inputs:  r25:r22 - 32-bit value
+;          r18     - Shift count
+; Outputs: r25:r22 - Result
+FUNC MATH_LSR_32
     tst     r18
-    breq    exit_lsr_32
-  loop_lsr_32:
+    breq    1f
+  0:
     lsr     r25
     ror     r24
     ror     r23
     ror     r22
     dec     r18
-    brne    loop_lsr_32
-  exit_lsr_32:
-    ret
+    brne    0b
+  1:
 ENDF MATH_LSR_32
 
-FUNC MATH_ASR_16       ; r23:r22 >> r18
+; Function: MATH_ASR_16
+; Description: Arithmetic Shift Right (16-bit). Preserves sign bit.
+; Inputs:  r23:r22 - 16-bit signed value
+;          r18     - Shift count
+; Outputs: r23:r22 - Result
+FUNC MATH_ASR_16
     tst     r18
-    breq    exit_asr_16
-  loop_asr_16:
-    asr     r23
-    ror     r22
+    breq    1f
+  0:
+    asr     r23                         ; Arithmetic shift high byte (preserves bit 7)
+    ror     r22                         ; Rotate through carry
     dec     r18
-    brne    loop_asr_16
-  exit_asr_16:
-    ret
+    brne    0b
+  1:
 ENDF MATH_ASR_16
-FUNC MATH_ASR_24       ; r24:r22 >> r18
+
+; Function: MATH_ASR_24
+; Description: Arithmetic Shift Right (24-bit). Preserves sign bit.
+; Inputs:  r24:r22 - 24-bit signed value
+;          r18     - Shift count
+; Outputs: r24:r22 - Result
+FUNC MATH_ASR_24
     tst     r18
-    breq    exit_asr_24
-  loop_asr_24:
+    breq    1f
+  0:
     asr     r24
     ror     r23
     ror     r22
     dec     r18
-    brne    loop_asr_24
-  exit_asr_24:
-    ret
+    brne    0b
+  1:
 ENDF MATH_ASR_24
-FUNC MATH_ASR_32       ; r25:r22 >> r18
+
+; Function: MATH_ASR_32
+; Description: Arithmetic Shift Right (32-bit). Preserves sign bit.
+; Inputs:  r25:r22 - 32-bit signed value
+;          r18     - Shift count
+; Outputs: r25:r22 - Result
+FUNC MATH_ASR_32
     tst     r18
-    breq    exit_asr_32
-  loop_asr_32:
+    breq    1f
+  0:
     asr     r25
     ror     r24
     ror     r23
     ror     r22
     dec     r18
-    brne    loop_asr_32
-  exit_asr_32:
-    ret
+    brne    0b
+  1:
 ENDF MATH_ASR_32

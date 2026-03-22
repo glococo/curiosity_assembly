@@ -1,30 +1,30 @@
-; Division and Modulo: The dividend is replaced by the remainder, and the divisor is usually replaced by the quotient.
-; MATH_UDIV_08_08       ; r22 /= r18 - Remainder on Divisor (r18)
-; MATH_SDIV_08_08       ; r22 /= r18 - Remainder on Divisor (r18)
-; MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder/Modulo on Divisor
-; MATH_SDIV_16_16       ; r23:r22 /= r19:r18 - Remainder/Modulo on Divisor
-; MATH_UDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
-; MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
+; File: Hal/MATH_DIV.S
+; Description: Multi-byte division and modulo routines for 8, 16, and 32-bit integers.
+;              Provides both signed and unsigned variants.
+;              Note: In these routines, the dividend is replaced by the quotient,
+;              and the divisor is replaced by the remainder (modulo).
+;
+; Example Usage:
+;   ldi     r22, 100
+;   ldi     r18, 7
+;   rcall   MATH_UDIV_08_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
 
-; Previously linked lib-gcc functions
-; #define MATH_UDIV_24_24 __udivmodpsi4   ; r25:r23=Rem, r22:r20=Quot = r25:r23 / r22:r20
-; #define MATH_UDIV_32_32 __udivmodsi4    ; r25:r22=Rem, r21:r18=Quot = r25:r22 / r21:r18
-; Division and Modulo (Signed): These handle two's complement signed integers
-; #define MATH_SDIV_24_24   __divmodpsi4  ; r25:r23=Rem, r22:r20=Quot = r25:r23 / r22:r20 (Signed)
-; #define MATH_SDIV_32_32   __divmodsi4   ; r25:r22=Rem, r21:r18=Quot = r25:r22 / r21:r18 (Signed)
-
-FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
+; Function: MATH_SDIV_32_32
+; Description: Signed 32-bit / 32-bit division and modulo.
+; Inputs:  r25:r22 - Dividend (A)
+;          r21:r18 - Divisor (B)
+; Outputs: r25:r22 - Quotient (A / B)
+;          r21:r18 - Remainder (A % B)
+FUNC MATH_SDIV_32_32
   PUSH_MANY r16, r17
-    clr     r16             ; Sign Storage
-    ; bit 0: Final Quotient Sign (Dividend Sign XOR Divisor Sign)
-    ; bit 1: Final Remainder Sign (Matches Dividend Sign)
+    clr     r16                         ; Sign Storage (bit 0: Quot, bit 1: Rem)
 
     ; 1. Check Dividend Sign
-    tst     r25
-    brpl    _check_divisor
-    ori     r16, 0x03       ; Set both bit 0 and bit 1
+    tst     r25                         ; Check MSB of dividend
+    brpl    _check_divisor              ; If positive, skip negation
+    ori     r16, 0x03                   ; Set both bit 0 and bit 1
 
-    ; Negate Dividend (r25:r22) to get Absolute Value
+    ; Negate Dividend (Absolute Value)
     com     r25
     com     r24
     com     r23
@@ -34,12 +34,12 @@ FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
     sbci    r25, lo8(-1)
 
   _check_divisor:
-    tst     r21
-    brpl    _do_unsigned_div
+    tst     r21                         ; Check MSB of divisor
+    brpl    _do_unsigned_div            ; If positive, skip negation
     ldi     r17, 1
-    eor     r16, r17        ; Flip Quotient sign bit
+    eor     r16, r17                    ; Flip Quotient sign bit
 
-    ; Negate Divisor (r21:r18) to get Absolute Value
+    ; Negate Divisor (Absolute Value)
     com     r21
     com     r20
     com     r19
@@ -49,13 +49,13 @@ FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
     sbci    r21, lo8(-1)
 
   _do_unsigned_div:
-    rcall   MATH_UDIV_32_32 ; Run your core 32/32 engine
+    rcall   MATH_UDIV_32_32             ; Perform core unsigned division
 
     ; 2. Correct Quotient Sign
-    sbrs    r16, 0
+    sbrs    r16, 0                      ; Check if result should be negative
     rjmp    _correct_remainder
 
-    ; Negate Quotient (r25:r22)
+    ; Negate Quotient
     com     r25
     com     r24
     com     r23
@@ -67,9 +67,9 @@ FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
   _correct_remainder:
     ; 3. Correct Remainder Sign (Matches Dividend)
     sbrs    r16, 1
-    ret
+    rjmp    _sdiv32_done
 
-    ; Negate Remainder (r21:r18)
+    ; Negate Remainder
     com     r21
     com     r20
     com     r19
@@ -77,191 +77,216 @@ FUNC MATH_SDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
     sbci    r19, lo8(-1)
     sbci    r20, lo8(-1)
     sbci    r21, lo8(-1)
+
+  _sdiv32_done:
   POP_MANY r17, r16
-  ret
 ENDF MATH_SDIV_32_32
 
-FUNC MATH_UDIV_32_32       ; r25:r22 /= r21:r18 - Remainder/Modulo on Divisor
+; Function: MATH_UDIV_32_32
+; Description: Unsigned 32-bit / 32-bit division and modulo.
+; Inputs:  r25:r22 - Dividend (A)
+;          r21:r18 - Divisor (B)
+; Outputs: r25:r22 - Quotient (A / B)
+;          r21:r18 - Remainder (A % B)
+FUNC MATH_UDIV_32_32
   PUSH_MANY r17, r26, r27, r28, r29
-    clr     r26             ; Clear temp remainder (Low to High)
+    clr     r26                         ; Clear temp remainder (r29:r26)
     clr     r27
     clr     r28
     clr     r29
-    ldi     r17, 32         ; Set loop counter for 32 bits
+    ldi     r17, 32                     ; Loop counter for 32 bits
 
   _udiv32_loop:
-    ; 1. Shift Dividend/Quotient left. MSB goes into Carry.
-    lsl     r22
+    lsl     r22                         ; Shift Dividend/Quotient left
     rol     r23
     rol     r24
     rol     r25
 
-    ; 2. Shift Carry into the Temp Remainder
-    rol     r26
+    rol     r26                         ; Shift MSB into Temp Remainder
     rol     r27
     rol     r28
     rol     r29
 
-    ; 3. Compare Temp Remainder with Divisor (r29:r26 vs r21:r18)
+    ; Compare Temp Remainder with Divisor
     cp      r26, r18
     cpc     r27, r19
     cpc     r28, r20
     cpc     r29, r21
 
-    ; 4. If Remainder < Divisor, skip subtraction
-    brcs    _udiv32_next
+    brcs    _udiv32_next                ; If Remainder < Divisor, skip sub
 
-    ; 5. Subtraction: Remainder = Remainder - Divisor
+    ; Subtraction: Remainder -= Divisor
     sub     r26, r18
     sbc     r27, r19
     sbc     r28, r20
     sbc     r29, r21
-
-    ; 6. Set the lowest bit of the Quotient (which is in r22)
-    ori     r22, 1
+    ori     r22, 1                      ; Set lowest bit of Quotient
 
   _udiv32_next:
     dec     r17
     brne    _udiv32_loop
 
-    ; 7. Move the Remainder into the requested Divisor registers
+    ; Move Remainder into output registers
     mov     r18, r26
     mov     r19, r27
     mov     r20, r28
     mov     r21, r29
   POP_MANY r29, r28, r27, r26, r17
-  ret
 ENDF MATH_UDIV_32_32
 
-FUNC MATH_SDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
+; Function: MATH_SDIV_16_16
+; Description: Signed 16-bit / 16-bit division and modulo.
+; Inputs:  r23:r22 - Dividend (A)
+;          r19:r18 - Divisor (B)
+; Outputs: r23:r22 - Quotient (A / B)
+;          r19:r18 - Remainder (A % B)
+FUNC MATH_SDIV_16_16
     PUSH_MANY r20, r21, r24, r25
-    mov     r21, r23        ;move dividend High to sign register
-    eor     r21, r19        ;xor divisor High with sign register
-    sbrs    r23, 7          ;if MSB in dividend set
+    mov     r21, r23                    ; Sign Storage
+    eor     r21, r19                    ; Quotient Sign
+    sbrs    r23, 7                      ; Absolute Dividend
     rjmp    d16_16s_1
-    com     r23             ;    change sign of dividend
+    com     r23
     com     r22
     subi    r22, lo8(-1)
-    sbci    r22, hi8(-1)
+    sbci    r23, hi8(-1)
   d16_16s_1:
-    sbrs    r19, 7          ;if MSB in divisor set
+    sbrs    r19, 7                      ; Absolute Divisor
     rjmp    d16_16s_2
-    com     r19             ;    change sign of divisor
+    com     r19
     com     r18
     subi    r18, lo8(-1)
     sbci    r19, hi8(-1)
   d16_16s_2:
-    clr     r24             ;clear remainder Low byte
-    sub     r25, r25        ;clear remainder High byte and carry
-    ldi     r20, 17         ;init loop counter
+    clr     r24                         ; Clear Remainder
+    clr     r25
+    ldi     r20, 17                     ; Loop counter (16 bits + 1)
   d16_16s_3:
-    rol     r22             ;shift left dividend
+    rol     r22                         ; Shift dividend
     rol     r23
-    dec     r20             ;decrement counter
-    brne    d16_16s_5       ;if done
-    sbrs    r21, 7          ;    if MSB in sign register set
+    dec     r20
+    brne    d16_16s_5                   ; Loop until done
+    sbrs    r21, 7                      ; Correct Quotient Sign
     rjmp    d16_16s_4
-    com     r23             ;        change sign of result
+    com     r23
     com     r22
     subi    r22, lo8(-1)
     sbci    r23, hi8(-1)
   d16_16s_4:
-    movw    r18, r24
+    movw    r18, r24                    ; Return Remainder
     POP_MANY r25, r24, r21, r20
-    ret                     ;    return
+    ret
   d16_16s_5:
-    rol     r24             ;shift dividend into remainder
+    rol     r24                         ; Shift into remainder
     rol     r25
-    sub     r24, r18        ;remainder = remainder - divisor
-    sbc     r25, r19        ;
-    brcc    d16_16s_6       ;if result negative
-    add     r24, r18        ;    restore remainder
+    sub     r24, r18                    ; Try subtract
+    sbc     r25, r19
+    brcc    d16_16s_6                   ; If result positive
+    add     r24, r18                    ; Else restore
     adc     r25, r19
-    clc                     ;    clear carry to be shifted into result
-    rjmp    d16_16s_3       ;else
+    clc                                 ; Shift 0 into quotient
+    rjmp    d16_16s_3
   d16_16s_6:
-    sec                     ;    set carry to be shifted into result
+    sec                                 ; Shift 1 into quotient
     rjmp    d16_16s_3
 ENDF MATH_SDIV_16_16
 
-FUNC MATH_UDIV_16_16       ; r23:r22 /= r19:r18 - Remainder on Divisor
+; Function: MATH_UDIV_16_16
+; Description: Unsigned 16-bit / 16-bit division and modulo.
+; Inputs:  r23:r22 - Dividend (A)
+;          r19:r18 - Divisor (B)
+; Outputs: r23:r22 - Quotient (A / B)
+;          r19:r18 - Remainder (A % B)
+FUNC MATH_UDIV_16_16
     PUSH_MANY r20, r24, r25
-    clr     r24             ;clear remainder Low byte
-    sub     r25, r25        ;clear remainder High byte and carry
-    ldi     r20, 17         ;init loop counter
+    clr     r24                         ; Clear Remainder
+    clr     r25
+    ldi     r20, 17                     ; Loop counter
   d16_16u_1:
-    rol     r22             ;shift left dividend
+    rol     r22
     rol     r23
-    dec     r20             ;decrement counter
-    brne    d16_16u_2       ;if done
-    movw    r18, r24        ;(move remainder to divisor)
-  POP_MANY r25, r24, r20
-  ret                       ;    return
+    dec     r20
+    brne    d16_16u_2
+    movw    r18, r24                    ; Return Remainder
+    POP_MANY r25, r24, r20
+    ret
   d16_16u_2:
-    rol     r24             ;shift dividend into remainder
+    rol     r24
     rol     r25
-    sub     r24, r18        ;remainder = remainder - divisor
-    sbc     r25, r19        ;
-    brcc    d16_16u_3       ;if result negative
-    add     r24, r18        ;    restore remainder
+    sub     r24, r18
+    sbc     r25, r19
+    brcc    d16_16u_3
+    add     r24, r18
     adc     r25, r19
-    clc                     ;    clear carry to be shifted into result
-    rjmp    d16_16u_1       ;else
+    clc
+    rjmp    d16_16u_1
   d16_16u_3:
-    sec                     ;    set carry to be shifted into result
+    sec
     rjmp    d16_16u_1
 ENDF MATH_UDIV_16_16
 
-FUNC MATH_UDIV_08_08       ; r22 /= r18 - Remainder on r18
+; Function: MATH_UDIV_08_08
+; Description: Unsigned 8-bit / 8-bit division and modulo.
+; Inputs:  r22 - Dividend (A)
+;          r18 - Divisor (B)
+; Outputs: r22 - Quotient (A / B)
+;          r18 - Remainder (A % B)
+FUNC MATH_UDIV_08_08
     PUSH_MANY r19, r23
-    sub     r23, r23        ; clear remainder and carry
-    ldi     r19, 9          ; init loop counter
+    clr     r23                         ; Clear Remainder
+    ldi     r19, 9                      ; Loop counter
   d8_8_1:
-    rol     r22             ; shift left dividend
-    dec     r19             ; decrement counter
-    brne    d8_8_2          ; if done
-    mov     r18, r23
+    rol     r22
+    dec     r19
+    brne    d8_8_2
+    mov     r18, r23                    ; Return Remainder
     POP_MANY r23, r19
-    ret                     ;    return
+    ret
   d8_8_2:
-    rol     r23             ; shift dividend into remainder
-    sub     r23,r18         ; remainder = remainder - divisor
-    brcc    d8_8_3          ; if result negative
-    add     r23, r18        ;    restore remainder
-    clc                     ;    clear carry to be shifted into result
-    rjmp    d8_8_1          ; else
+    rol     r23
+    sub     r23, r18
+    brcc    d8_8_3
+    add     r23, r18
+    clc
+    rjmp    d8_8_1
   d8_8_3:
-    sec                     ;    set carry to be shifted into result
+    sec
     rjmp    d8_8_1
 ENDF MATH_UDIV_08_08
 
-FUNC MATH_SDIV_08_08       ; r22 /= r18 - Remainer on r18 Destroy r20, r19
+; Function: MATH_SDIV_08_08
+; Description: Signed 8-bit / 8-bit division and modulo.
+; Inputs:  r22 - Dividend (A)
+;          r18 - Divisor (B)
+; Outputs: r22 - Quotient (A / B)
+;          r18 - Remainder (A % B)
+FUNC MATH_SDIV_08_08
     PUSH_MANY r19, r20, r23
-    mov     r20, r22        ;move dividend to sign register
-    eor     r20, r18        ;xor sign with divisor
-    sbrc    r18, 7          ;if MSB of divisor set
-    neg     r18             ;    change sign of divisor
-    sbrc    r22, 7          ;if MSB of dividend set
-    neg     r22             ;    change sign of divisor
-    sub     r23, r23        ;clear remainder and carry
-    ldi     r19, 9          ;init loop counter
+    mov     r20, r22                    ; Sign Storage
+    eor     r20, r18
+    sbrc    r18, 7                      ; Absolute Divisor
+    neg     r18
+    sbrc    r22, 7                      ; Absolute Dividend
+    neg     r22
+    clr     r23                         ; Clear Remainder
+    ldi     r19, 9                      ; Loop counter
   d8_8s_1:
-    rol     r22             ;shift left dividend
-    dec     r19             ;decrement counter
-    brne    d8_8s_2         ;if done
-    sbrc    r20, 7          ;    if MSB of sign register set
-    neg     r22             ;        change sign of result
-    mov     r18, r23
+    rol     r22
+    dec     r19
+    brne    d8_8s_2
+    sbrc    r20, 7                      ; Correct Quotient Sign
+    neg     r22
+    mov     r18, r23                    ; Return Remainder
     POP_MANY r23, r20, r19
-    ret                     ;    return
+    ret
   d8_8s_2:
-    rol     r23             ;shift dividend into remainder
-    sub     r23, r18        ;remainder = remainder - divisor
-    brcc    d8_8s_3         ;if result negative
-    add     r23, r18        ;    restore remainder
-    clc                     ;    clear carry to be shifted into result
-    rjmp    d8_8s_1         ;else
+    rol     r23
+    sub     r23, r18
+    brcc    d8_8s_3
+    add     r23, r18
+    clc
+    rjmp    d8_8s_1
   d8_8s_3:
-    sec                     ;    set carry to be shifted into result
+    sec
     rjmp    d8_8s_1
 ENDF MATH_SDIV_08_08

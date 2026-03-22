@@ -1,34 +1,37 @@
 ; File: Examples/RTC/toggle.S
 ; Description: Toggle logic for LED and string selection for direct USART transmission.
-
-#define  TOGGLE_REG   r10
+;              Provides the `a_toggle_function` used by the RTC example.
+;
+; Example Usage:
+;   #include "toggle.S"
+;   rcall a_toggle_function             ; Call to send string and toggle LED
 
 .section    .progmem.rodata
-HELLO:      .asciz "Hello World!\r\n"
-HOLA:       .asciz "Hola Mundo!\r\n"
+ASCIZ HELLO "Hello World!\r\n"
+ASCIZ HOLA  "Hola Mundo!\r\n"
 
-; FUNC: a_toggle_function
-; Description: Checks TOGGLE_REG to pick a string (HELLO/HOLA),
-;              sends it directly over USART (from Flash),
-;              and toggles the BOARD LED.
+; Function: a_toggle_function
+; Description: Selects a string based on TOGGLE_REG and sends it directly
+;              from Flash to the USART (Y), then toggles the board LED.
+; Inputs:  TOGGLE_REG - State bit determines string (0: HELLO, 1: HOLA)
+;          Y          - Points to the USART Peripheral Base Address
+; Outputs: None
 FUNC a_toggle_function
-  PUSH_MANY r18, r19, r30, r31
-    tst     TOGGLE_REG                  ; Check the toggle state bit
-    breq    1f                          ; If 0, use HELLO
-    ldi     r30, lo8( HOLA )            ; If !0, use HOLA
-    ldi     r31, hi8( HOLA )
-    rjmp    2f
+  PUSH_MANY r18, r19, r22, ZL, ZH
+    tst     TOGGLE_REG                  ; Check toggle state bit
+    breq    0f                          ; If 0, use HELLO
+    ldi     ZL, lo8( MAPPED_PROGMEM_START + HOLA ) ; If !0, use HOLA
+    ldi     ZH, hi8( MAPPED_PROGMEM_START + HOLA )
+    ldi     r22, LENGTH( HOLA )         ; Load string length
+    rjmp    1f
+  0:
+    ldi     ZL, lo8( MAPPED_PROGMEM_START + HELLO ) ; Load HELLO
+    ldi     ZH, hi8( MAPPED_PROGMEM_START + HELLO )
+    ldi     r22, LENGTH( HELLO )        ; Load string length
   1:
-    ldi     r30, lo8( HELLO )
-    ldi     r31, hi8( HELLO )
+    rcall   HAL_USART_SEND_LENGTH       ; Send string: r22=len, Z=data, Y=uart
 
-  2:
-    ; HAL_USART_Z_SEND expects:
-    ; Z (r31:r30) = Flash pointer to string
-    rcall   HAL_USART_Z_SEND            ; Send the string until the null terminator
-
-    ldi     r19, BOARD_LED_PIN          ; Toggle the BOARD_LED_PIN
-    sts     _(BOARD_LED_PORT,_OUTTGL), r19
-  POP_MANY r31, r30, r19, r18
-  ret
+    ldi     r19, BOARD_LED_PIN          ; Load LED pin mask
+    sts     _(BOARD_LED_PORT,_OUTTGL), r19 ; Toggle LED via hardware register
+  POP_MANY ZH, ZL, r22, r19, r18
 ENDF a_toggle_function

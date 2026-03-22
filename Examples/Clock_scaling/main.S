@@ -2,55 +2,54 @@
 ; Description: Demonstrates dynamic CPU clock scaling and its effect on peripherals.
 ;              - Iterates through different CPU clock divisors (1, 2, 4, 8, 16, 32, 64).
 ;              - Updates the USART baud rate and delay constants dynamically.
-;              - Toggles the LED and sends status via a 64-byte ring buffer.
-; Target: CURIOSITY NANO eval boards (e.g., AVR16EB32 Curiosity Nano)
+;              - Toggles the LED and sends status via a 128-byte ring buffer.
+;
+; Example Usage:
+;   This is a standalone example. Compile and flash to a supported AVR-Dx/Ex board.
+;   Observe the USART output as the clock speed changes; the baud rate remains
+;   consistent because it's recalculated after each clock change.
 
 #define  TOGGLE_REG   r10
 #include "toggle.S"
 
-; 1. Define a 64-byte Dev-Ring-Buffer for USART0 (regular speed)
+; 1. Define a 128-byte Dev-Ring-Buffer for USART0 (regular speed)
 HAL_DEVICEBUFFER_DEFINE  USART0_TX_DEVBUFFER, 128, USART0_ADDR
 
-FUNC main                                    ; ✅ Main Program
-  main:
-    clr     TOGGLE_REG                        ; Initialize state register (default: Hello World)
-    rcall   HAL_BOARD_SETUP                   ; Hardware setup: Button int and USART config
-    HAL_DEVICEBUFFER_INIT USART0_TX_DEVBUFFER ; Initialize the USART ring buffer
-    sei                                       ; Enable interrupts
+; Function: main
+; Description: Main application entry point. Initializes hardware and loops through
+;              clock prescaler settings.
+; Inputs:  None
+; Outputs: Never returns
+FUNC main
+    clr     TOGGLE_REG                  ; Initialize toggle state (0: Hello, 1: Hola)
+    rcall   HAL_BOARD_SETUP             ; Basic board initialization
+    HAL_DEVICEBUFFER_INIT USART0_TX_DEVBUFFER ; Initialize USART TX buffer
+    sei                                 ; Enable global interrupts
 
-    ; HAL_CORE_PRESCALER input (r18):
-    ; 0: /1 (PEN=0, PDIV=0)
-    ; 1: /2 (PEN=1, PDIV=0)
-    ; 2: /4 (PEN=1, PDIV=1)
-    ; 3: /8 (PEN=1, PDIV=2)
-    ; 4: /16 (PEN=1, PDIV=3)
-    ; 5: /32 (PEN=1, PDIV=4)
-    ; 6: /64 (PEN=1, PDIV=5)
+    ; Clock Prescaler Indices (r18):
+    ; 0: /1, 1: /2, 2: /4, 3: /8, 4: /16, 5: /32, 6: /64
 
-    ldi     r18, 0                            ; Start with no divisor (/1)
+    ldi     r18, 0                      ; Start with divisor index 0 (/1)
   loop:
-    rcall   HAL_CORE_PRESCALER                ; Apply new clock divisor
-    rcall   HAL_USART_BAUDRATE_UPD            ; Re-calculate baud rate based on new clock
-    rcall   a_toggle_function                 ; Push message and toggle LED
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
-    HAL_DELAY_MS 1000                         ; Delay 1 second (stays accurate due to HAL scaling)
+    rcall   HAL_CORE_PRESCALER          ; Apply new clock divisor index (r18)
+    rcall   HAL_USART_BAUDRATE_UPD      ; Recalculate USART baud for new frequency
+    rcall   a_toggle_function           ; Print status and toggle LED
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER ; Send all pending data in buffer
+    HAL_DELAY_MS 1000                   ; 1s delay (calibrated by HAL_CORE_PRESCALER)
 
-    inc     r18                               ; Increment divisor index
-    cpi     r18, 7                            ; Wrap around after index 6 (/64)
-    brlo    loop
-    ldi     r18, 0
-    rjmp    loop
-
+    inc     r18                         ; Move to next divisor index
+    cpi     r18, 7                      ; Check if we've passed index 6
+    brlo    loop                        ; If < 7, continue
+    ldi     r18, 0                      ; Otherwise, reset to 0
+    rjmp    loop                        ; Repeat indefinitely
 ENDF main
 
-FUNC _(BOARD_BUTTON_PORT,_PORT_vect)             ; ✅ Button Interrupt
-  ISR_START r18
+; ISR: PORT_vect (Button Interrupt)
+; Description: Toggles the TOGGLE_REG state when the board button is pressed.
+ISR_START _(BOARD_BUTTON_PORT,_PORT_vect) r18
+    ldi     r18, 1                      ; Load toggle bit
+    eor     TOGGLE_REG, r18             ; Flip bit 0 of state register
 
-    ldi     r18, 1                                ; Toggle state bit in TOGGLE_REG
-    eor     TOGGLE_REG, r18
-
-    ldi     r18, BOARD_BUTTON_PIN                 ; Clear the button interrupt flag
-    sts     _(BOARD_BUTTON_PORT,_INTFLAGS), r18
-
-  ISR_END r18
-ENDF _(BOARD_BUTTON_PORT,_PORT_vect)
+    ldi     r18, BOARD_BUTTON_PIN       ; Load button pin mask
+    sts     _(BOARD_BUTTON_PORT,_INTFLAGS), r18 ; Clear interrupt flag
+ISR_END _(BOARD_BUTTON_PORT,_PORT_vect) r18

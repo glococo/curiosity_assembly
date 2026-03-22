@@ -39,6 +39,7 @@
 
 #define DEF_TO_STR(x)     #x
 #define STRINGIFY(x)      DEF_TO_STR(x)
+#define LENGTH(s)         (s##_len)
 
 .macro FUNC name
   .section .text.\name, "ax", @progbits
@@ -104,4 +105,9 @@
         movw \dest + 2*_i, \src + 2*_i
         .set _i, _i + 1
     .endr
+.endm
+
+.macro ASCIZ name, text
+    \name: .asciz "\text"
+    .set \name\()_len, . - \name - 1
 .endm
