@@ -31,7 +31,7 @@
         .byte 0                         ; Head index
         .byte 0                         ; Tail index
         .byte 0                         ; Mask (size-1)
-        .byte 0, 0                      ; Device Base Address (16-bit)
+        .word 0                         ; Device Base Address (16-bit)
         .space (\size)                  ; Data storage area
     .set \name\()_SIZE, (\size-1)       ; Assembler constant for mask
     .set \name\()_ADDRL, \devID & 0xFF  ; Assembler constant for addrL

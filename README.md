@@ -1,7 +1,7 @@
 # ⚡ AVR Assembly HAL Framework
 
 A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx and AVR-Ex series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
-
+![Curiosity Assembly](notes/curiosity_assembly.jpg)
 ---
 
 ## 🚀 Key Features
@@ -22,7 +22,7 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 ### 🛠️ Core HAL (`Hal/`)
 - **`ALL.S`**: Master include file—your one-stop shop for the entire framework.
 - **`HAL_MACRO.S`**: Essential primitives for function definitions, ISR management, and atomic register access.
-- **`HAL_CORE.S`**: CPU clock scaling, prescaler management, and system initialization.
+- **`HAL_CLKCTRL.S`**: Full Clock Control (CLKCTRL) driver—source selection, OSCHF frequency, prescaling, and locking. (Supersedes `HAL_CORE.S`).
 - **`HAL_DELAY.S`**: Frequency-aware, cycle-accurate software delays.
 - **`HAL_PRINT.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
 - **`HAL_RTC.S`**: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) helpers with sync-safe operations.

@@ -1,5 +1,7 @@
 ; Core: avr16eb32
-; Target: AVR16EB32 CURIOSITY NANO eval board
+; Datasheet: DS40002522A
+; Target: AVR16EB32 CURIOSITY NANO
+; Target datasheet: DS50003605B
 #include <avr/io.h>
 
 ; Core Config
@@ -15,11 +17,11 @@
 #define BOARD_BUTTON_PORT     PORTF
 
 ; USART Config
-#define USART0_ADDR           USART0_RXDATAL
 #define USART                 USART0
 #define USART_TX              PIN1_bm
 #define USART_RX              PIN2_bm
 #define USART_PORT            PORTC
+#define USART_ADDR            USART0_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
 
@@ -27,8 +29,11 @@
 
 FUNC HAL_BOARD_SETUP
     ; HAL SPEED AWARENESS
-    ldi     r18, 0
-    rcall   HAL_CORE_PRESCALER
+    ldi4    r22, BOARD_CLOCK_MAIN
+    sts4    HAL_CLK_MAIN_KHZ, r22
+
+    ldi     r22, 0
+    rcall   HAL_CLKCTRL_PRESCALER
     rcall   HAL_USART_BAUDRATE_UPD
 
     ; USART CONFIG

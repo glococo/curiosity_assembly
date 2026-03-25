@@ -28,10 +28,10 @@ if [ -z "$MCU" ]; then
 fi
 
 # Compile and link
-avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM"
+avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM" || exit 1
 
 # Create HEX file
-avr-objcopy -O ihex main.elf main.hex
+avr-objcopy -O ihex main.elf main.hex || exit 1
 
 if [ $DEBUG == true ]; then
     # Disassemble HEX file for inspection

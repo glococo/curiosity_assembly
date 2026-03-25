@@ -1,5 +1,7 @@
 ; Core: avr128db48
+; Datasheet: DS40002247B
 ; Target: AVR128DB48 CURIOSITY NANO eval board
+; Target datasheet: DS50003037A
 #include <avr/io.h>
 
 ; Core Config
@@ -19,6 +21,7 @@
 #define USART_TX              PIN0_bm
 #define USART_RX              PIN1_bm
 #define USART_PORT            PORTB
+#define USART_ADDR            USART3_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
 
@@ -27,14 +30,12 @@
 FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
-    ldi     r18, 0x09<<2
-    ldi     r19, 0xD8                   ; Unlock CPU_CCP register
-    sts     CPU_CCP, r19
-    sts     CLKCTRL_OSCHFCTRLA, r18
+    ldi     r22, HAL_CLKCTRL_FREQ_24MHZ
+    rcall   HAL_CLKCTRL_OSCHF_SET
 
     ; HAL SPEED AWARENESS
-    ldi     r18, 0
-    rcall   HAL_CORE_PRESCALER
+    ldi     r22, 0
+    rcall   HAL_CLKCTRL_PRESCALER
     rcall   HAL_USART_BAUDRATE_UPD
 
     ; USART CONFIG

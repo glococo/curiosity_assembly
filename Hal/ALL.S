@@ -25,7 +25,7 @@
 ; String and numeric printing functions
 #include "HAL_PRINT.S"
 
-; Core CPU and Clock Control
-#include "HAL_CORE.S"
+; Core Clock and CPU Control (CLKCTRL)
+#include "HAL_CLKCTRL.S"
 ; USART Serial communication
 #include "HAL_USART.S"

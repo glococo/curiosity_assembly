@@ -15,7 +15,7 @@ HOLA:       .asciz "Hola Mundo!\r\n"
 ; Description: Reports the current clock divisor index and a chosen string
 ;              (HELLO/HOLA) based on TOGGLE_REG, then toggles the board LED.
 ; Inputs:  TOGGLE_REG - State bit 0 determines string (0: HELLO, 1: HOLA)
-;          Z          - Points to USART TX buffer (for HAL_PRINT functions)
+;                   Z - Points to USART TX buffer (for HAL_PRINT functions)
 ; Outputs: None
 FUNC a_toggle_function
   PUSH_MANY r18, r19, r22, XL, XH
@@ -37,7 +37,7 @@ FUNC a_toggle_function
 
     ; Push the numeric divisor index (0-6) converted to ASCII ('0'-'6')
     ldi     r18, '0'                    ; ASCII base
-    lds     r22, HAL_CORE_DIVISOR       ; Get current divisor index from RAM
+    lds     r22, HAL_CLK_MAIN_DIVISOR   ; Get current divisor index from RAM
     add     r22, r18                    ; Convert to ASCII char
     rcall   HAL_DEVICEBUFFER_PUSH       ; Push char to buffer
     rcall   HAL_PRINT_NEW_LINE          ; Send \r\n

@@ -18,7 +18,7 @@ HOLA:       .asciz "Hola Mundo!\r\n"
 ;          Z          - Points to USART TX buffer
 ; Outputs: None
 FUNC a_toggle_function
-  PUSH_MANY r18, r19, XL, XH
+  PUSH_MANY r18, r19, r22, XL, XH
     tst     TOGGLE_REG                  ; Check the toggle state bit
     breq    0f                          ; If 0, use HELLO
     ldi     XL, lo8( MAPPED_PROGMEM_START + HOLA ) ; If !0, use HOLA
@@ -31,7 +31,10 @@ FUNC a_toggle_function
   1:
     rcall   HAL_PRINT_STR               ; Push selected string to buffer Z
 
+    lds     r22, CLKCTRL_MCLKCTRLA
+    rcall   HAL_PRINT_UINT8_REG
+
     ldi     r19, BOARD_LED_PIN          ; Load LED pin mask
     sts     _(BOARD_LED_PORT,_OUTTGL), r19 ; Toggle LED via hardware register
-  POP_MANY XH, XL, r19, r18
+  POP_MANY XH, XL, r22, r19, r18
 ENDF a_toggle_function

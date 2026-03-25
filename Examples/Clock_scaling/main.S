@@ -26,22 +26,24 @@ FUNC main
     HAL_DEVICEBUFFER_INIT USART0_TX_DEVBUFFER ; Initialize USART TX buffer
     sei                                 ; Enable global interrupts
 
-    ; Clock Prescaler Indices (r18):
-    ; 0: /1, 1: /2, 2: /4, 3: /8, 4: /16, 5: /32, 6: /64
-
-    ldi     r18, 0                      ; Start with divisor index 0 (/1)
   loop:
-    rcall   HAL_CORE_PRESCALER          ; Apply new clock divisor index (r18)
-    rcall   HAL_USART_BAUDRATE_UPD      ; Recalculate USART baud for new frequency
-    rcall   a_toggle_function           ; Print status and toggle LED
+    ; 1. Print status and toggle LED
+    rcall   a_toggle_function           ; Print current state to USART
     rcall   HAL_USART_FLUSH_DEVICEBUFFER ; Send all pending data in buffer
-    HAL_DELAY_MS 1000                   ; 1s delay (calibrated by HAL_CORE_PRESCALER)
-
-    inc     r18                         ; Move to next divisor index
-    cpi     r18, 7                      ; Check if we've passed index 6
-    brlo    loop                        ; If < 7, continue
-    ldi     r18, 0                      ; Otherwise, reset to 0
-    rjmp    loop                        ; Repeat indefinitely
+    ; 2. Wait for 1 second (Timing is frequency-aware)
+    HAL_DELAY_MS 1000
+    ; 3. Load current clock divisor
+    ; Clock Prescaler Indices (r22):
+    ; 0: /1, 1: /2, 2: /4, 3: /8, 4: /16, 5: /32, 6: /64
+    lds     r22, HAL_CLK_MAIN_DIVISOR   ; Load current div to r22
+    inc     r22                         ; Increment to next divisor
+    cpi     r22, 7                      ; Check if we passed /64   
+    brlo    clk_apply                   ; If /64 or lower apply new clock divisor
+    ldi     r22, 0                      ; If not, reset to /1
+  clk_apply:
+    rcall   HAL_CLKCTRL_PRESCALER       ; Apply clock change and update timing
+    rcall   HAL_USART_BAUDRATE_UPD      ; Recalculate USART baud for new frequency
+    rjmp    loop
 ENDF main
 
 ; ISR: PORT_vect (Button Interrupt)
