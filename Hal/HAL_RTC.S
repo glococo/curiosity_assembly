@@ -10,9 +10,6 @@
 ;   ldi     r23, hi8(1000)
 ;   rcall   HAL_RTC_SET_PERIOD          ; Set RTC period to 1000 ticks
 
-; -----------------------------------------------------------------------------
-; RTC Constant Fallbacks (if not provided by vendor headers)
-; -----------------------------------------------------------------------------
 #ifndef RTC_PRESCALER_DIV1_gc
 #  define RTC_PRESCALER_DIV1_gc     (0x00<<3)
 #  define RTC_PRESCALER_DIV2_gc     (0x01<<3)
@@ -33,35 +30,34 @@
 #endif
 
 #ifndef RTC_PERIOD_OFF_gc
-#  define RTC_PERIOD_OFF_gc      (0x00<<3)
-#  define RTC_PERIOD_CYC4_gc     (0x01<<3)
-#  define RTC_PERIOD_CYC8_gc     (0x02<<3)
-#  define RTC_PERIOD_CYC16_gc    (0x03<<3)
-#  define RTC_PERIOD_CYC32_gc    (0x04<<3)
-#  define RTC_PERIOD_CYC64_gc    (0x05<<3)
-#  define RTC_PERIOD_CYC128_gc   (0x06<<3)
-#  define RTC_PERIOD_CYC256_gc   (0x07<<3)
-#  define RTC_PERIOD_CYC512_gc   (0x08<<3)
-#  define RTC_PERIOD_CYC1024_gc  (0x09<<3)
-#  define RTC_PERIOD_CYC2048_gc  (0x0A<<3)
-#  define RTC_PERIOD_CYC4096_gc  (0x0B<<3)
-#  define RTC_PERIOD_CYC8192_gc  (0x0C<<3)
-#  define RTC_PERIOD_CYC16384_gc (0x0D<<3)
-#  define RTC_PERIOD_CYC32768_gc (0x0E<<3)
-#  define RTC_PERIOD_CYC65536_gc (0x0F<<3)
+#define RTC_PERIOD_OFF_gc      (0x00<<3)
+#define RTC_PERIOD_CYC4_gc     (0x01<<3)
+#define RTC_PERIOD_CYC8_gc     (0x02<<3)
+#define RTC_PERIOD_CYC16_gc    (0x03<<3)
+#define RTC_PERIOD_CYC32_gc    (0x04<<3)
+#define RTC_PERIOD_CYC64_gc    (0x05<<3)
+#define RTC_PERIOD_CYC128_gc   (0x06<<3)
+#define RTC_PERIOD_CYC256_gc   (0x07<<3)
+#define RTC_PERIOD_CYC512_gc   (0x08<<3)
+#define RTC_PERIOD_CYC1024_gc  (0x09<<3)
+#define RTC_PERIOD_CYC2048_gc  (0x0A<<3)
+#define RTC_PERIOD_CYC4096_gc  (0x0B<<3)
+#define RTC_PERIOD_CYC8192_gc  (0x0C<<3)
+#define RTC_PERIOD_CYC16384_gc (0x0D<<3)
+#define RTC_PERIOD_CYC32768_gc (0x0E<<3)
 #endif
 
 ; -----------------------------------------------------------------------------
 ; Compile-time tick calculation macros
 ; -----------------------------------------------------------------------------
-#define HAL_RTC_MS_TO_TICKS(ms, div)  (((BOARD_CLOCK_RTC) / (div) * (ms) + 999) / 1000)
+#define HAL_RTC_MS_TO_TICKS(ms, div)  (BOARD_CLOCK_RTC * ms / 1000 / div)
 #define HAL_RTC_SEC_TO_TICKS(s, div)  HAL_RTC_MS_TO_TICKS((s) * 1000, div)
 
 ; Macro: HAL_RTC_INIT_STATIC
 ; Description: Statically initializes RTC with fixed ticks and prescaler.
 .macro HAL_RTC_INIT_STATIC ticks, prescaler_gc
     .if (\ticks) > 65535
-        .error "HAL_RTC_INIT_STATIC: PER overflows 16-bit register"
+      .error "HAL_RTC_INIT_STATIC: PER overflows 16-bit register for clock: \ticks"
     .endif
     ldi     r22, lo8( \ticks )          ; Load ticks low byte
     ldi     r23, hi8( \ticks )          ; Load ticks high byte
@@ -181,9 +177,6 @@ FUNC HAL_RTC_CONFIG
     push    r18                         ; Save requested CTRLA bits
 
     ; Disable RTC before reconfiguring
-  0:  lds   r20, RTC_STATUS
-      sbrc  r20, RTC_CTRLBUSY_bp
-      rjmp  0b
       lds   r21, RTC_CTRLA              ; Read current CTRLA
       andi  r21, ~RTC_RTCEN_bm          ; Clear enable bit
       mov   r18, r21
@@ -271,11 +264,11 @@ ENDF HAL_RTC_PIT_OFF
 ; Function: RTC_INIT_ONE_SECOND
 ; Description: Configures RTC for a 1-second overflow period at /256.
 FUNC RTC_INIT_ONE_SECOND
-    HAL_RTC_INIT_MS 1000, 256, RTC_PRESCALER_DIV256_gc
+    HAL_RTC_INIT_MS 1000, 4096, RTC_PRESCALER_DIV4096_gc
 ENDF RTC_INIT_ONE_SECOND
 
 ; Function: RTC_INIT_THREE_SECOND
 ; Description: Configures RTC for a 3-second overflow period at /256.
 FUNC RTC_INIT_THREE_SECOND
-    HAL_RTC_INIT_MS 3000, 256, RTC_PRESCALER_DIV256_gc
+    HAL_RTC_INIT_MS 3000, 4096, RTC_PRESCALER_DIV4096_gc
 ENDF RTC_INIT_THREE_SECOND

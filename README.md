@@ -1,18 +1,20 @@
 # ⚡ AVR Assembly HAL Framework
 
 A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx and AVR-Ex series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
+
 ![Curiosity Assembly](notes/curiosity_assembly.jpg)
+
 ---
 
 ## 🚀 Key Features
 
-- **🎯 Zero-Overhead Abstraction**: Clean, linkable function definitions using `DEFUN` and `ENDF` macros.
+- **🎯 Zero-Overhead Abstraction**: Clean, linkable function definitions using `FUNC` and `ENDF` macros.
 - **🕒 Clock-Aware Timing**: Automatic frequency adjustment for cycle-accurate delays and peripheral baud rates.
-- **🧮 High-Performance Math**: Optimized 16-bit and 32-bit routines for multiplication, division, and multi-byte shifts.
+- **🧮 High-Performance Math**: Optimized 16-bit, 32-bit, and 64-bit routines for multiplication, division, and multi-byte shifts.
 - **📊 Efficient Data Structures**: 
   - **Power-of-Two Ring Buffers**: Ultra-fast bitwise wrapping for low-latency I/O.
   - **Zero-Copy Double-Buffering**: Ping-pong architecture for high-speed peripheral data transfer.
-- **📠 Professional Printing**: Robust string and numeric formatting (UINT8, UINT16, UINT32) for diagnostic output.
+- **📠 Professional Printing**: Robust string and numeric formatting (UINT8, UINT16, UINT32, UINT64) for diagnostic output.
 - **⚡ Modern AVR Support**: Tailored for the latest AVR architectures (AVR-Dx, AVR-Ex) with UPDI programming and Unified Memory Map.
 
 ---
@@ -21,18 +23,18 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 
 ### 🛠️ Core HAL (`Hal/`)
 - **`ALL.S`**: Master include file—your one-stop shop for the entire framework.
-- **`HAL_MACRO.S`**: Essential primitives for function definitions, ISR management, and atomic register access.
-- **`HAL_CLKCTRL.S`**: Full Clock Control (CLKCTRL) driver—source selection, OSCHF frequency, prescaling, and locking. (Supersedes `HAL_CORE.S`).
+- **`HAL_MACRO.S`**: Essential primitives for function definitions (`FUNC`/`ENDF`), ISR management, and atomic register access.
+- **`HAL_CLKCTRL.S`**: Full Clock Control (CLKCTRL) driver—source selection, OSCHF frequency, prescaling, and PLL configuration.
 - **`HAL_DELAY.S`**: Frequency-aware, cycle-accurate software delays.
 - **`HAL_PRINT.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
 - **`HAL_RTC.S`**: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) helpers with sync-safe operations.
-- **`HAL_USART.S`**: High-level USART configuration and baud rate calculations.
+- **`HAL_USART.S`**: High-level USART configuration and dynamic baud rate calculations.
 
 ### 📦 Data Structures & Math
 - **`HAL_DEVICEBUFFER.S`**: High-performance Ring Buffer with device-address binding.
 - **`HAL_DOUBLEBUFFER.S`**: High-speed Ping-Pong buffer descriptor and management.
-- **`MATH_MUL.S`**: Optimized multiplication (8-bit, 16-bit).
-- **`MATH_DIV.S`**: Fast integer division and modulo (8-bit, 16-bit, 32-bit).
+- **`MATH_MUL.S`**: Optimized multiplication (8, 16, 32, 64-bit).
+- **`MATH_DIV.S`**: Fast integer division and modulo (8, 16, 32-bit).
 - **`MATH_SHIFTS.S`**: Multi-byte logical and arithmetic shifts.
 
 ### 📟 Board Support (`Boards/`)
@@ -47,12 +49,15 @@ Configuration files for standard Curiosity Nano (CNANO) boards:
 
 Explore the `Examples/` directory for ready-to-flash implementations:
 
-- **`Hello_world`**: The basics—LED toggling and formatted USART printing.
-- **`Double_buffer`**: Zero-copy RX/TX echo using the Ping-Pong architecture.
-- **`Ring_buffer`**: Asynchronous, buffered USART communication.
-- **`Clock_scaling`**: Dynamic CPU frequency adjustment and peripheral recalibration.
-- **`RTC`**: Timed events and periodic interrupts.
-- **`Math_tests`**: Validation suite for the mathematical library.
+- **`01_blink_led`**: The absolute basics—toggling the board LED.
+- **`02_Hello_world`**: LED toggling and formatted USART printing with button interrupts.
+- **`03_Print_buffer`**: Buffered USART communication using device ring buffers.
+- **`04_Loopback`**: Asynchronous USART loopback implementation.
+- **`05_Double_Buffered`**: High-speed zero-copy RX/TX echo using double-buffering.
+- **`06_Math_lib`**: Comprehensive validation suite for the mathematical library.
+- **`07_RTC`**: Periodic events and timed interrupts using RTC and PIT.
+- **`10_Clock_PLL`**: Advanced clock configuration using the Phase-Locked Loop (PLL).
+- **`11_Clock_scaling`**: Dynamic CPU frequency adjustment and peripheral re-calibration.
 
 ---
 
@@ -73,7 +78,7 @@ Use the `curiosity.sh` automation script. It automatically detects the MCU from 
 
 **Example:**
 ```bash
-./curiosity.sh AVR16EB32_CNANO Examples/Double_buffer/main.S
+./curiosity.sh AVR16EB32_CNANO Examples/05_Double_Buffered/main.S
 ```
 
 ### Fuse Management
@@ -104,24 +109,25 @@ To ensure high performance and seamless integration, this framework follows a st
 
 ### Namespace & Naming
 - **Prefixes**: All HAL macros and functions use standard prefixes: `HAL_`, `MATH_`.
-- **Atomicity**: Leverage modern AVR features like `_OUTTGL`, `_DIRSET`, and `_DIRCLR` for atomic I/O operations without disabling interrupts.
+- **Atomicity**: Leverage modern AVR features like `_OUTTGL`, `_DIRSET`, and `_DIRCLR` for atomic I/O operations.
 
 ---
 
 ## 📖 Usage Example
 
 ```assembly
-#include "Hal/ALL.S"
-
-DEFUN main
-  main:
-    rcall   HAL_BOARD_SETUP       ; Board-specific I/O init
-    sei                           ; Enable interrupts
+; -----------------------------------------------------------------------------
+; Function: main
+; Description: Example entry point. Toggles LED and prints heartbeat message.
+; -----------------------------------------------------------------------------
+FUNC main
+    rcall   HAL_BOARD_SETUP                   ; Board-specific I/O init
+    sei                                       ; Enable global interrupts
 
   loop:
-    ldi     r19, LED_PIN
-    sts     _(LED_PORT, _OUTTGL), r19 ; Atomic pin toggle
-    HAL_DELAY_MS 500              ; Frequency-aware delay
+    ldi     r19, BOARD_LED_PIN                ; Load LED pin
+    sts     _(BOARD_LED_PORT, _OUTTGL), r19   ; Atomic pin toggle
+    HAL_DELAY_MS 500                          ; Frequency-aware delay
     
     PRINT_STR "Heartbeat...\r\n"
     rjmp    loop
@@ -137,4 +143,10 @@ Distributed under the **GNU General Public License v3.0**. See `LICENSE` for det
 ---
 
 ## ❤️ Credits
-Developed for the modern AVR enthusiast. Capturing the power of the **AVR-Dx/Ex** series through the elegance of pure Assembly.
+AVR was the family that started it all for me. Returning to it after years of development on other platforms has been a total joy.
+
+The modern AVR-Dx and AVR-Ex series introduce a powerhouse of features: a Unified Memory Map, UPDI, the Event System (EVSYS), and Configurable Custom Logic (CCL). Combined with Multi-Voltage I/O (MVIO), Atomic Port manipulation, crystal-less USB, and revamped peripherals (USART, ADC, and Timers), this architecture is a massive leap forward.
+
+This project was born from a desire to create a high-performance Assembly boilerplate that leverages these modern features while capturing the elegant simplicity of writing in Assembly.
+
+Developed for the modern AVR enthusiast.
