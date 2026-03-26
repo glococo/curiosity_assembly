@@ -11,16 +11,19 @@
 ; Board Config
 #define BOARD_CLOCK_MAIN      CORE_CLOCK_OSCHF
 #define BOARD_CLOCK_RTC       CORE_CLOCK_OSC32K
-#define BOARD_LED_PIN         PIN3_bm
+#define BOARD_LED_PIN         PIN3_bp
 #define BOARD_LED_PORT        PORTB
-#define BOARD_BUTTON_PIN      PIN2_bm
+#define BOARD_LED_VPORT       VPORTB
+#define BOARD_BUTTON_PIN      PIN2_bp
 #define BOARD_BUTTON_PORT     PORTB
+#define BOARD_BUTTON_VPORT    VPORTB
 
 ; USART Config
 #define USART                 USART3
-#define USART_TX              PIN0_bm
-#define USART_RX              PIN1_bm
+#define USART_TX              PIN0_bp
+#define USART_RX              PIN1_bp
 #define USART_PORT            PORTB
+#define USART_VPORT           VPORTB
 #define USART_ADDR            USART3_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
@@ -39,14 +42,12 @@ FUNC HAL_BOARD_SETUP
     rcall   HAL_USART_BAUDRATE_UPD
 
     ; USART CONFIG
-    ldi     r18, USART_TX                           ; PIN USART_TX output
-    sts     _(USART_PORT, _DIRSET), r18             ;
+    sbi     _(USART_VPORT, _DIR), USART_TX
     ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)      ; USART Enable
     sts     _(USART,_CTRLB), r18                    ;
 
     ; PIN LED CONFIG
-    ldi     r18, BOARD_LED_PIN                      ; Enable BOARD_LED_PIN output
-    sts     _(BOARD_LED_PORT, _DIRSET), r18
+    sbi     _(BOARD_LED_VPORT, _DIR), BOARD_LED_PIN
 
     ; PIN BUTTON CONFIG
     ldi     r18, 0x0B                               ; Config BOARD_BUTTON/SW0 Pin
