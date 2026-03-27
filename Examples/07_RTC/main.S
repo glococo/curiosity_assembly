@@ -24,8 +24,8 @@
 ; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
-    HAL_RTC_INIT_MS  3000, 1024, RTC_PRESCALER_DIV1024_gc ; Setup 3s RTC overflow
-    HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC16384_gc ; Setup every 32768/16384= 500ms
+    HAL_RTC_INIT_MS  3000, 1024, RTC_PRESCALER_DIV1024_bm ; Setup 3s RTC overflow
+    HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC16384_bm ; Setup every 32768/16384= 500ms
     ldiw    YL, USART_ADDR                    ; Set Y-Pointer to USART for HAL_USART_SEND_LENGTH
     sei                                       ; Enable global interrupts
 

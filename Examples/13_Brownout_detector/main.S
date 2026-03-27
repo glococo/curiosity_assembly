@@ -1,0 +1,63 @@
+; -----------------------------------------------------------------------------
+; File: Examples/13_Brownout_detector/main.S
+; Description: Brown-out Detector (BOD) and Voltage Level Monitor (VLM) example.
+;              - Shows how to configure BOD and VLM.
+;              - Toggles LED on a Voltage Level drop (VLM Interrupt).
+;
+; Example Usage:
+;   This is a standalone example. Compile and flash to a supported AVR board.
+;   The LED will blink slowly during normal operation.
+;   If the supply voltage drops below the VLM threshold, the LED blinks fast.
+; -----------------------------------------------------------------------------
+
+; -----------------------------------------------------------------------------
+; Function: main
+; Description: Main application entry point.
+; -----------------------------------------------------------------------------
+FUNC main
+  rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+
+  ; 1. Configure BOD
+  ; Active mode: Enabled
+  ; Sleep mode: Disabled
+  ; Level: 0 (typically the lowest safe level, e.g., 1.8V-2.0V)
+  ldi     r22, (BOD_ACTIVE_ENABLED_bm | BOD_SLEEP_DISABLED_bm)
+  ldi     r23, BOD_LVL_4_30V_bm
+  rcall   HAL_BOD_CONFIG
+
+  ; 2. Configure VLM
+  ; Threshold: 5% above BOD level
+  ; Interrupt: Enabled
+  ldi     r22, VLM_VLMLVL_5_bm
+  ldi     r23, 0x01                           ; VLMIE = 1 (VLM Interrupt Enable)
+  rcall   HAL_BOD_VLM_CONFIG
+
+  sei                                         ; Enable global interrupts
+
+  loop:
+    HAL_DELAY_MS 1000                         ; Slow blink
+    ldi     r22, 1<<BOARD_LED_PIN
+    sts     _(BOARD_LED_PORT,_OUTTGL), r22
+    rjmp    loop
+
+ENDF main
+
+; -----------------------------------------------------------------------------
+; ISR: BOD_VLM_vect
+; Description: Voltage Level Monitor Interrupt.
+;              Triggered when VDD falls below the VLM threshold.
+; -----------------------------------------------------------------------------
+ISR_START BOD_VLM_vect, r18
+    ; Visual Alert: Fast blink 5 times
+    ldi     r20, 10
+    vlm_alert:
+      ldi     r22, 1<<BOARD_LED_PIN
+      sts     _(BOARD_LED_PORT,_OUTTGL), r22
+      HAL_DELAY_MS 50
+      dec     r20
+      brne    vlm_alert
+
+    ; Clear VLM Interrupt Flag
+    ldi     r18, BOD_VLMIF_bm
+    sts     BOD_INTFLAGS, r18
+ISR_END BOD_VLM_vect, r18

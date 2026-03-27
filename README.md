@@ -29,6 +29,9 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 - **`HAL_PRINT.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
 - **`HAL_RTC.S`**: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) helpers with sync-safe operations.
 - **`HAL_USART.S`**: High-level USART configuration and dynamic baud rate calculations.
+- **`HAL_ADC.S`**: 10/12-bit ADC driver with polling and interrupt-driven modes.
+- **`HAL_BOD.S`**: Brown-out Detector and Voltage Level Monitor (VLM) configuration.
+- **`HAL_WDT.S`**: Watchdog Timer management—period selection and reset routines.
 
 ### 📦 Data Structures & Math
 - **`HAL_DEVICEBUFFER.S`**: High-performance Ring Buffer with device-address binding.
@@ -58,6 +61,9 @@ Explore the `Examples/` directory for ready-to-flash implementations:
 - **`07_RTC`**: Periodic events and timed interrupts using RTC and PIT.
 - **`10_Clock_PLL`**: Advanced clock configuration using the Phase-Locked Loop (PLL).
 - **`11_Clock_scaling`**: Dynamic CPU frequency adjustment and peripheral re-calibration.
+- **`12_Watchdog_timer`**: System safety and recovery—enabling the WDT and handling periodic resets.
+- **`13_Brownout_detector`**: Power monitoring—configuring BOD and VLM for reliable low-voltage operation.
+- **`14_Analog_Digital_Converter`**: Sensor integration—reading analog signals from AIN0 with configurable references.
 
 ---
 

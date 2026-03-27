@@ -29,3 +29,9 @@
 #include "HAL_CLKCTRL.S"
 ; USART Serial communication
 #include "HAL_USART.S"
+; Watchdog Timer (WDT) helper
+#include "HAL_WDT.S"
+; Brown-out Detector (BOD) helper
+#include "HAL_BOD.S"
+; Analog-to-Digital Converter (ADC) helper
+#include "HAL_ADC.S"

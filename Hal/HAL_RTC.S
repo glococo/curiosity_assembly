@@ -4,47 +4,47 @@
 ;
 ; Example Usage:
 ;   rcall   RTC_INIT_ONE_SECOND         ; Initialize RTC for 1-second overflow
-;   HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC32768_gc ; Enable Periodic Interrupt Timer
+;   HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC32768_bm ; Enable Periodic Interrupt Timer
 ;
 ;   ldi     r22, lo8(1000)
 ;   ldi     r23, hi8(1000)
 ;   rcall   HAL_RTC_SET_PERIOD          ; Set RTC period to 1000 ticks
 
-#ifndef RTC_PRESCALER_DIV1_gc
-#  define RTC_PRESCALER_DIV1_gc     (0x00<<3)
-#  define RTC_PRESCALER_DIV2_gc     (0x01<<3)
-#  define RTC_PRESCALER_DIV4_gc     (0x02<<3)
-#  define RTC_PRESCALER_DIV8_gc     (0x03<<3)
-#  define RTC_PRESCALER_DIV16_gc    (0x04<<3)
-#  define RTC_PRESCALER_DIV32_gc    (0x05<<3)
-#  define RTC_PRESCALER_DIV64_gc    (0x06<<3)
-#  define RTC_PRESCALER_DIV128_gc   (0x07<<3)
-#  define RTC_PRESCALER_DIV256_gc   (0x08<<3)
-#  define RTC_PRESCALER_DIV512_gc   (0x09<<3)
-#  define RTC_PRESCALER_DIV1024_gc  (0x0A<<3)
-#  define RTC_PRESCALER_DIV2048_gc  (0x0B<<3)
-#  define RTC_PRESCALER_DIV4096_gc  (0x0C<<3)
-#  define RTC_PRESCALER_DIV8192_gc  (0x0D<<3)
-#  define RTC_PRESCALER_DIV16384_gc (0x0E<<3)
-#  define RTC_PRESCALER_DIV32768_gc (0x0F<<3)
+#ifndef RTC_PRESCALER_DIV1_bm
+#  define RTC_PRESCALER_DIV1_bm     (0x00<<3)
+#  define RTC_PRESCALER_DIV2_bm     (0x01<<3)
+#  define RTC_PRESCALER_DIV4_bm     (0x02<<3)
+#  define RTC_PRESCALER_DIV8_bm     (0x03<<3)
+#  define RTC_PRESCALER_DIV16_bm    (0x04<<3)
+#  define RTC_PRESCALER_DIV32_bm    (0x05<<3)
+#  define RTC_PRESCALER_DIV64_bm    (0x06<<3)
+#  define RTC_PRESCALER_DIV128_bm   (0x07<<3)
+#  define RTC_PRESCALER_DIV256_bm   (0x08<<3)
+#  define RTC_PRESCALER_DIV512_bm   (0x09<<3)
+#  define RTC_PRESCALER_DIV1024_bm  (0x0A<<3)
+#  define RTC_PRESCALER_DIV2048_bm  (0x0B<<3)
+#  define RTC_PRESCALER_DIV4096_bm  (0x0C<<3)
+#  define RTC_PRESCALER_DIV8192_bm  (0x0D<<3)
+#  define RTC_PRESCALER_DIV16384_bm (0x0E<<3)
+#  define RTC_PRESCALER_DIV32768_bm (0x0F<<3)
 #endif
 
-#ifndef RTC_PERIOD_OFF_gc
-#define RTC_PERIOD_OFF_gc      (0x00<<3)
-#define RTC_PERIOD_CYC4_gc     (0x01<<3)
-#define RTC_PERIOD_CYC8_gc     (0x02<<3)
-#define RTC_PERIOD_CYC16_gc    (0x03<<3)
-#define RTC_PERIOD_CYC32_gc    (0x04<<3)
-#define RTC_PERIOD_CYC64_gc    (0x05<<3)
-#define RTC_PERIOD_CYC128_gc   (0x06<<3)
-#define RTC_PERIOD_CYC256_gc   (0x07<<3)
-#define RTC_PERIOD_CYC512_gc   (0x08<<3)
-#define RTC_PERIOD_CYC1024_gc  (0x09<<3)
-#define RTC_PERIOD_CYC2048_gc  (0x0A<<3)
-#define RTC_PERIOD_CYC4096_gc  (0x0B<<3)
-#define RTC_PERIOD_CYC8192_gc  (0x0C<<3)
-#define RTC_PERIOD_CYC16384_gc (0x0D<<3)
-#define RTC_PERIOD_CYC32768_gc (0x0E<<3)
+#ifndef RTC_PERIOD_OFF_bm
+#define RTC_PERIOD_OFF_bm      (0x00<<3)
+#define RTC_PERIOD_CYC4_bm     (0x01<<3)
+#define RTC_PERIOD_CYC8_bm     (0x02<<3)
+#define RTC_PERIOD_CYC16_bm    (0x03<<3)
+#define RTC_PERIOD_CYC32_bm    (0x04<<3)
+#define RTC_PERIOD_CYC64_bm    (0x05<<3)
+#define RTC_PERIOD_CYC128_bm   (0x06<<3)
+#define RTC_PERIOD_CYC256_bm   (0x07<<3)
+#define RTC_PERIOD_CYC512_bm   (0x08<<3)
+#define RTC_PERIOD_CYC1024_bm  (0x09<<3)
+#define RTC_PERIOD_CYC2048_bm  (0x0A<<3)
+#define RTC_PERIOD_CYC4096_bm  (0x0B<<3)
+#define RTC_PERIOD_CYC8192_bm  (0x0C<<3)
+#define RTC_PERIOD_CYC16384_bm (0x0D<<3)
+#define RTC_PERIOD_CYC32768_bm (0x0E<<3)
 #endif
 
 ; -----------------------------------------------------------------------------
@@ -55,27 +55,27 @@
 
 ; Macro: HAL_RTC_INIT_STATIC
 ; Description: Statically initializes RTC with fixed ticks and prescaler.
-.macro HAL_RTC_INIT_STATIC ticks, prescaler_gc
+.macro HAL_RTC_INIT_STATIC ticks, prescaler_bm
     .if (\ticks) > 65535
       .error "HAL_RTC_INIT_STATIC: PER overflows 16-bit register for clock: \ticks"
     .endif
     ldi     r22, lo8( \ticks )          ; Load ticks low byte
     ldi     r23, hi8( \ticks )          ; Load ticks high byte
-    ldi     r18, RTC_RUNSTDBY_bm | (\prescaler_gc) | RTC_RTCEN_bm
+    ldi     r18, RTC_RUNSTDBY_bm | (\prescaler_bm) | RTC_RTCEN_bm
     ldi     r19, RTC_OVF_bm             ; Enable Overflow interrupt
     rcall   HAL_RTC_CONFIG
 .endm
 
 ; Macro: HAL_RTC_INIT_MS
 ; Description: Initializes RTC based on millisecond duration.
-.macro HAL_RTC_INIT_MS ms, prescaler_div, prescaler_gc
-    HAL_RTC_INIT_STATIC HAL_RTC_MS_TO_TICKS(\ms, \prescaler_div), \prescaler_gc
+.macro HAL_RTC_INIT_MS ms, prescaler_div, prescaler_bm
+    HAL_RTC_INIT_STATIC HAL_RTC_MS_TO_TICKS(\ms, \prescaler_div), \prescaler_bm
 .endm
 
 ; Macro: HAL_RTC_PIT_ENABLE
 ; Description: Enables the Periodic Interrupt Timer (PIT).
-.macro HAL_RTC_PIT_ENABLE period_gc
-    ldi     r18, \period_gc | RTC_PITEN_bm
+.macro HAL_RTC_PIT_ENABLE period_bm
+    ldi     r18, \period_bm | RTC_PITEN_bm
     ldi     r19, RTC_PI_bm              ; Enable Periodic Interrupt
     rcall   HAL_RTC_PIT_CONFIG
 .endm
@@ -264,11 +264,11 @@ ENDF HAL_RTC_PIT_OFF
 ; Function: RTC_INIT_ONE_SECOND
 ; Description: Configures RTC for a 1-second overflow period at /256.
 FUNC RTC_INIT_ONE_SECOND
-    HAL_RTC_INIT_MS 1000, 4096, RTC_PRESCALER_DIV4096_gc
+    HAL_RTC_INIT_MS 1000, 4096, RTC_PRESCALER_DIV4096_bm
 ENDF RTC_INIT_ONE_SECOND
 
 ; Function: RTC_INIT_THREE_SECOND
 ; Description: Configures RTC for a 3-second overflow period at /256.
 FUNC RTC_INIT_THREE_SECOND
-    HAL_RTC_INIT_MS 3000, 4096, RTC_PRESCALER_DIV4096_gc
+    HAL_RTC_INIT_MS 3000, 4096, RTC_PRESCALER_DIV4096_bm
 ENDF RTC_INIT_THREE_SECOND
