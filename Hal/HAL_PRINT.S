@@ -27,9 +27,11 @@
 ; Inputs:  ascii_str - Label of the string in flash
 ; Outputs: None
 .macro PRINT_STR_X ascii_str
+  PUSH_MANY XL, XH
     ldi     XL, lo8( MAPPED_PROGMEM_START + (\ascii_str) )
     ldi     XH, hi8( MAPPED_PROGMEM_START + (\ascii_str) )
     rcall   HAL_PRINT_STR               ; Call string print function
+  POP_MANY XH, XL
 .endm
 
 ; Function: HAL_PRINT_NEW_LINE
@@ -37,12 +39,12 @@
 ; Inputs:  Z   - Points to Buffer Structure
 ; Outputs: None
 FUNC HAL_PRINT_NEW_LINE
-  PUSH r22
+  PUSH_MANY r18, r22
     ldi   r22, '\r'                     ; Load CR
     rcall HAL_DEVICEBUFFER_PUSH         ; Push to buffer
     ldi   r22, '\n'                     ; Load LF
     rcall HAL_DEVICEBUFFER_PUSH         ; Push to buffer
-  POP r22
+  POP_MANY r22, r18
 ENDF HAL_PRINT_NEW_LINE
 
 ; Function: HAL_PRINT_STR
@@ -51,7 +53,7 @@ ENDF HAL_PRINT_NEW_LINE
 ;          X   - Points to null-terminated string
 ; Outputs: r18 - 0: Success, 1: Buffer full
 FUNC HAL_PRINT_STR
-  PUSH  r22
+  PUSH_MANY r18, r22
   0:
     ld      r22, X+                     ; Load byte and increment X
     tst     r22                         ; Check for null terminator
@@ -60,7 +62,7 @@ FUNC HAL_PRINT_STR
     tst     r18                         ; Check if buffer is full
     breq    0b                          ; Continue if success
   1:
-  POP  r22
+  POP_MANY  r22, r18
 ENDF HAL_PRINT_STR
 
 ; Function: HAL_PRINT_UINT8_REG
@@ -86,6 +88,50 @@ FUNC HAL_PRINT_UINT8_REG
     brne    2b                          ; Loop until all digits printed
   POP_MANY r22, r18, r14
 ENDF HAL_PRINT_UINT8_REG
+
+; Function: HAL_PRINT_HEX_REG
+; Description: Prints an 8-bit value in hexadecimal format (e.g., "AF").
+; Inputs:  Z   - Points to Buffer Structure
+;          r22 - 8-bit value
+; Outputs: None
+FUNC HAL_PRINT_HEX_REG
+    PUSH_MANY r18, r21, r22
+    mov   r21, r22                      ; Save value in r14 (callee-saved)
+
+    swap  r22                           ; High nibble: Swap nibbles
+    rcall 1f                            ; Convert and push nibble
+
+    mov   r22, r21                      ; Low nibble: Restore value
+    rcall 1f                            ; Convert and push nibble
+
+    POP_MANY r22, r21, r18
+    ret
+
+  1: ; Local helper to print nibble in r22
+    andi  r22, 0x0F                     ; Mask lower 4 bits
+    subi  r22, -'0'                     ; Add '0'
+    cpi   r22, '9' + 1                  ; Check if > '9'
+    brcs  2f                            ; If <= '9', skip
+    subi  r22, -('A' - '9' - 1)         ; Adjust for 'A'-'F'
+  2:
+    rcall HAL_DEVICEBUFFER_PUSH         ; r18: success
+    ret
+ENDF HAL_PRINT_HEX_REG
+
+; Function: HAL_PRINT_HEX16_REG
+; Description: Prints a 16-bit value in hexadecimal format (e.g., "ABCD").
+; Inputs:  Z       - Points to Buffer Structure
+;          r23:r22 - 16-bit value
+; Outputs: None
+FUNC HAL_PRINT_HEX16_REG
+    PUSH_MANY r21, r22, r23
+    mov   r21, r22                      ; Save low byte
+    mov   r22, r23                      ; Print high byte first
+    rcall HAL_PRINT_HEX_REG
+    mov   r22, r21                      ; Print low byte
+    rcall HAL_PRINT_HEX_REG
+    POP_MANY r23, r22, r21
+ENDF HAL_PRINT_HEX16_REG
 
 ; Function: HAL_PRINT_UINT16_REG
 ; Description: Prints a 16-bit unsigned integer in decimal format.

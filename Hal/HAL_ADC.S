@@ -61,16 +61,16 @@ ENDF HAL_ADC_INIT
 
 ; Function: HAL_ADC_VREF_SET
 ; Description: Configures the internal voltage reference.
-; Inputs:  r22 - VREF_ADC0REFSEL_bm (e.g., VREF_ADC0REFSEL_1V024_bm)
+; Inputs:  r22 - ADC_REFSEL_bm (e.g., ADC_REFSEL_1V024_bm)
 ; Outputs: None
 FUNC HAL_ADC_VREF_SET
-    sts     VREF_ADC0CTRLA, r22
+    sts     ADC0_CTRLC, r22
 ENDF HAL_ADC_VREF_SET
 
 ; Function: HAL_ADC_POLL_READ
 ; Description: Performs a single conversion on the specified channel.
 ; Inputs:  r22 - ADC0_MUXPOS (Channel)
-; Outputs: r25:r24 - 16-bit ADC Result
+; Outputs: r23:r22 - 16-bit ADC Result
 FUNC HAL_ADC_POLL_READ
     sts     ADC0_MUXPOS, r22            ; Select Channel
     ldi     r22, ADC_START_0_bm
@@ -80,5 +80,5 @@ FUNC HAL_ADC_POLL_READ
     sbrs    r22, 0                      ; Wait for SAMPCIF/RESRDY (bit 0 usually)
     rjmp    0b
     sts     ADC0_INTFLAGS, r22          ; Clear flag
-    ldsw    r24, ADC0_RESULT0           ; Read Result
+    ldsw    r22, ADC0_RESULT0           ; Read Result
 ENDF HAL_ADC_POLL_READ

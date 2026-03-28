@@ -2,7 +2,6 @@
 ; Description: Watchdog Timer (WDT) helper library for modern AVR (Dx/Ex/EB).
 ;              Provides routines for enabling, disabling, and patting the WDT.
 
-#ifndef WDT_PERIOD_OFF_bm
 #define WDT_PERIOD_OFF_bm      0x00
 #define WDT_PERIOD_8CLK_bm     0x01
 #define WDT_PERIOD_16CLK_bm    0x02
@@ -19,7 +18,6 @@
 #define WDT_PERIOD_32KCLK_bm   0x0D
 #define WDT_PERIOD_64KCLK_bm   0x0E
 #define WDT_PERIOD_128KCLK_bm  0x0F
-#endif
 
 ; Function: HAL_WDT_ENABLE
 ; Description: Enables the Watchdog Timer with a specific period.
