@@ -43,7 +43,8 @@
 .set HAL_CLKCTRL_PLL_DIV_6,      0x03<<3
 
 .section .bss
-HAL_ONE_MS:                 .word 0       ; 16-bit One millisecond in cycles of hal_delay.S
+HAL_ONE_MS:                 .word 0       ; 16-bit One millisecond in cycles
+HAL_ONE_MS_DELAY:           .word 0       ; 16-bit One millisecond in cycles for hal_delay.S
 HAL_CLK_MAIN_KHZ:           .long 0       ; 32-bit MAIN Clock Source
 HAL_CLK_MAIN_DIV:           .byte 0       ;  8-bit Current CPU clock divisor
 
@@ -79,7 +80,7 @@ ENDF HAL_CLKCTRL_PLL_SET
 ; Inputs:  r22 - Divisor index
 ; Outputs: None
 FUNC HAL_CLKCTRL_PRESCALER
-  PUSH_MANY r18, r23, r24, r25
+  PUSH_MANY r18, r19, r23, r24, r25
     sts     HAL_CLK_MAIN_DIV, r22       ; Save raw register value
     tst     r22
     breq    write_reg
@@ -94,10 +95,21 @@ FUNC HAL_CLKCTRL_PRESCALER
 
   update_one_ms:
     lds     r18, HAL_CLK_MAIN_DIV   ; Load divisor index
-    subi    r18, -2
     lds4    r22, HAL_CLK_MAIN_KHZ
 
     rcall   MATH_LSR_32                 ; r25:r22 = r25:r22 >> r18
     stsw    HAL_ONE_MS, r22             ; Store One MS
-  POP_MANY r25, r24, r23, r18
+  update_one_ms_for_delay:
+    ldi     r18, 2
+    rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
+    stsw    HAL_ONE_MS_DELAY, r22
+  update_one_us:
+    ldiw    r18, 1000
+    ldsw    r22, HAL_ONE_MS
+    rcall   MATH_UDIV_16_16             ; r23:r22 /= r19:r18
+    // Check udiv modulo for rounding
+    // inc     r22
+    andi    r22, 0x1F
+    sts     CLKCTRL_MCLKTIMEBASE, r22
+  POP_MANY r25, r24, r23, r19, r18
 ENDF HAL_CLKCTRL_PRESCALER

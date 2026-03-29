@@ -28,6 +28,7 @@ FUNC main
     clr     TOGGLE_REG                        ; Initialize state register (0: Hello, 1: Hola)
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     HAL_DEVICEBUFFER_INIT RX_DEVBUFFER        ; Initialize the USART ring buffer
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
     sei                                       ; Enable global interrupts
 
   loop:

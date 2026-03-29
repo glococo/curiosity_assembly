@@ -1,6 +1,6 @@
 ; -----------------------------------------------------------------------------
 ; File: Examples/14_Analog_Digital_Converter/main.S
-; Description: Analog-to-Digital Converter (ADC) example.
+; Description: Analog-to-Digital Converter (ADC) example for EA/EB Series
 ;              - Reads an analog value from AIN0.
 ;              - Toggles LED based on the reading.
 ;
@@ -9,28 +9,29 @@
 ;   Apply a variable voltage (0 to VDD) to the AIN0 pin (e.g., PD0 on EB32).
 ;   The LED will blink faster as the voltage increases.
 ; -----------------------------------------------------------------------------
+; Define a 256-byte Dev-Ring-Buffer for USART0 (regular speed)
+HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
 
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Main application entry point.
-; -----------------------------------------------------------------------------
 FUNC main
-  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+    rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+    HAL_DEVICEBUFFER_INIT TX_DEVBUFFER              ; Initialize USART TX buffer
+    ldiw    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
 
-  ; Ref: VDD, Prescaler: /64 (for ~312KHz ADC clock at 20MHz CPU)
-  ldi     r22, (ADC_REFSEL_VDD_bm | ADC_PRESC_DIV64_bm)
-  ldi     r23, ADC_ENABLE_bm                      ; Enable: Yes
-  rcall   HAL_ADC_INIT                            ; 1. Configure ADC
+    rcall   HAL_PRINT_NEW_LINE
+    PRINT_STR "__ CURIOSITY ASSEMBLY __\r\n"
+    PRINT_STR "__ ADC: Measuring AIN0 pin\r\n"
+
+    ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
+    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_bm, ADC_REFSEL_VDD_bm
 
   loop:
-    ldi     r22, 0x00                             ; ADC0_MUXPOS_AIN0 Read from AIN0 (Channel 0)
-    rcall   HAL_ADC_POLL_READ                     ; Returns result in r25:r24
+    HAL_ADC_EX_READ ADC_MUXPOS_AIN00_gc           ; Do one time instant ADC Read
+
+    DEBUG_STR_REGW r22, "ADC RESULT: "
 
     ; If result > 2048 (approx VDD/2), blink fast
     ; If result <= 2048, blink slow
-    cpi     r24, lo8(2048)
-    ldi     r18, hi8(2048)
-    cpc     r25, r18
+    MATH_CMP_16i r22, 2048
     brsh    fast_blink
 
   slow_blink:

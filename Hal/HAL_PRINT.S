@@ -11,14 +11,10 @@
 ;   ldi     ZH, hi8(my_buf)
 ;   rcall   HAL_PRINT_NEW_LINE
 
-; Macro: PRINT_STR
-; Description: Inline macro to print a string literal.
-; Inputs:  str - The string literal to print
-; Outputs: None
 .macro PRINT_STR str:vararg
-    .pushsection .progmem.rodata
+  .pushsection .progmem.rodata
     str_\@: .asciz \str                 ; Store string in flash
-    .popsection
+  .popsection
     PRINT_STR_X str_\@                  ; Print the stored string
 .endm
 
@@ -118,20 +114,29 @@ FUNC HAL_PRINT_HEX_REG
     ret
 ENDF HAL_PRINT_HEX_REG
 
-; Function: HAL_PRINT_HEX16_REG
-; Description: Prints a 16-bit value in hexadecimal format (e.g., "ABCD").
-; Inputs:  Z       - Points to Buffer Structure
-;          r23:r22 - 16-bit value
-; Outputs: None
-FUNC HAL_PRINT_HEX16_REG
-    PUSH_MANY r21, r22, r23
+FUNC HAL_PRINT_HEXW_REG
+    PUSH_MANY r21
     mov   r21, r22                      ; Save low byte
     mov   r22, r23                      ; Print high byte first
     rcall HAL_PRINT_HEX_REG
     mov   r22, r21                      ; Print low byte
     rcall HAL_PRINT_HEX_REG
-    POP_MANY r23, r22, r21
-ENDF HAL_PRINT_HEX16_REG
+    POP_MANY r21
+ENDF HAL_PRINT_HEXW_REG
+
+FUNC HAL_PRINT_HEXL_REG
+    PUSH_MANY r21
+    mov   r21, r22                      ; Save low byte
+    mov   r22, r25                      ; Print hhi8 byte first
+    rcall HAL_PRINT_HEX_REG
+    mov   r22, r24                      ; Print hlo8 byte
+    rcall HAL_PRINT_HEX_REG
+    mov   r22, r23                      ; Print hi8 byte
+    rcall HAL_PRINT_HEX_REG
+    mov   r22, r21                      ; Print lo8 byte
+    rcall HAL_PRINT_HEX_REG
+    POP_MANY r21
+ENDF HAL_PRINT_HEXL_REG
 
 ; Function: HAL_PRINT_UINT16_REG
 ; Description: Prints a 16-bit unsigned integer in decimal format.

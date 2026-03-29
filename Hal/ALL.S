@@ -7,6 +7,10 @@
 
 ; Basic assembly macros and register defines
 #include "HAL_MACRO.S"
+; Instruction Set Extension
+#include "HAL_EXTEND.S"
+; Basic Debug macros
+#include "HAL_DEBUG.S"
 ; Multiplication routines
 #include "MATH_MUL.S"
 ; Division and Modulo routines
@@ -33,5 +37,6 @@
 #include "HAL_WDT.S"
 ; Brown-out Detector (BOD) helper
 #include "HAL_BOD.S"
-; Analog-to-Digital Converter (ADC) helper
-#include "HAL_ADC.S"
+; Analog-to-Digital Converter (ADC) helper for EA/EB Series
+#include "HAL_ADC_EX_define.S"
+#include "HAL_ADC_EX.S"

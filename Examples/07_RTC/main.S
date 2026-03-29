@@ -19,17 +19,20 @@
 ; Function: main
 ; Description: Application entry point. Initializes hardware, RTC and PIT
 ;              then enters in sleep and wait for interruptions.
-; Inputs:      None
-; Outputs:     None
 ; -----------------------------------------------------------------------------
+; 1. Define a 128-byte Dev-Ring-Buffer for USART0 (regular speed)
+HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 128, USART_ADDR
+
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    HAL_DEVICEBUFFER_INIT TX_DEVBUFFER        ; Initialize the USART ring buffer
     HAL_RTC_INIT_MS  3000, 1024, RTC_PRESCALER_DIV1024_bm ; Setup 3s RTC overflow
     HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC16384_bm ; Setup every 32768/16384= 500ms
-    ldiw    YL, USART_ADDR                    ; Set Y-Pointer to USART for HAL_USART_SEND_LENGTH
     sei                                       ; Enable global interrupts
 
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
   loop:
+    rcall   HAL_USART_FLUSH_DEVICEBUFFER      ; Drain buffer to USART hardware
     sleep                                     ; Wait for interrupts
     rjmp    loop                              ; Repeat indefinitely
 

@@ -34,8 +34,8 @@ FUNC main
     sts     _(USART,_CTRLB), r18              ; Update CTRLB
     ldi     r18, USART_RXCIE_bm               ; Enable RX Complete Interrupt
     sts     _(USART,_CTRLA), r18              ; Update CTRLA
-
-    PRINT_STR "\r\nUSART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n"
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
+    PRINT_STR "__ USART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n"
     rcall   HAL_USART_FLUSH_DEVICEBUFFER      ; Clear boot message
     sei                                       ; Enable global interrupts
 

@@ -20,7 +20,8 @@ FUNC main
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER  ; Initialize USART TX buffer
 
     ldiw    ZL, TX_DEVBUFFER            ; Set Z to point to the device buffer for all PRINT functions
-    PRINT_STR "\r\n__ SIGROW reading example\r\n"
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
+    PRINT_STR "__ SIGROW reading example\r\n"
     rcall   HAL_PRINT_NEW_LINE
     PRINT_STR "Device ID:"
     ldsw    r22, SIGROW_DEVICEID0

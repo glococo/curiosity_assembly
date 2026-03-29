@@ -17,11 +17,10 @@ ASCIZ MSG_RTC "RTC OVF fired!\r\n"
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC send_msg_rtc
-    PUSH_MANY r22, ZL, ZH
+    PUSH_MANY XL, XH
 
-    ldiw    ZL, MAPPED_PROGMEM_START + MSG_RTC ; Load MSG_RTC address
-    ldi     r22, LENGTH( MSG_RTC )             ; Load string length
-    rcall   HAL_USART_SEND_LENGTH              ; Send string: r22=len, Z=data, Y=uart
+    ldiw    XL, MAPPED_PROGMEM_START + MSG_RTC          ; Load MSG_RTC address
+    rcall   HAL_PRINT_STR                     ; Push selected string to buffer Z
 
-    POP_MANY ZH, ZL, r22
+    POP_MANY XH, XL
 ENDF send_msg_rtc

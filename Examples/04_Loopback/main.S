@@ -27,6 +27,7 @@ FUNC main
 
     ; Set Z to point to the ring buffer for ISR and main loop
     ldiw    ZL, TX_BUFFER                     ; Load Z with buffer address
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
 
     ; Configure USART RX Interrupt
     lds     r18, _(USART,_CTRLB)              ; Read CTRLB
@@ -35,7 +36,7 @@ FUNC main
     ldi     r18, USART_RXCIE_bm               ; Enable RX Complete Interrupt
     sts     _(USART,_CTRLA), r18              ; Update CTRLA
 
-    PRINT_STR "\r\nUSART Loopback test: Start typing!\r\n"
+    PRINT_STR "__ USART Loopback test: Start typing!\r\n"
 
   loop:
     cli                                       ; Disable interrupts for atomic flush

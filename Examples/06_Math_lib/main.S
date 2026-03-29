@@ -12,7 +12,7 @@
 ; -----------------------------------------------------------------------------
 
 .section        .progmem.rodata
-STR_START:      .asciz "    AVR-DEV Math Library Test Suite"
+STR_START:      .asciz "__ AVR-DEV Math Library Test Suite"
 STR_HLINE:      .asciz "\r\n----------------------------------------\r\n"
 
 ; Define a 256-byte Dev-Ring-Buffer for USART0 (regular speed)
@@ -32,7 +32,7 @@ FUNC main
     ; Set Z to point to the device buffer for all PRINT functions
     ldiw    ZL, TX_DEVBUFFER
 
-    PRINT_STR_X STR_HLINE
+    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
     PRINT_STR_X STR_START                     ; Welcome message
     PRINT_STR_X STR_HLINE
 

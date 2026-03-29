@@ -8,10 +8,6 @@
 ;   ldi     r18, 4
 ;   rcall   MATH_LSL_16                 ; 0x1234 << 4 = 0x2340
 
-; Comparisons (Returning Flags)
-#define MATH_CMP_32       __cmpsi2       ; Compare (Signed) r25:r22 with r21:r18
-#define MATH_UCMP_32      __ucmpsi2      ; Compare (Unsigned) r25:r22 with r21:r18
-
 ; Miscellaneous Helpers
 #define MATH_FFS_16       __ffshi2       ; Find First Set Bit in r25:r24
 #define MATH_CLZ_16       __clzhi2       ; Count Leading Zeros in r25:r24
@@ -34,6 +30,51 @@
     sbc     \reg_start+1, __zero_reg__
     sbc     \reg_start+2, __zero_reg__
     sbc     \reg_start+3, __zero_reg__
+.endm
+
+; Function: MATH_CMP_16
+; Description: Compare (16-bit).
+; Inputs:   Ra, Rb - 16-bit value
+; Output:   SREG
+.macro MATH_CMP_16 reg_a, reg_b
+    cp    \reg_a  , \reg_b
+    cpc   \reg_a+1, \reg_b+1
+.endm
+; Function: MATH_CMP_32
+; Description: Compare (32-bit).
+; Inputs:   Ra, Rb - 32-bit value
+; Output:   SREG
+.macro MATH_CMP_32 reg_a, reg_b
+    cp    \reg_a  , \reg_b
+    cpc   \reg_a+1, \reg_b+1
+    cpc   \reg_a+2, \reg_b+2
+    cpc   \reg_a+3, \reg_b+3
+.endm
+; Function: MATH_CMP_16i
+; Description: Compare (16-bit).
+; Inputs:   Ra, immediate value - 16-bit value
+; Output:   SREG
+.macro MATH_CMP_16i reg_a, value
+  PUSH r16
+    cpi   \reg_a,   lo8( \value )
+    ldi   r16,      hi8( \value )
+    cpc   \reg_a+1, r16
+  POP r16
+.endm
+; Function: MATH_CMP_32i
+; Description: Compare (32-bit).
+; Inputs:   Ra, immediate value - 32-bit value
+; Output:   SREG
+.macro MATH_CMP_32i reg_a, value
+  PUSH r16
+    cpi   \reg_a,   lo8( \value )
+    ldi   r16,      hi8( \value )
+    cpc   \reg_a+1, r16
+    ldi   r16,      hlo8( \value )
+    cpc   \reg_a+2, r16
+    ldi   r16,      hhi8( \value )
+    cpc   \reg_a+3, r16
+  POP r16
 .endm
 
 ; Function: MATH_LSL_16

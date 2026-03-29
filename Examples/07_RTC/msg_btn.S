@@ -17,11 +17,10 @@ ASCIZ MSG_BTN "Button interrupt fired!\r\n"
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC send_msg_btn
-    PUSH_MANY r22, ZL, ZH
+    PUSH_MANY XL, XH
 
-    ldiw    ZL, MAPPED_PROGMEM_START + MSG_BTN ; Load MSG_BTN address
-    ldi     r22, LENGTH( MSG_BTN )             ; Load string length
-    rcall   HAL_USART_SEND_LENGTH              ; Send string: r22=len, Z=data, Y=uart
+    ldiw    XL, MAPPED_PROGMEM_START + MSG_BTN          ; Load MSG_BTN address
+    rcall   HAL_PRINT_STR                     ; Push selected string to buffer Z
 
-    POP_MANY ZH, ZL, r22
+    POP_MANY XH, XL
 ENDF send_msg_btn
