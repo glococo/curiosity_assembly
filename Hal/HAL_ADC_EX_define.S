@@ -83,3 +83,7 @@
 #define ADC_MUXPOS_VDDDIV10_gc      0x31
 #define ADC_MUXPOS_TEMPSENSE_gc     0x32
 #define ADC_MUXPOS_DAC0_gc          0x38
+
+.section .progmem.rodata
+ADC_DIV_TABLE:
+    .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64

@@ -31,7 +31,7 @@ FUNC main
 
     ; If result > 2048 (approx VDD/2), blink fast
     ; If result <= 2048, blink slow
-    MATH_CMP_16i r22, 2048
+    cpiw    r22, 2048
     brsh    fast_blink
 
   slow_blink:

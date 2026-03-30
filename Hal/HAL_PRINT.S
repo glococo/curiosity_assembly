@@ -71,7 +71,7 @@ FUNC HAL_PRINT_UINT8_REG
     clr   r14                           ; Initialize digit counter
   1:
     ldi   r18, 10                       ; Divisor = 10
-    rcall MATH_UDIV_08_08               ; r22 /= 10, remainder in r18
+    rcall MATH_UDIV_08                  ; r22 /= 10, remainder in r18
     subi  r18, -'0'                     ; Convert remainder to ASCII
     push  r18                           ; Store digit on stack
     inc   r14                           ; Increment digit count
@@ -149,7 +149,7 @@ FUNC HAL_PRINT_UINT16_REG
   1:
     ldi   r18, 10                       ; Divisor = 10
     clr   r19                           ;
-    rcall MATH_UDIV_16_16               ; r23:r22 /= 10, remainder in r18
+    rcall MATH_UDIV_16                  ; r23:r22 /= 10, remainder in r18
     subi  r18, -'0'                     ; Convert remainder to ASCII
     push  r18                           ; Store digit
     inc   r14                           ;
@@ -177,7 +177,7 @@ FUNC HAL_PRINT_UINT32_REG
     clr   r19
     clr   r20
     clr   r21
-    rcall MATH_UDIV_32_32               ; r25:r22 /= 10, remainder in r18
+    rcall MATH_UDIV_32                  ; r25:r22 /= 10, remainder in r18
     subi  r18, -'0'                     ; ASCII convert
     push  r18
     inc   r14

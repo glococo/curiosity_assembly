@@ -6,16 +6,26 @@
 ; Description: Inline macro for EA/EB series to configure ADC reference voltage, prescaler and ENABLE
 ; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV14_bm
 ;          vreference - Voltage reference, ex: ADC_REFSEL_1V024_bm
+;          sampdur    - Sample duration in us, ex: 4
 ; Outputs: None
-.macro HAL_ADC_EX_ENABLE prescaler, vreference
+.macro HAL_ADC_EX_ENABLE prescaler, vreference, sampdur=4
     ldi     r22, ADC_ENABLE_bm
     ldi     r23, \prescaler
     ldi     r24, \vreference
+    ldi     r25, \sampdur
     rcall   HAL_ADC_EX_SETUP
 .endm
 
 .macro HAL_ADC_EX_READ ain
     ldi     r22, \ain
+    ldi     r23, (ADC_START_IMMEDIATE_bm | ADC_MODE_SINGLE_12bit_bm)
+    rcall   HAL_ADC_EX_READ_POLLING
+.endm
+.macro HAL_ADC_EX_BURST ain, sampnum
+    ldi     r22, \sampnum
+    sts     ADC0_CTRLF, r22
+    ldi     r22, \ain
+    ldi     r23, (ADC_START_IMMEDIATE_bm | ADC_MODE_BURST_bm)
     rcall   HAL_ADC_EX_READ_POLLING
 .endm
 
@@ -24,44 +34,60 @@
 ; Inputs:  r22 - CTRLA (Enable)
 ;          r23 - CTRLB (Prescaler)
 ;          r24 - CTRLC (V_reference)
+;          r25 - CTRLE (Sample duration in us)
 ; Outputs: None
 FUNC HAL_ADC_EX_SETUP
-    sts     ADC0_CTRLC, r24
-    sts     ADC0_CTRLB, r23
-    sts     ADC0_CTRLA, r22
+  PUSH_MANY r18, XL, XH
+    sts     ADC0_CTRLC, r24     ; CTRLC (V_reference)
+    sts     ADC0_CTRLB, r23     ; CTRLB (Prescaler)
+    sts     ADC0_CTRLA, r22     ; CTRLA (Enable)
 
-    ; Configure ADC: Ref=1.024V, Prescaler=/64 (~312.5kHz @ 20MHz)
-    ; SAMPDUR >= 32us * fCLK_ADC = 10. Let's use 64 for safety.
-    ldi     r22, 10
+    ; SAMPDUR = SampleTime_us * fCLK_ADC
+    ; fCLK_ADC = fCLK_MAIN / Prescaler
+    ; fCLK_MAIN = MCLKTIMEBASE (MHz)
+    ; SAMPDUR = (SampleTime_us * MCLKTIMEBASE) / Prescaler
+
+    lds     r22, CLKCTRL_MCLKTIMEBASE
+    andi    r22, 0x1F
+    mul     r22, r25            ; r1:r0 = SampleTime_us * MCLKTIMEBASE
+    movw    r22, r0             ; r23:r22 = result
+
+    ldiw    XL, MAPPED_PROGMEM_START + ADC_DIV_TABLE
+    add     XL, r23
+    adc     XH, __zero_reg__
+    ld      r18, X              ; r18 = Divisor
+
+    rcall   MATH_UDIV_08        ; r22 = (SampleTime_us * MCLKTIMEBASE) / Prescaler
+    inc     r22                 ; Rounding +1
     sts     ADC0_CTRLE, r22
   0:
     lds     r22, ADC0_STATUS
     sbrc    r22, ADC_ADCBUSY_bp                 ; Wait for ADCBUSY (bit 0)
     rjmp    0b
+  POP_MANY XH, XL, r18
 ENDF HAL_ADC_EX_SETUP
 
 ; Function: HAL_ADC_EX_READ_POLLING
 ; Description: Performs a single conversion on the specified channel.
 ; Inputs:  r22 - ADC0_MUXPOS (Channel)
-; Outputs: r23:r22 - 16-bit ADC Result
+; Outputs: r25:r22 - 32-bit ADC Result
 FUNC HAL_ADC_EX_READ_POLLING
     sts     ADC0_MUXPOS, r22                    ; Select Channel
-    ldi     r22, (ADC_START_IMMEDIATE_bm | ADC_MODE_SINGLE_12bit_bm)
-    sts     ADC0_COMMAND, r22                   ; Start Conversion
+    sts     ADC0_COMMAND, r23                   ; Start Conversion
   0:
     lds     r22, ADC0_INTFLAGS
     sbrs    r22, ADC_RESRDY_bp                  ; Wait for SAMPCIF/RESRDY (bit 0)
     rjmp    0b
     sts     ADC0_INTFLAGS, r22                  ; Clear flag
-    ldsw    r22, ADC0_RESULT0                   ; Read Result
+    lds4    r22, ADC0_RESULT0                   ; Read Result
 ENDF HAL_ADC_EX_READ_POLLING
 
 FUNC HAL_ADC_EX_PRINT_TEMPERATURE
   PUSH_MANY r18, r19, r22, r23, r24, r25
     PRINT_STR "Temperature: "
 
-    ; 3. Calculate Temperature in Kelvin * 10 (for one decimal place)
-    ; Formula: T_k10 = [ (ADC_RES + OFFSET) * SLOPE * 10 ] / 4096
+    ; 3. Calculate Temperature in Kelvin
+    ; Formula: [ (ADC_RES + OFFSET) * SLOPE ] / 4096
     ldsw    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
     add     r22, r18
     adc     r23, r19                                ; r23:r22 = ADC_RES + Offset
@@ -70,9 +96,8 @@ FUNC HAL_ADC_EX_PRINT_TEMPERATURE
     ldi     r18, 12
     rcall   MATH_ASR_32                             ; r25:r22 /= 4096 (r25:r22>>12)
 
-    ; 4. Convert to Celsius * 10 (T_c10 = T_k10 - 2730)
     subi    r22, lo8(273)
-    sbci    r23, hi8(273)                          ; r23:r22 = Temperature in Celsius * 10
+    sbci    r23, hi8(273)                           ; r23:r22 = Temperature in Celsius
 
     rcall   HAL_PRINT_UINT16_REG
     PRINT_STR "ºC"

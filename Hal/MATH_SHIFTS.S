@@ -14,50 +14,20 @@
 #define MATH_CTZ_16       __ctzhi2       ; Count Trailing Zeros in r25:r24
 #define MATH_POPCOUNT_16  __popcounthi2  ; Population Count (bit count) in r25:r24
 
-; Function: MATH_CMP_16
-; Description: Compare (16-bit).
-; Inputs:   Ra, Rb - 16-bit value
-; Output:   SREG
-.macro MATH_CMP_16 reg_a, reg_b
-    cp    \reg_a  , \reg_b
-    cpc   \reg_a+1, \reg_b+1
-.endm
-; Function: MATH_CMP_32
-; Description: Compare (32-bit).
-; Inputs:   Ra, Rb - 32-bit value
-; Output:   SREG
-.macro MATH_CMP_32 reg_a, reg_b
-    cp    \reg_a  , \reg_b
-    cpc   \reg_a+1, \reg_b+1
-    cpc   \reg_a+2, \reg_b+2
-    cpc   \reg_a+3, \reg_b+3
-.endm
-; Function: MATH_CMP_16i
-; Description: Compare (16-bit).
-; Inputs:   Ra, immediate value - 16-bit value
-; Output:   SREG
-.macro MATH_CMP_16i reg_a, value
-  PUSH r16
-    cpi   \reg_a,   lo8( \value )
-    ldi   r16,      hi8( \value )
-    cpc   \reg_a+1, r16
-  POP r16
-.endm
-; Function: MATH_CMP_32i
-; Description: Compare (32-bit).
-; Inputs:   Ra, immediate value - 32-bit value
-; Output:   SREG
-.macro MATH_CMP_32i reg_a, value
-  PUSH r16
-    cpi   \reg_a,   lo8( \value )
-    ldi   r16,      hi8( \value )
-    cpc   \reg_a+1, r16
-    ldi   r16,      hlo8( \value )
-    cpc   \reg_a+2, r16
-    ldi   r16,      hhi8( \value )
-    cpc   \reg_a+3, r16
-  POP r16
-.endm
+; Function: MATH_LSL_08
+; Description: Logical Shift Left (08-bit).
+; Inputs:  r22 - 8-bit value
+;          r18 - Shift count
+; Outputs: r22 - Result
+FUNC MATH_LSL_08
+    tst     r18                         ; Check if count is zero
+    breq    1f                          ; Exit if 0
+  0:
+    lsl     r22                         ; Shift low byte
+    dec     r18                         ; Decrement count
+    brne    0b                          ; Loop
+  1:
+ENDF MATH_LSL_08
 
 ; Function: MATH_LSL_16
 ; Description: Logical Shift Left (16-bit).

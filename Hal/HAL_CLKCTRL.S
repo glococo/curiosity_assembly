@@ -106,10 +106,13 @@ FUNC HAL_CLKCTRL_PRESCALER
   update_one_us:
     ldiw    r18, 1000
     ldsw    r22, HAL_ONE_MS
-    rcall   MATH_UDIV_16_16             ; r23:r22 /= r19:r18
-    // Check udiv modulo for rounding
-    // inc     r22
-    andi    r22, 0x1F
+    rcall   MATH_UDIV_16                ; r23:r22 /= r19:r18
+    ldiw    r24, 500                    ; Check remainder for rounding
+    cpw      r18, r24
+    brcs    _update_one_us_done
+    inc     r22
+  _update_one_us_done:
+    andi    r22, 0x1F                   ; MCLKTIMEBASE is 5-bit (0-31)
     sts     CLKCTRL_MCLKTIMEBASE, r22
   POP_MANY r25, r24, r23, r19, r18
 ENDF HAL_CLKCTRL_PRESCALER

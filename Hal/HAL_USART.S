@@ -29,7 +29,7 @@ FUNC HAL_USART_BAUDRATE_UPD
 
     ; Load Divisor: BaudRate
     ldi4    r18, USART_BAUD_RATE
-    rcall   MATH_UDIV_32_32             ; r25:r22 = Dividend (r25:r22) / BaudRate (r21:r18)
+    rcall   MATH_UDIV_32                ; r25:r22 = Dividend (r25:r22) / BaudRate (r21:r18)
     stsw     _(USART,_BAUDL), r22       ; Store Baud Rate Low Byte
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
 ENDF HAL_USART_BAUDRATE_UPD

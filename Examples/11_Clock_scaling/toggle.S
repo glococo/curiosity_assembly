@@ -30,6 +30,8 @@ FUNC print_and_toggle
     rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
 
     DEBUG_STR_LDSW _(USART,_BAUDL), "Auto-configured Baudrate clock: "
+    DEBUG_STR_LDSW HAL_ONE_MS, "Clocks/mS (HAL_ONE_MS): "
+    DEBUG_STR_LDSW CLKCTRL_MCLKTIMEBASE, "Clocks/μS: "
 
   blink:
     ldi     r18, 1<<BOARD_LED_PIN             ; Load LED pin mask

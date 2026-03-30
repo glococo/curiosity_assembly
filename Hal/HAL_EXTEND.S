@@ -63,3 +63,83 @@
     std \ptr+\offset, \reg_start
     std \ptr+\offset+1, \reg_start+1
 .endm
+
+.macro  lsli  pos
+  PUSH r18
+    ldi     r18, \pos
+  0:
+    lsl     r22                         ; Shift low byte
+    dec     r18                         ; Decrement count
+    brne    0b                          ; Loop
+  1:
+  POP r18
+.endm
+.macro  lsliw  pos
+  PUSH r18
+    ldi     r18, \pos
+  0:
+    lsl     r22                         ; Shift low byte
+    rol     r23                         ; Rotate through carry to high byte
+    dec     r18                         ; Decrement count
+    brne    0b                          ; Loop
+  1:
+  POP r18
+.endm
+.macro  lslil  pos
+  PUSH r18
+    ldi     r18, \pos
+  0:
+    lsl     r22                         ; Shift low byte
+    rol     r23                         ; Rotate through carry to hi8 byte
+    rol     r24                         ; Rotate through carry to hlo8 byte
+    rol     r25                         ; Rotate through carry to hhi8 byte
+    dec     r18                         ; Decrement count
+    brne    0b                          ; Loop
+  1:
+  POP r18
+.endm
+
+; Function: cpw
+; Description: Compare (16-bit).
+; Inputs:   Ra, Rb - 16-bit value
+; Output:   SREG
+.macro cpw reg_a, reg_b
+    cp    \reg_a  , \reg_b
+    cpc   \reg_a+1, \reg_b+1
+.endm
+; Function: cpl
+; Description: Compare (32-bit).
+; Inputs:   Ra, Rb - 32-bit value
+; Output:   SREG
+.macro cpl reg_a, reg_b
+    cp    \reg_a  , \reg_b
+    cpc   \reg_a+1, \reg_b+1
+    cpc   \reg_a+2, \reg_b+2
+    cpc   \reg_a+3, \reg_b+3
+.endm
+; Function: cpiw
+; Description: Compare (16-bit).
+; Inputs:   Ra, immediate value - 16-bit value
+; Output:   SREG
+.macro cpiw reg_a, value
+  PUSH r16
+    cpi   \reg_a,   lo8( \value )
+    ldi   r16,      hi8( \value )
+    cpc   \reg_a+1, r16
+  POP r16
+.endm
+; Function: cpil
+; Description: Compare (32-bit).
+; Inputs:   Ra, immediate value - 32-bit value
+; Output:   SREG
+.macro cpil reg_a, value
+  PUSH r16
+    cpi   \reg_a,   lo8( \value )
+    ldi   r16,      hi8( \value )
+    cpc   \reg_a+1, r16
+    ldi   r16,      hlo8( \value )
+    cpc   \reg_a+2, r16
+    ldi   r16,      hhi8( \value )
+    cpc   \reg_a+3, r16
+  POP r16
+.endm

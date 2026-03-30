@@ -7,15 +7,15 @@
 ; Example Usage:
 ;   ldi     r22, 100
 ;   ldi     r18, 7
-;   rcall   MATH_UDIV_08_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
+;   rcall   MATH_UDIV_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
 
-; Function: MATH_SDIV_32_32
+; Function: MATH_SDIV_32
 ; Description: Signed 32-bit / 32-bit division and modulo.
 ; Inputs:  r25:r22 - Dividend (A)
 ;          r21:r18 - Divisor (B)
 ; Outputs: r25:r22 - Quotient (A / B)
 ;          r21:r18 - Remainder (A % B)
-FUNC MATH_SDIV_32_32
+FUNC MATH_SDIV_32
   PUSH_MANY r16, r17
     clr     r16                         ; Sign Storage (bit 0: Quot, bit 1: Rem)
 
@@ -49,7 +49,7 @@ FUNC MATH_SDIV_32_32
     sbci    r21, lo8(-1)
 
   _do_unsigned_div:
-    rcall   MATH_UDIV_32_32             ; Perform core unsigned division
+    rcall   MATH_UDIV_32                ; Perform core unsigned division
 
     ; 2. Correct Quotient Sign
     sbrs    r16, 0                      ; Check if result should be negative
@@ -80,15 +80,15 @@ FUNC MATH_SDIV_32_32
 
   _sdiv32_done:
   POP_MANY r17, r16
-ENDF MATH_SDIV_32_32
+ENDF MATH_SDIV_32
 
-; Function: MATH_UDIV_32_32
+; Function: MATH_UDIV_32
 ; Description: Unsigned 32-bit / 32-bit division and modulo.
 ; Inputs:  r25:r22 - Dividend (A)
 ;          r21:r18 - Divisor (B)
 ; Outputs: r25:r22 - Quotient (A / B)
 ;          r21:r18 - Remainder (A % B)
-FUNC MATH_UDIV_32_32
+FUNC MATH_UDIV_32
   PUSH_MANY r17, r26, r27, r28, r29
     clr     r26                         ; Clear temp remainder (r29:r26)
     clr     r27
@@ -132,15 +132,15 @@ FUNC MATH_UDIV_32_32
     mov     r20, r28
     mov     r21, r29
   POP_MANY r29, r28, r27, r26, r17
-ENDF MATH_UDIV_32_32
+ENDF MATH_UDIV_32
 
-; Function: MATH_SDIV_16_16
+; Function: MATH_SDIV_16
 ; Description: Signed 16-bit / 16-bit division and modulo.
 ; Inputs:  r23:r22 - Dividend (A)
 ;          r19:r18 - Divisor (B)
 ; Outputs: r23:r22 - Quotient (A / B)
 ;          r19:r18 - Remainder (A % B)
-FUNC MATH_SDIV_16_16
+FUNC MATH_SDIV_16
     PUSH_MANY r20, r21, r24, r25
     mov     r21, r23                    ; Sign Storage
     eor     r21, r19                    ; Quotient Sign
@@ -189,15 +189,15 @@ FUNC MATH_SDIV_16_16
   d16_16s_6:
     sec                                 ; Shift 1 into quotient
     rjmp    d16_16s_3
-ENDF MATH_SDIV_16_16
+ENDF MATH_SDIV_16
 
-; Function: MATH_UDIV_16_16
+; Function: MATH_UDIV_16
 ; Description: Unsigned 16-bit / 16-bit division and modulo.
 ; Inputs:  r23:r22 - Dividend (A)
 ;          r19:r18 - Divisor (B)
 ; Outputs: r23:r22 - Quotient (A / B)
 ;          r19:r18 - Remainder (A % B)
-FUNC MATH_UDIV_16_16
+FUNC MATH_UDIV_16
     PUSH_MANY r20, r24, r25
     clr     r24                         ; Clear Remainder
     clr     r25
@@ -223,15 +223,15 @@ FUNC MATH_UDIV_16_16
   d16_16u_3:
     sec
     rjmp    d16_16u_1
-ENDF MATH_UDIV_16_16
+ENDF MATH_UDIV_16
 
-; Function: MATH_UDIV_08_08
+; Function: MATH_UDIV_08
 ; Description: Unsigned 8-bit / 8-bit division and modulo.
 ; Inputs:  r22 - Dividend (A)
 ;          r18 - Divisor (B)
 ; Outputs: r22 - Quotient (A / B)
 ;          r18 - Remainder (A % B)
-FUNC MATH_UDIV_08_08
+FUNC MATH_UDIV_08
     PUSH_MANY r19, r23
     clr     r23                         ; Clear Remainder
     ldi     r19, 9                      ; Loop counter
@@ -252,15 +252,15 @@ FUNC MATH_UDIV_08_08
   d8_8_3:
     sec
     rjmp    d8_8_1
-ENDF MATH_UDIV_08_08
+ENDF MATH_UDIV_08
 
-; Function: MATH_SDIV_08_08
+; Function: MATH_SDIV_08
 ; Description: Signed 8-bit / 8-bit division and modulo.
 ; Inputs:  r22 - Dividend (A)
 ;          r18 - Divisor (B)
 ; Outputs: r22 - Quotient (A / B)
 ;          r18 - Remainder (A % B)
-FUNC MATH_SDIV_08_08
+FUNC MATH_SDIV_08
     PUSH_MANY r19, r20, r23
     mov     r20, r22                    ; Sign Storage
     eor     r20, r18
@@ -289,4 +289,4 @@ FUNC MATH_SDIV_08_08
   d8_8s_3:
     sec
     rjmp    d8_8s_1
-ENDF MATH_SDIV_08_08
+ENDF MATH_SDIV_08
