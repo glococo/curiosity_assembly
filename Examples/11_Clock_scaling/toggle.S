@@ -17,28 +17,19 @@
 FUNC print_and_toggle
     PUSH_MANY r18, r19, r22, XL, XH
 
-    ; Push chosen string to ring buffer
-    rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
-    rcall   HAL_PRINT_STR                     ; Send HELLO/HOLA string
     rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
     PRINT_STR "Current clock divisor index: "
-
     ; Push the numeric divisor index (0-6) converted to ASCII ('0'-'6')
-    ldi     r18, '0'                          ; ASCII base
     lds     r22, HAL_CLK_MAIN_DIV             ; Get current divisor index from RAM
-    add     r22, r18                          ; Convert to ASCII char
+    subi    r22, -'0'                         ; + ASCII base
     rcall   HAL_DEVICEBUFFER_PUSH             ; Push char to buffer
     rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
 
     PRINT_STR "Configured Baud rate: "
     PRINT_STR STRINGIFY( USART_BAUD_RATE )
     rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
-    PRINT_STR "Auto-configured Baudrate clock: "
 
-    lds     r22, _(USART,_BAUDL)              ; Read current hardware BAUDL
-    lds     r23, _(USART,_BAUDH)              ; Read current hardware BAUDH
-    rcall   HAL_PRINT_UINT16_REG              ; Print BAUD value
-    rcall   HAL_PRINT_NEW_LINE                ; Send \r\n
+    DEBUG_STR_LDSW _(USART,_BAUDL), "Auto-configured Baudrate clock: "
 
   blink:
     ldi     r18, 1<<BOARD_LED_PIN             ; Load LED pin mask

@@ -14,24 +14,6 @@
 #define MATH_CTZ_16       __ctzhi2       ; Count Trailing Zeros in r25:r24
 #define MATH_POPCOUNT_16  __popcounthi2  ; Population Count (bit count) in r25:r24
 
-; Macro: INC_32_REG
-; Description: 32-bit addition of a register value to a 32-bit register pair.
-.macro INC_32_REG reg_start, value_reg
-    add     \reg_start,   \value_reg
-    adc     \reg_start+1, __zero_reg__
-    adc     \reg_start+2, __zero_reg__
-    adc     \reg_start+3, __zero_reg__
-.endm
-
-; Macro: DEC_32_REG
-; Description: 32-bit subtraction of a register value from a 32-bit register pair.
-.macro DEC_32_REG reg_start, value_reg
-    sub     \reg_start,   \value_reg
-    sbc     \reg_start+1, __zero_reg__
-    sbc     \reg_start+2, __zero_reg__
-    sbc     \reg_start+3, __zero_reg__
-.endm
-
 ; Function: MATH_CMP_16
 ; Description: Compare (16-bit).
 ; Inputs:   Ra, Rb - 16-bit value

@@ -26,6 +26,9 @@ HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board initialization
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER        ; Initialize USART TX buffer
+    rcall   HAL_PRINT_NEW_LINE
+    PRINT_STR "__ CURIOSITY ASSEMBLY __\r\n"
+    PRINT_STR "__ CLK: Dynamic CPU clock scaling\r\n"
     sei                                       ; Enable global interrupts
 
   loop:

@@ -1,4 +1,4 @@
-# ⚡ AVR Assembly HAL Framework
+# AVR Assembly HAL Framework
 
 A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx and AVR-Ex series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
 
@@ -6,7 +6,7 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 - **🎯 Zero-Overhead Abstraction**: Clean, linkable function definitions using `FUNC` and `ENDF` macros.
 - **🕒 Clock-Aware Timing**: Automatic frequency adjustment for cycle-accurate delays and peripheral baud rates.

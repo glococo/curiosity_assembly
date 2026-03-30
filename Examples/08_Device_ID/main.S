@@ -23,6 +23,7 @@ FUNC main
     PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
     PRINT_STR "__ SIGROW reading example\r\n"
     rcall   HAL_PRINT_NEW_LINE
+
     PRINT_STR "Device ID:"
     ldsw    r22, SIGROW_DEVICEID0
     lds     r24, SIGROW_DEVICEID2
@@ -31,17 +32,8 @@ FUNC main
     rcall   HAL_PRINT_NEW_LINE
     rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
-    PRINT_STR "Temperature Calibration 0:"
-    ldsw    r22, SIGROW_TEMPSENSE0
-    rcall   HAL_PRINT_UINT16_REG                  ; Print 16-bit result
-    rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
-
-    PRINT_STR "Temperature Calibration 1:"
-    ldsw    r22, SIGROW_TEMPSENSE1
-    rcall   HAL_PRINT_UINT16_REG                  ; Print 16-bit result
-    rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
+    DEBUG_STR_LDSW SIGROW_TEMPSENSE0, "Temperature Calibration 0: "
+    DEBUG_STR_LDSW SIGROW_TEMPSENSE1, "Temperature Calibration 1: "
 
     PRINT_STR "Sigrow DEVICE ID:"
     ldiw    XL, SIGROW_SERNUM0

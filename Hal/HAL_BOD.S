@@ -42,11 +42,3 @@ FUNC HAL_BOD_VLM_CONFIG
     sts     BOD_VLMCTRLA, r22
     sts     BOD_INTCTRL, r23
 ENDF HAL_BOD_VLM_CONFIG
-
-; Function: HAL_BOD_GET_STATUS
-; Description: Returns the BOD and VLM status.
-; Inputs:  None
-; Outputs: r24 - BOD_STATUS register
-FUNC HAL_BOD_GET_STATUS
-    lds     r24, BOD_STATUS
-ENDF HAL_BOD_GET_STATUS
