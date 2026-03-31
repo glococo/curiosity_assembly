@@ -21,14 +21,14 @@ FUNC main
   ; Active mode: Enabled
   ; Sleep mode: Disabled
   ; Level: 0 (typically the lowest safe level, e.g., 1.8V-2.0V)
-  ldi     r22, (BOD_ACTIVE_ENABLED_bm | BOD_SLEEP_DISABLED_bm)
-  ldi     r23, BOD_LVL_4_30V_bm
+  ldi     r22, (BOD_ACTIVE_ENABLED_gc | BOD_SLEEP_DISABLE_gc)
+  ldi     r23, BOD_LVL_BODLEVEL3_gc
   rcall   HAL_BOD_CONFIG
 
   ; 2. Configure VLM
   ; Threshold: 5% above BOD level
   ; Interrupt: Enabled
-  ldi     r22, VLM_VLMLVL_5_bm
+  ldi     r22, BOD_VLMLVL_5ABOVE_gc
   ldi     r23, 0x01                           ; VLMIE = 1 (VLM Interrupt Enable)
   rcall   HAL_BOD_VLM_CONFIG
 

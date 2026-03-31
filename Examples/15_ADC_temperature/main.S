@@ -25,7 +25,7 @@ FUNC main
     PRINT_STR "Reading Temperature sensor... \n\r"
     rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
-    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_bm, ADC_REFSEL_1V024_bm
+    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_gc, ADC_REFSEL_1V024_gc
 
 /*  DEBUG_STR_LDSW SIGROW_TEMPSENSE0, "Temperature Calibration 0: "
     DEBUG_STR_LDSW SIGROW_TEMPSENSE1, "Temperature Calibration 1: "
@@ -39,7 +39,7 @@ FUNC main
     DEBUG_STR_LDS ADC0_STATUS, "ADC0_STATUS: "
     DEBUG_STR_LDS ADC0_INTFLAGS, "ADC0_FLAGS: " */
 
-    HAL_ADC_EX_READ ADC_MUXPOS_TEMPSENSE_gc             ; Do one time instant ADC Read
+    HAL_ADC_EX_READ ADC_MUXPOS_TEMPSENSE_gc         ; Do one time instant ADC Read
     rcall   HAL_ADC_EX_PRINT_TEMPERATURE
     rcall   HAL_USART_FLUSH_DEVICEBUFFER
 

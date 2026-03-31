@@ -26,10 +26,10 @@ FUNC main
     rcall   HAL_USART_FLUSH_DEVICEBUFFER
 
     ; Enable ADC with Prescaler /4, vREF 1.024v and SampleDuration of 10uS
-    HAL_ADC_EX_ENABLE ADC_PRESC_DIV10_bm, ADC_REFSEL_1V024_bm, 10
+    HAL_ADC_EX_ENABLE ADC_PRESC_DIV10_gc, ADC_REFSEL_1V024_gc, 10
 
     ; Do an instant Burst ADC Read
-    HAL_ADC_EX_BURST ADC_MUXPOS_TEMPSENSE_gc, (ADC_SAMPNUM_ACC64_bm | ADC_CHOPPING_bm)
+    HAL_ADC_EX_BURST ADC_MUXPOS_TEMPSENSE_gc, (ADC_SAMPNUM_ACC64_gc | ADC_CHOPPING_bm)
     DEBUG_STR_REGL r22, "ADC RAW RESULT 32-bit value: "
     ldi     r18, 6                                  ; Shift right 4pos (RESULT/16)
     rcall   MATH_LSR_32

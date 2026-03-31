@@ -3,6 +3,7 @@
 ; Target: AVR16EB32 CURIOSITY NANO
 ; Target datasheet: DS50003605B
 #include <avr/io.h>
+#include "../Defines/ioavr16eb32_gc.S"
 
 ; Core Config
 #define CORE_CLOCK_OSCHF      20000
@@ -39,10 +40,13 @@ FUNC HAL_BOARD_SETUP
     rcall   HAL_CLKCTRL_PRESCALER
     rcall   HAL_USART_BAUDRATE_UPD
 
+    ; TWI CONFIG
+    HAL_PORTMUX_ROUTEA( TWI, 0, DEFAULT )                 ; Ensure TWI0 is in PA2/PA3
+
     ; USART CONFIG
+    HAL_PORTMUX_ROUTEA( USART, 0, ALT4 )                  ; Ensure USART0 is in PC1/PC2/PC3)
     sbi     _(USART_VPORT, _DIR), USART_TX
-    ldi     r18, PORTMUX_USART0_2_bm                      ; 0x04 USART ALT4 func
-    sts     PORTMUX_USARTROUTEA, r18                      ;
+
     ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
     sts     _(USART,_CTRLB), r18                          ;
 

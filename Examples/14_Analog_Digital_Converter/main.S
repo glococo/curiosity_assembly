@@ -22,10 +22,10 @@ FUNC main
     PRINT_STR "__ ADC: Measuring AIN0 pin\r\n"
 
     ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_bm, ADC_REFSEL_VDD_bm
+    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_gc, ADC_REFSEL_VDD_gc
 
   loop:
-    HAL_ADC_EX_READ ADC_MUXPOS_AIN00_gc           ; Do one time instant ADC Read
+    HAL_ADC_EX_READ ADC_MUXPOS_AIN0_gc              ; Do one time instant ADC Read
 
     DEBUG_STR_REGW r22, "ADC RESULT: "
 

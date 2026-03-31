@@ -2,10 +2,13 @@
 ; Description: Analog-to-Digital Converter (ADC) helper library for modern AVR (Dx/Ex).
 ;              Provides routines for initializing, reading, and configuring ADC.
 
+.section .progmem.rodata
+ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
+
 ; Macro: .macro HAL_ADC_EX_ENABLE
 ; Description: Inline macro for EA/EB series to configure ADC reference voltage, prescaler and ENABLE
-; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV14_bm
-;          vreference - Voltage reference, ex: ADC_REFSEL_1V024_bm
+; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV16_gc
+;          vreference - Voltage reference, ex: ADC_REFSEL_VDD_gc
 ;          sampdur    - Sample duration in us, ex: 4
 ; Outputs: None
 .macro HAL_ADC_EX_ENABLE prescaler, vreference, sampdur=4
@@ -18,14 +21,14 @@
 
 .macro HAL_ADC_EX_READ ain
     ldi     r22, \ain
-    ldi     r23, (ADC_START_IMMEDIATE_bm | ADC_MODE_SINGLE_12bit_bm)
+    ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_SINGLE_12BIT_gc)
     rcall   HAL_ADC_EX_READ_POLLING
 .endm
 .macro HAL_ADC_EX_BURST ain, sampnum
     ldi     r22, \sampnum
     sts     ADC0_CTRLF, r22
     ldi     r22, \ain
-    ldi     r23, (ADC_START_IMMEDIATE_bm | ADC_MODE_BURST_bm)
+    ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_BURST_gc)
     rcall   HAL_ADC_EX_READ_POLLING
 .endm
 

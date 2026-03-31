@@ -3,6 +3,7 @@
 ; Target: AVR128DB48 CURIOSITY NANO eval board
 ; Target datasheet: DS50003037A
 #include <avr/io.h>
+#include "../Defines/ioavr128db48_gc.S"
 
 ; Core Config
 #define CORE_CLOCK_OSCHF      24000
@@ -33,7 +34,7 @@
 FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
-    ldi     r22, HAL_CLKCTRL_FREQ_24MHZ
+    ldi     r22, CLKCTRL_FRQSEL_24M_gc
     rcall   HAL_CLKCTRL_OSCHF_SET
 
     ; HAL SPEED AWARENESS

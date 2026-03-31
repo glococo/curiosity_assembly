@@ -26,8 +26,8 @@ HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 128, USART_ADDR
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER        ; Initialize the USART ring buffer
-    HAL_RTC_INIT_MS  3000, 1024, RTC_PRESCALER_DIV1024_bm ; Setup 3s RTC overflow
-    HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC16384_bm ; Setup every 32768/16384= 500ms
+    HAL_RTC_INIT_MS  3000, 1024, RTC_PRESCALER_DIV1024_gc ; Setup 3s RTC overflow
+    HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC16384_gc ; Setup every 32768/16384= 500ms
     sei                                       ; Enable global interrupts
 
     PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"

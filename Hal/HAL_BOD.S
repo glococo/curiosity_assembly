@@ -1,26 +1,12 @@
 ; File: Hal/HAL_BOD.S
-; Description: Brown-out Detector (BOD) helper library for modern AVR (Dx/Ex/EB).
+; Description: Brown-out Detector (BOD) helper library for modern AVR (Dx/Ex).
 ;              Provides routines for enabling/disabling BOD and VLM.
-
-#define BOD_ACTIVE_DISABLED_bm (0x00<<0)
-#define BOD_ACTIVE_ENABLED_bm  (0x01<<0)
-#define BOD_ACTIVE_SAMPLED_bm  (0x02<<0)
-#define BOD_SLEEP_DISABLED_bm  (0x00<<2)
-#define BOD_SLEEP_ENABLED_bm   (0x01<<2)
-#define BOD_SLEEP_SAMPLED_bm   (0x02<<2)
-#define BOD_LVL_1_75V_bm       (0x00)
-#define BOD_LVL_1_90V_bm       (0x01)
-#define BOD_LVL_2_60V_bm       (0x02)
-#define BOD_LVL_4_30V_bm       (0x03)
-#define VLM_VLMLVL_5_bm        (0x00)
-#define VLM_VLMLVL_15_bm       (0x01)
-#define VLM_VLMLVL_25_bm       (0x02)
 
 ; Function: HAL_BOD_CONFIG
 ; Description: Configures the Brown-out Detector.
 ;              Note: This writes to CCP protected registers.
-; Inputs:  r22 - BOD CTRLA (Mode) e.g., (BOD_ACTIVE_ENABLED_bm | BOD_SLEEP_DISABLED_bm)
-;          r23 - BOD CTRLB (Level) e.g., BOD_LVL_2_60V_bm
+; Inputs:  r22 - BOD CTRLA (Mode) e.g., (BOD_ACTIVE_ENABLED_gc | BOD_SLEEP_DISABLE_gc)
+;          r23 - BOD CTRLB (Level) e.g., BOD_LVL_BODLEVEL3_gc
 ; Outputs: None
 FUNC HAL_BOD_CONFIG
   PUSH r18

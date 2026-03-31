@@ -10,6 +10,13 @@
 ;   ldi     r22, '!'
 ;   rcall   HAL_USART_SEND_BYTE         ; Send single byte
 
+#ifndef USART_BAUD_RATE
+  #define USART_BAUD_RATE   115200
+#endif
+#ifndef USART_DOUBLE_SPEED
+  #define USART_DOUBLE_SPEED  1
+#endif
+
 ; Function: HAL_USART_BAUDRATE_UPD
 ; Description: Recomputes the USART BAUD register based on BOARD_CLOCK_MAIN,
 ;              the current CPU prescaler (HAL_CLK_MAIN_DIVISOR), and USART_BAUD_RATE.

@@ -33,7 +33,7 @@
 FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
-    ldi     r22, HAL_CLKCTRL_FREQ_24MHZ
+    ldi     r22, CLKCTRL_FRQSEL_24M_gc
     rcall   HAL_CLKCTRL_OSCHF_SET
 
     ; HAL SPEED AWARENESS
@@ -45,9 +45,8 @@ FUNC HAL_BOARD_SETUP
     rcall   HAL_USART_BAUDRATE_UPD
 
     ; USART CONFIG
+    HAL_PORTMUX_ROUTEA( USART, 1, ALT2 )
     sbi     _(USART_VPORT, _DIR), USART_TX
-    ldi     r18, PORTMUX_USART1_1_bm                ; 0x02 USART ALT2 func
-    sts     PORTMUX_USARTROUTEA, r18                ;
     ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)      ; USART Enable
     sts     _(USART,_CTRLB), r18                      ;
 

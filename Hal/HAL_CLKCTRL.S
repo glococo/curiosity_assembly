@@ -12,45 +12,29 @@
 ;   ldi     r22, HAL_CLKCTRL_SRC_OSCHF
 ;   rcall   HAL_CLKCTRL_MAIN_SELECT     ; Switch to OSCHF as main clock
 
-; Constants for OSCHF Frequency Selection (OSCHFCTRLA.FRQSEL)
-.set HAL_CLKCTRL_FREQ_1MHZ,   0x00
-.set HAL_CLKCTRL_FREQ_2MHZ,   0x01<<2
-.set HAL_CLKCTRL_FREQ_3MHZ,   0x02<<2
-.set HAL_CLKCTRL_FREQ_4MHZ,   0x03<<2
-.set HAL_CLKCTRL_FREQ_8MHZ,   0x05<<2
-.set HAL_CLKCTRL_FREQ_12MHZ,  0x06<<2
-.set HAL_CLKCTRL_FREQ_16MHZ,  0x07<<2
-.set HAL_CLKCTRL_FREQ_20MHZ,  0x08<<2
-.set HAL_CLKCTRL_FREQ_24MHZ,  0x09<<2
-
-; Constants for Main Clock Selection (MCLKCTRLA.CLKSEL)
-.set HAL_CLKCTRL_SRC_OSCHF,   0x00
-.set HAL_CLKCTRL_SRC_OSC32K,  0x01
-.set HAL_CLKCTRL_SRC_XOSC32K, 0x02
-.set HAL_CLKCTRL_SRC_EXTCLK,  0x03
-.set HAL_CLKCTRL_SRC_PLL,     0x04
-
-; Constants for PLL Configuration (PLLCTRLA)
-.set HAL_CLKCTRL_PLL_MUL_0,      0x00
-.set HAL_CLKCTRL_PLL_MUL_4,      0x01
-.set HAL_CLKCTRL_PLL_MUL_8,      0x02
-.set HAL_CLKCTRL_PLL_MUL_16,     0x03
-.set HAL_CLKCTRL_PLL_SRC_OSCHF,  0x00
-.set HAL_CLKCTRL_PLL_SRC_EXTCLK, 0x01
-.set HAL_CLKCTRL_PLL_DIV_0,      0x00<<3
-.set HAL_CLKCTRL_PLL_DIV_2,      0x01<<3
-.set HAL_CLKCTRL_PLL_DIV_4,      0x02<<3
-.set HAL_CLKCTRL_PLL_DIV_6,      0x03<<3
-
 .section .bss
 HAL_ONE_MS:                 .word 0       ; 16-bit One millisecond in cycles
 HAL_ONE_MS_DELAY:           .word 0       ; 16-bit One millisecond in cycles for hal_delay.S
 HAL_CLK_MAIN_KHZ:           .long 0       ; 32-bit MAIN Clock Source
 HAL_CLK_MAIN_DIV:           .byte 0       ;  8-bit Current CPU clock divisor
 
+; Function: HAL_CLKCTRL_OSCHF_SET
+; Description: Selects the main clock source.
+; Inputs:  r22 - FREQ index (e.g., CLKCTRL_FRQSEL_24M_gc)
+; Outputs: None
+FUNC HAL_CLKCTRL_OSCHF_SET
+    ldi     r18, 0xD8                   ; CCP unlock key
+    out     CPU_CCP, r18
+    sts     CLKCTRL_OSCHFCTRLA, r22
+  0:
+    lds     r18, CLKCTRL_MCLKSTATUS
+    sbrc    r18, 0                      ; SOSC is bit 5 in MCLKSTATUS
+    rjmp    0b
+ENDF HAL_CLKCTRL_OSCHF_SET
+
 ; Function: HAL_CLKCTRL_MAIN_SELECT
 ; Description: Selects the main clock source.
-; Inputs:  r22 - CLKSEL index (e.g., HAL_CLKCTRL_SRC_OSCHF)
+; Inputs:  r22 - CLKSEL index (e.g., CLKCTRL_CLKSEL_PLL_gc)
 ; Outputs: None
 FUNC HAL_CLKCTRL_MAIN_SELECT
     ldi     r18, 0xD8                   ; CCP unlock key
@@ -64,7 +48,7 @@ ENDF HAL_CLKCTRL_MAIN_SELECT
 
 ; Function: HAL_CLKCTRL_PLL_SET
 ; Description: Configures the Phase-Locked Loop (PLL).
-; Inputs:  r22 - PLLCTRLA value, e.g. (HAL_CLKCTRL_PLL_DIV_2 | HAL_CLKCTRL_PLL_MUL_8)
+; Inputs:  r22 - PLLCTRLA value, e.g. (CLKCTRL_SOURCEDIV_DIV1_gc | CLKCTRL_MULFAC_8X_gc)
 ; Outputs: None
 FUNC HAL_CLKCTRL_PLL_SET
   PUSH r18

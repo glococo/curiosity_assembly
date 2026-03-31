@@ -31,10 +31,10 @@ FUNC main
     rcall   HAL_CLKCTRL_PRESCALER             ; to avoid CPU going beyond 20mhz
     rcall   HAL_USART_BAUDRATE_UPD
 
-    ldi     r22, (HAL_CLKCTRL_PLL_DIV_0 | HAL_CLKCTRL_PLL_MUL_8 )
+    ldi     r22, (CLKCTRL_SOURCEDIV_DIV1_gc | CLKCTRL_MULFAC_8X_gc)
     rcall   HAL_CLKCTRL_PLL_SET               ; Setting PLL to 160 Mhz
 
-    ldi     r22, HAL_CLKCTRL_SRC_PLL          ; Setting PLL as Main Source Clock
+    ldi     r22, CLKCTRL_CLKSEL_PLL_gc        ; Setting PLL as Main Source Clock
     rcall   HAL_CLKCTRL_MAIN_SELECT
 
     ldi4    r22, CORE_CLOCK_PLL_KHZ

@@ -32,15 +32,15 @@ FUNC main
     brne    reset_blink
 
   ; Enable WDT with ~2s period (64KCLK at 32kHz OSCULP32K)
-  ; Note: WDT_PERIOD_64KCLK_bm is approx 2 seconds.
-  ldi     r22, WDT_PERIOD_64KCLK_bm
+  ; Note: WDT_PERIOD_64CLK_gc is approx 2 seconds.
+  ldi     r22, WDT_PERIOD_8KCLK_gc
   rcall   HAL_WDT_ENABLE
 
   ; Normal Operation: Loop 10 toggles (5 seconds total), patting the dog.
   ; The LED will toggle every 500ms.
   ldi     r20, 10
   normal_op:
-    rcall   HAL_WDT_RESET                     ; Pat the dog
+    HAL_WDT_RESET                             ; Pat the dog
 
     ldi     r22, 1<<BOARD_LED_PIN
     sts     _(BOARD_LED_PORT,_OUTTGL), r22

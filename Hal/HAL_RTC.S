@@ -10,43 +10,6 @@
 ;   ldi     r23, hi8(1000)
 ;   rcall   HAL_RTC_SET_PERIOD          ; Set RTC period to 1000 ticks
 
-#ifndef RTC_PRESCALER_DIV1_bm
-#  define RTC_PRESCALER_DIV1_bm     (0x00<<3)
-#  define RTC_PRESCALER_DIV2_bm     (0x01<<3)
-#  define RTC_PRESCALER_DIV4_bm     (0x02<<3)
-#  define RTC_PRESCALER_DIV8_bm     (0x03<<3)
-#  define RTC_PRESCALER_DIV16_bm    (0x04<<3)
-#  define RTC_PRESCALER_DIV32_bm    (0x05<<3)
-#  define RTC_PRESCALER_DIV64_bm    (0x06<<3)
-#  define RTC_PRESCALER_DIV128_bm   (0x07<<3)
-#  define RTC_PRESCALER_DIV256_bm   (0x08<<3)
-#  define RTC_PRESCALER_DIV512_bm   (0x09<<3)
-#  define RTC_PRESCALER_DIV1024_bm  (0x0A<<3)
-#  define RTC_PRESCALER_DIV2048_bm  (0x0B<<3)
-#  define RTC_PRESCALER_DIV4096_bm  (0x0C<<3)
-#  define RTC_PRESCALER_DIV8192_bm  (0x0D<<3)
-#  define RTC_PRESCALER_DIV16384_bm (0x0E<<3)
-#  define RTC_PRESCALER_DIV32768_bm (0x0F<<3)
-#endif
-
-#ifndef RTC_PERIOD_OFF_bm
-#define RTC_PERIOD_OFF_bm      (0x00<<3)
-#define RTC_PERIOD_CYC4_bm     (0x01<<3)
-#define RTC_PERIOD_CYC8_bm     (0x02<<3)
-#define RTC_PERIOD_CYC16_bm    (0x03<<3)
-#define RTC_PERIOD_CYC32_bm    (0x04<<3)
-#define RTC_PERIOD_CYC64_bm    (0x05<<3)
-#define RTC_PERIOD_CYC128_bm   (0x06<<3)
-#define RTC_PERIOD_CYC256_bm   (0x07<<3)
-#define RTC_PERIOD_CYC512_bm   (0x08<<3)
-#define RTC_PERIOD_CYC1024_bm  (0x09<<3)
-#define RTC_PERIOD_CYC2048_bm  (0x0A<<3)
-#define RTC_PERIOD_CYC4096_bm  (0x0B<<3)
-#define RTC_PERIOD_CYC8192_bm  (0x0C<<3)
-#define RTC_PERIOD_CYC16384_bm (0x0D<<3)
-#define RTC_PERIOD_CYC32768_bm (0x0E<<3)
-#endif
-
 ; -----------------------------------------------------------------------------
 ; Compile-time tick calculation macros
 ; -----------------------------------------------------------------------------
@@ -264,11 +227,11 @@ ENDF HAL_RTC_PIT_OFF
 ; Function: RTC_INIT_ONE_SECOND
 ; Description: Configures RTC for a 1-second overflow period at /256.
 FUNC RTC_INIT_ONE_SECOND
-    HAL_RTC_INIT_MS 1000, 4096, RTC_PRESCALER_DIV4096_bm
+    HAL_RTC_INIT_MS 1000, 4096, RTC_PRESCALER_DIV4096_gc
 ENDF RTC_INIT_ONE_SECOND
 
 ; Function: RTC_INIT_THREE_SECOND
 ; Description: Configures RTC for a 3-second overflow period at /256.
 FUNC RTC_INIT_THREE_SECOND
-    HAL_RTC_INIT_MS 3000, 4096, RTC_PRESCALER_DIV4096_bm
+    HAL_RTC_INIT_MS 3000, 4096, RTC_PRESCALER_DIV4096_gc
 ENDF RTC_INIT_THREE_SECOND
