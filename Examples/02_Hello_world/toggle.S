@@ -26,11 +26,11 @@ FUNC a_toggle_function
 
     tst     TOGGLE_REG                        ; Check the toggle state bit
     breq    0f                                ; If 0, use HELLO
-    ldiw    ZL, MAPPED_PROGMEM_START + HOLA   ; Load HOLA address
+    ldi2    ZL, MAPPED_PROGMEM_START + HOLA   ; Load HOLA address
     ldi     r22, LENGTH( HOLA )               ; Load string length
     rjmp    1f                                ; Jump to 1f(orward)
   0:
-    ldiw    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
+    ldi2    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
     ldi     r22, LENGTH( HELLO )              ; Load string length
   1:
     rcall   HAL_USART_SEND_LENGTH             ; Send string: r22=len, Z=data, Y=uart

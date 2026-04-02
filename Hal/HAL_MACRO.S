@@ -99,7 +99,7 @@
     .endr
 .endm
 
-.macro MOVW_BLOCK dest, src, count
+.macro MOV_BLOCK dest, src, count
     .set _i, 0
     .rept \count
         movw \dest + 2*_i, \src + 2*_i

@@ -3,7 +3,6 @@
 ; Target: AVR16EB32 CURIOSITY NANO
 ; Target datasheet: DS50003605B
 #include <avr/io.h>
-#include "../Defines/ioavr16eb32_gc.S"
 
 ; Core Config
 #define CORE_CLOCK_OSCHF      20000

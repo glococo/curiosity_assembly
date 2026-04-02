@@ -44,8 +44,8 @@ FUNC main
     rcall   HAL_CLKCTRL_PRESCALER             ; Rerun function CPU/DIV to 20mhz to update ONE_MS
     rcall   HAL_USART_BAUDRATE_UPD            ; and update baudrate
 
-    ldiw    YL, USART_ADDR                    ; Set Y to point to USART0 for HAL_USART_SEND_LENGTH
-    ldiw    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
+    ldi2    YL, USART_ADDR                    ; Set Y to point to USART0 for HAL_USART_SEND_LENGTH
+    ldi2    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
     ldi     r22, LENGTH( HELLO )              ; Load string length
 
   loop:

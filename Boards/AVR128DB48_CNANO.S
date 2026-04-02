@@ -3,7 +3,6 @@
 ; Target: AVR128DB48 CURIOSITY NANO eval board
 ; Target datasheet: DS50003037A
 #include <avr/io.h>
-#include "../Defines/ioavr128db48_gc.S"
 
 ; Core Config
 #define CORE_CLOCK_OSCHF      24000

@@ -26,10 +26,10 @@ FUNC a_toggle_function
 
     tst     TOGGLE_REG                        ; Check the toggle state bit
     breq    0f                                ; If 0, use HELLO
-    ldiw    XL, MAPPED_PROGMEM_START + HOLA   ; If !0, use HOLA
+    ldi2    XL, MAPPED_PROGMEM_START + HOLA   ; If !0, use HOLA
     rjmp    1f                                ; Jump to 1f(orward)
   0:
-    ldiw    XL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
+    ldi2    XL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
   1:
     rcall   HAL_PRINT_STR                     ; Push selected string to buffer Z
 

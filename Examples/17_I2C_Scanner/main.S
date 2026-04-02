@@ -16,8 +16,8 @@ HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
 FUNC main
     rcall   HAL_BOARD_SETUP                         ; Basic board initialization
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER              ; Initialize USART TX buffer
-    ldiw    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
-
+    ldi2    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
+    HAL_DELAY_MS 1000                               ; Wait for termux to reconnect everytime the board is plugged
     PRINT_STR "__ CURIOSITY ASSEMBLY __\r\n"
     PRINT_STR "__ TWI/I2C: Scanning I2C bus...\r\n"
     rcall   HAL_USART_FLUSH_DEVICEBUFFER

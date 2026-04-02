@@ -40,7 +40,7 @@ FUNC main
     sei                                       ; Enable global interrupts
 
     ; Set Z to point to the Double Buffer descriptor for the ISRs
-    ldiw     ZL, RX_BUFFER
+    ldi2    ZL, RX_BUFFER
 
   loop:
     sleep                                     ; Wait for interrupts
@@ -79,7 +79,7 @@ ISR_END USART0_RXC_vect r18
 ; -----------------------------------------------------------------------------
 ISR_START USART0_DRE_vect r18
     PUSH_MANY YL, YH
-    ldiw    YL, USART_ADDR + 2                ; Point Y to USART_TXDATAL
+    ldi2    YL, USART_ADDR + 2                ; Point Y to USART_TXDATAL
     rcall   HAL_DOUBLEBUFFER_WRITE_BYTE       ; Pop byte from spare buffer to Y, returns r18=1 if empty
     tst     r18                               ; Check if all bytes sent
     breq    0f                                ; If not empty, exit ISR (will re-trigger)

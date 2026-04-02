@@ -15,7 +15,7 @@ HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
 FUNC main
     rcall   HAL_BOARD_SETUP                         ; Basic board initialization
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER              ; Initialize USART TX buffer
-    ldiw    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
+    ldi2    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
 
     rcall   HAL_PRINT_NEW_LINE
     PRINT_STR "__ CURIOSITY ASSEMBLY __\r\n"
@@ -31,7 +31,7 @@ FUNC main
 
     ; If result > 2048 (approx VDD/2), blink fast
     ; If result <= 2048, blink slow
-    cpiw    r22, 2048
+    cpi2    r22, 2048
     brsh    fast_blink
 
   slow_blink:

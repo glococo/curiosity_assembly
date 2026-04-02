@@ -13,11 +13,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     mov     r22, \reg                   ; Load byte from address
     rcall   HAL_PRINT_UINT8_REG         ; Print 8-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEX_REG           ; Print 8-bit HEX result
     rcall   HAL_PRINT_NEW_LINE
@@ -30,11 +30,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, r23, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     movw    r22, \reg                   ; Load byte from address
     rcall   HAL_PRINT_UINT16_REG        ; Print 16-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEXW_REG          ; Print16-bit HEX result
     rcall   HAL_PRINT_NEW_LINE
@@ -47,11 +47,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, r23, r24, r25, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     movw    r22, \reg                   ; Load byte from address
     rcall   HAL_PRINT_UINT32_REG        ; Print 32-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEXL_REG          ; Print 32-bit HEX result
     rcall   HAL_PRINT_NEW_LINE
@@ -70,11 +70,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     lds     r22, \addr                  ; Load byte from address
     rcall   HAL_PRINT_UINT8_REG         ; Print 8-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEX_REG           ; Print 8-bit result
     rcall   HAL_PRINT_NEW_LINE
@@ -87,11 +87,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, r23, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
-    ldsw    r22, \addr                  ; Load byte from address
+    lds2    r22, \addr                  ; Load byte from address
     rcall   HAL_PRINT_UINT16_REG        ; Print 16-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEXW_REG          ; Print 16-bit HEX result
     rcall   HAL_PRINT_NEW_LINE
@@ -104,11 +104,11 @@
     str_\@: .asciz \str                 ; Store string in flash
   .popsection
   PUSH_MANY r22, r23, r24, r25, XL, XH
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
-    ldsw    r22, \addr                  ; Load byte from address
+    lds2    r22, \addr                  ; Load byte from address
     rcall   HAL_PRINT_UINT32_REG        ; Print 32-bit result
-    ldiw    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
+    ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     rcall   HAL_PRINT_HEXL_REG          ; Print 32-bit HEX result
     rcall   HAL_PRINT_NEW_LINE

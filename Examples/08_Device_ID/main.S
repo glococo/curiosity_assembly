@@ -19,13 +19,13 @@ FUNC main
     rcall   HAL_BOARD_SETUP             ; Basic board initialization
     HAL_DEVICEBUFFER_INIT TX_DEVBUFFER  ; Initialize USART TX buffer
 
-    ldiw    ZL, TX_DEVBUFFER            ; Set Z to point to the device buffer for all PRINT functions
+    ldi2    ZL, TX_DEVBUFFER            ; Set Z to point to the device buffer for all PRINT functions
     PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
     PRINT_STR "__ SIGROW reading example\r\n"
     rcall   HAL_PRINT_NEW_LINE
 
     PRINT_STR "Device ID:"
-    ldsw    r22, SIGROW_DEVICEID0
+    lds2    r22, SIGROW_DEVICEID0
     lds     r24, SIGROW_DEVICEID2
     ldi     r25, 0
     rcall   HAL_PRINT_UINT32_REG                  ; Print 32-bit result
@@ -36,7 +36,7 @@ FUNC main
     DEBUG_STR_LDSW SIGROW_TEMPSENSE1, "Temperature Calibration 1: "
 
     PRINT_STR "Sigrow DEVICE ID:"
-    ldiw    XL, SIGROW_SERNUM0
+    ldi2    XL, SIGROW_SERNUM0
     ldi     r21, 0
   0:
     mov     r22, r21

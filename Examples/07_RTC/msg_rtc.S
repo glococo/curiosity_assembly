@@ -19,7 +19,7 @@ ASCIZ MSG_RTC "RTC OVF fired!\r\n"
 FUNC send_msg_rtc
     PUSH_MANY XL, XH
 
-    ldiw    XL, MAPPED_PROGMEM_START + MSG_RTC          ; Load MSG_RTC address
+    ldi2    XL, MAPPED_PROGMEM_START + MSG_RTC          ; Load MSG_RTC address
     rcall   HAL_PRINT_STR                     ; Push selected string to buffer Z
 
     POP_MANY XH, XL

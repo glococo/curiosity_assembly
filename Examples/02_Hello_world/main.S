@@ -25,7 +25,7 @@ FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     sei                                       ; Enable global interrupts
 
-    ldiw    YL, USART_ADDR                    ; Set once Y-pointer to USART0 for HAL_USART_SEND_LENGTH
+    ldi2    YL, USART_ADDR                    ; Set once Y-pointer to USART0 for HAL_USART_SEND_LENGTH
 
   loop:
     rcall   a_toggle_function                 ; Select string, send to buffer, toggle LED

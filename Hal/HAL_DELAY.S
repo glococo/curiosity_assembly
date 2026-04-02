@@ -4,7 +4,7 @@
 ; Example Usage:
 ;   HAL_DELAY_MS 100                    ; Macro for quick millisecond delay
 ;
-;   ldiw    r22, 500                    ; Set delay to 500ms
+;   ldi2    r22, 500                    ; Set delay to 500ms
 ;   rcall   HAL_SOFT_DELAY_MS           ; Execute delay via function call
 
 ; Macro: HAL_DELAY_MS
@@ -13,7 +13,7 @@
 ; Outputs: None
 .macro HAL_DELAY_MS milliseconds
   PUSH_MANY r22, r23
-    ldiw  r22, \milliseconds            ; Load milliseconds
+    ldi2  r22, \milliseconds            ; Load milliseconds
     rcall HAL_SOFT_DELAY_MS             ; Call the software delay function
   POP_MANY  r23, r22
 .endm
@@ -26,7 +26,7 @@
 FUNC HAL_SOFT_DELAY_MS
   PUSH_MANY r24, r25
   outer_loop:
-    ldsw  r24, HAL_ONE_MS_DELAY         ; Load pre-computed ONE_MS_DELAY
+    lds2  r24, HAL_ONE_MS_DELAY         ; Load pre-computed ONE_MS_DELAY
 
   inner_loop:
     sbiw  r24, 1                        ; 2 cycles: Decrement inner counter

@@ -55,7 +55,7 @@ FUNC HAL_ADC_EX_SETUP
     mul     r22, r25            ; r1:r0 = SampleTime_us * MCLKTIMEBASE
     movw    r22, r0             ; r23:r22 = result
 
-    ldiw    XL, MAPPED_PROGMEM_START + ADC_DIV_TABLE
+    ldi2    XL, MAPPED_PROGMEM_START + ADC_DIV_TABLE
     add     XL, r23
     adc     XH, __zero_reg__
     ld      r18, X              ; r18 = Divisor
@@ -91,10 +91,10 @@ FUNC HAL_ADC_EX_PRINT_TEMPERATURE
 
     ; 3. Calculate Temperature in Kelvin
     ; Formula: [ (ADC_RES + OFFSET) * SLOPE ] / 4096
-    ldsw    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
+    lds2    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
     add     r22, r18
     adc     r23, r19                                ; r23:r22 = ADC_RES + Offset
-    ldsw    r18, SIGROW_TEMPSENSE0                  ; r19:r18 = Slope (signed 16-bit)
+    lds2    r18, SIGROW_TEMPSENSE0                  ; r19:r18 = Slope (signed 16-bit)
     rcall   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
     ldi     r18, 12
     rcall   MATH_ASR_32                             ; r25:r22 /= 4096 (r25:r22>>12)

@@ -82,17 +82,17 @@ FUNC HAL_CLKCTRL_PRESCALER
     lds4    r22, HAL_CLK_MAIN_KHZ
 
     rcall   MATH_LSR_32                 ; r25:r22 = r25:r22 >> r18
-    stsw    HAL_ONE_MS, r22             ; Store One MS
+    sts2    HAL_ONE_MS, r22             ; Store One MS
   update_one_ms_for_delay:
     ldi     r18, 2
     rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
-    stsw    HAL_ONE_MS_DELAY, r22
+    sts2    HAL_ONE_MS_DELAY, r22
   update_one_us:
-    ldiw    r18, 1000
-    ldsw    r22, HAL_ONE_MS
+    ldi2    r18, 1000
+    lds2    r22, HAL_ONE_MS
     rcall   MATH_UDIV_16                ; r23:r22 /= r19:r18
-    ldiw    r24, 500                    ; Check remainder for rounding
-    cpw      r18, r24
+    ldi2    r24, 500                    ; Check remainder for rounding
+    cp2      r18, r24
     brcs    _update_one_us_done
     inc     r22
   _update_one_us_done:

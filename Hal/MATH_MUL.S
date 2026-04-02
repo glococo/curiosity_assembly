@@ -75,7 +75,7 @@
 ; Outputs: r25:r18 - 64-bit product (A * B)
 FUNC MATH_MUL_64_64
     PUSH_MANY r4, r5, r6, r7, r8, r9, r26, r27
-    MOVW_BLOCK r4, r18, 3               ; r4-r9 = r18-r23
+    MOV_BLOCK r4, r18, 3               ; r4-r9 = r18-r23
     movw    r26, r24                    ; r26-r27 = r24-r25
     CLR_BLOCK r18, 8                    ; Clear accumulator
 
@@ -175,8 +175,8 @@ ENDF MATH_MAC_S_32_64
 ; Outputs: r25:r18 - 64-bit Product
 FUNC MATH_MUL_32_64
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
-    MOVW_BLOCK r26, r18, 2              ; Copy B to r29:r26
-    MOVW_BLOCK r10, r22, 2              ; Copy A to r13:r10
+    MOV_BLOCK r26, r18, 2              ; Copy B to r29:r26
+    MOV_BLOCK r10, r22, 2              ; Copy A to r13:r10
     CLR_BLOCK r18, 8                    ; Clear result
     rcall   MATH_MAC_32_64
     POP_MANY r29, r28, r27, r26, r13, r12, r11, r10
@@ -186,8 +186,8 @@ ENDF MATH_MUL_32_64
 ; Description: Signed 32-bit x Unsigned 32-bit -> 64-bit Multiply.
 FUNC MATH_MUL_SU_32_64
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
-    MOVW_BLOCK r26, r18, 2              ; B (Unsigned)
-    MOVW_BLOCK r10, r22, 2              ; A (Signed)
+    MOV_BLOCK r26, r18, 2              ; B (Unsigned)
+    MOV_BLOCK r10, r22, 2              ; A (Signed)
     CLR_BLOCK r18, 8
     rcall   MATH_MAC_SU_32_64
     POP_MANY r29, r28, r27, r26, r13, r12, r11, r10
@@ -197,8 +197,8 @@ ENDF MATH_MUL_SU_32_64
 ; Description: Signed 32-bit x Signed 32-bit -> 64-bit Multiply.
 FUNC MATH_MUL_S_32_64
     PUSH_MANY r10, r11, r12, r13, r26, r27, r28, r29
-    MOVW_BLOCK r26, r18, 2              ; B (Signed)
-    MOVW_BLOCK r10, r22, 2              ; A (Signed)
+    MOV_BLOCK r26, r18, 2              ; B (Signed)
+    MOV_BLOCK r10, r22, 2              ; A (Signed)
     CLR_BLOCK r18, 8
     rcall   MATH_MAC_S_32_64
     POP_MANY r29, r28, r27, r26, r13, r12, r11, r10
@@ -211,7 +211,7 @@ ENDF MATH_MUL_S_32_64
 ; Outputs: r25:r22 - 32-bit Product
 FUNC MATH_MUL_32_32
     PUSH_MANY r26, r27, r28, r29
-    MOVW_BLOCK r26, r22, 2
+    MOV_BLOCK r26, r22, 2
     CLR_BLOCK r22, 4
     MATH_MADD 22, r26, r18, 25
     MATH_MADD 23, r27, r18, 25

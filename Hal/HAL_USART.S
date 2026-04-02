@@ -37,7 +37,7 @@ FUNC HAL_USART_BAUDRATE_UPD
     ; Load Divisor: BaudRate
     ldi4    r18, USART_BAUD_RATE
     rcall   MATH_UDIV_32                ; r25:r22 = Dividend (r25:r22) / BaudRate (r21:r18)
-    stsw     _(USART,_BAUDL), r22       ; Store Baud Rate Low Byte
+    sts2     _(USART,_BAUDL), r22       ; Store Baud Rate Low Byte
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
 ENDF HAL_USART_BAUDRATE_UPD
 
@@ -86,7 +86,7 @@ FUNC HAL_USART_FLUSH_DEVICEBUFFER
     rcall   HAL_DEVICEBUFFER_PULL       ; Pull byte from ring buffer
     tst     r18                         ; Check if buffer is empty
     brne    2f                          ; Exit if empty
-    lddw    YL, Z, 3                    ; Load USART Base Address L from descriptor
+    ldd2    YL, Z, 3                    ; Load USART Base Address L from descriptor
   1:
     ldd     r18, Y+4                    ; Read USART_STATUS
     sbrs    r18, USART_DREIF_bp         ; Check DREIF
@@ -103,7 +103,7 @@ ENDF HAL_USART_FLUSH_DEVICEBUFFER
 ; Outputs: r18 - 0: Success, 1: Buffer full
 FUNC HAL_USART_RECEIVE_DEVICEBUFFER
   PUSH_MANY r22, YL, YH
-    lddw    YL, Z, 3                    ; Load USART Base Address L
+    ldd2    YL, Z, 3                    ; Load USART Base Address L
   0:
     ld      r22, Y                      ; Read byte from USART_RXDATAL (Base + 0)
     rcall   HAL_DEVICEBUFFER_PUSH       ; Push into ring buffer

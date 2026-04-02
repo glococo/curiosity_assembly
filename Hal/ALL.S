@@ -2,9 +2,8 @@
 ; Description: Master include file for the Hardware Abstraction Layer (HAL).
 ;              Includes all core macros, math routines, and peripheral drivers.
 ;
-; Example Usage:
-;   #include "Hal/ALL.S"                ; Include this in your main application
-
+; AVR-GCC _gc register defines
+#include "HAL_GC.S"
 ; Basic assembly macros and register defines
 #include "HAL_MACRO.S"
 ; Instruction Set Extension
@@ -19,7 +18,6 @@
 ; Arithmetics
 #include "MATH_MUL.S"             // Multiplication routines
 #include "MATH_DIV.S"             // Division and Modulo routines
-#include "MATH_BASIC.S"           // Saturated SUM routines
 #include "MATH_SHIFTS.S"          // Bitwise shift and compare routines
 
 ; Buffers

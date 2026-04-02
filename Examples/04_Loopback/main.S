@@ -26,7 +26,7 @@ FUNC main
     HAL_DEVICEBUFFER_INIT TX_BUFFER           ; Initialize the USART ring buffer
 
     ; Set Z to point to the ring buffer for ISR and main loop
-    ldiw    ZL, TX_BUFFER                     ; Load Z with buffer address
+    ldi2    ZL, TX_BUFFER                     ; Load Z with buffer address
     PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
 
     ; Configure USART RX Interrupt
