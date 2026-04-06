@@ -6,21 +6,14 @@
 ;   This is a standalone example. Compile and flash to a supported AVR board.
 ; -----------------------------------------------------------------------------
 
-; Define a 256-byte Dev-Ring-Buffer for USART0 (regular speed)
-HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
-
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Main application entry point.
-; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                         ; Basic board initialization
-    HAL_DEVICEBUFFER_INIT TX_DEVBUFFER              ; Initialize USART TX buffer
-    ldi2    ZL, TX_DEVBUFFER                        ; Set Z to point to the device buffer for all PRINT functions
-    HAL_DELAY_MS 1000                               ; Wait for termux to reconnect everytime the board is plugged
-    PRINT_STR "__ CURIOSITY ASSEMBLY __\r\n"
-    PRINT_STR "__ TWI/I2C: Scanning I2C bus...\r\n"
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
+    _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+    _DELAY_MS(1000)                               ; Wait for termux to reconnect everytime the board is plugged
+
+    _STR("__ CURIOSITY ASSEMBLY __\r\n")
+    _STR("__ I2C: Scans the I2C bus for devices\r\n")$ _STR_FLUSH()
+
     rcall   HAL_I2C_INIT
 
     ldi     r20, 1                      ; Start address
@@ -31,7 +24,7 @@ FUNC main
     brne    not_found
 
     ; Device found!
-    DEBUG_STR_REG r20, "Found device at: "
+    _DEBUG_REG(r20, "Found device at: ")$ _STR_FLUSH()
     rcall   HAL_I2C_STOP                ; Send STOP if device responded
     rjmp    next_addr
 
@@ -43,8 +36,7 @@ FUNC main
     cpi     r20, 127
     brcs    scan_loop
 
-    PRINT_STR "Done.\r\n"
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
+    _STR("Done.\r\n")$ _STR_FLUSH()
 
   loop:
     rjmp    loop

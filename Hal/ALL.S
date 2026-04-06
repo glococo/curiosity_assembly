@@ -10,6 +10,8 @@
 #include "HAL_EXTEND.S"
 ; String and numeric printing functions
 #include "HAL_PRINT.S"
+#include "HAL_PRINT_NUM.S"
+#include "HAL_PRINT_HEX.S"
 ; Basic Debug macros
 #include "HAL_DEBUG.S"
 ; Software delay routines
@@ -25,6 +27,7 @@
 #include "HAL_DOUBLEBUFFER.S"     // Double-Buffer (Ping-Pong) library
 
 ; SOC Drivers
+#include "HAL_PORT.S"             // Port-Pin helper
 #include "HAL_PORTMUX.S"          // Pin Multiplexing (PORTMUX) helper
 #include "HAL_CLKCTRL.S"          // Core Clock and CPU Control (CLKCTRL)
 #include "HAL_RTC.S"              // Real-Time Counter (RTC) helper

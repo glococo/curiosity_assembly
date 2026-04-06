@@ -253,18 +253,57 @@ FUNC HAL_I2C_READ_REGW
   1:
   POP r20
 ENDF HAL_I2C_READ_REGW
+; -----------------------------------------------------------------------------
+; Function: HAL_I2C_READ_REGW_BE (big endian MSB first)
+; Description: Reads a 16-bit value from a r22 register address.
+; Inputs:  r22 - Device address
+;          r23 - Register address
+; Outputs: r23:r22 - 16-bit data (MSB:LSB)
+;          r18 - 0: Success, 1: Error
+; -----------------------------------------------------------------------------
+FUNC HAL_I2C_READ_REGW_BE
+  PUSH  r20
+    mov     r20, r22                    ; Store register address
 
+    rcall   HAL_I2C_START_WRITE         ; Phase 0: Write DEV Address
+    tst     r18
+    brne    0f
+
+    mov     r22, r23                    ; Phase 1: Write register address
+    rcall   HAL_I2C_WRITE
+    tst     r18
+    brne    0f
+
+    mov     r22, r20                    ; Phase 2: Switch to Read
+    rcall   HAL_I2C_START_READ
+    tst     r18
+    brne    0f
+
+    rcall   HAL_I2C_READ_ACK            ; Read MSB
+    mov     r23, r22
+    rcall   HAL_I2C_READ_NACK           ; Read LSB (last byte)
+    ldi     r18, 0                      ; Success
+    rjmp    1f
+
+  0:
+    rcall   HAL_I2C_STOP
+    ldi     r18, 1                      ; Error
+  1:
+  POP r20
+ENDF HAL_I2C_READ_REGW_BE
 ; -----------------------------------------------------------------------------
 ; Function: HAL_I2C_READ_MANY
 ; Description: Read n bytes from address.
 ; Inputs:  r22 - Device address
 ;          r23 - Start address
-;          r24 - n bytes
+;          r24 - n bytes (not saved)
 ;            X - Pointer to data array
 ; Outputs: r18 - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC HAL_I2C_READ_MANY
   PUSH_MANY  r20, XL, XH
+    tst     r24
+    breq    1f
     mov     r20, r22                    ; Store register address
     rcall   HAL_I2C_START_WRITE         ; Phase 0: Write DEV Address
     tst     r18
@@ -321,12 +360,6 @@ FUNC HAL_I2C_WRITE_REG
 
     mov     r22, r24                    ; Data LSB
     rcall   HAL_I2C_WRITE
-    tst     r18
-    brne    0f
-
-    mov     r22, r25                    ; Data MSB
-    rcall   HAL_I2C_WRITE
-
   0:
     rcall   HAL_I2C_STOP
   POP r22
@@ -363,3 +396,34 @@ FUNC HAL_I2C_WRITE_REGW
     rcall   HAL_I2C_STOP
   POP r22
 ENDF HAL_I2C_WRITE_REGW
+; -----------------------------------------------------------------------------
+; Function: HAL_I2C_WRITE_REGW_BE (big endian MSB first)
+; Description: Writes a 16-bit value to an r22 register address
+; Inputs:  r22 - Device address
+; Inputs:  r23 - Register address
+;          r25:r24 - 16-bit data (MSB:LSB)
+; Outputs: r18 - 0: Success, 1: Error
+; -----------------------------------------------------------------------------
+FUNC HAL_I2C_WRITE_REGW_BE
+  PUSH r22
+    rcall   HAL_I2C_START_WRITE
+    tst     r18
+    brne    0f
+
+    mov     r22, r23
+    rcall   HAL_I2C_WRITE               ; Send register address
+    tst     r18
+    brne    0f
+
+    mov     r22, r25                    ; Data MSB
+    rcall   HAL_I2C_WRITE
+    tst     r18
+    brne    0f
+
+    mov     r22, r24                    ; Data LSB
+    rcall   HAL_I2C_WRITE
+
+  0:
+    rcall   HAL_I2C_STOP
+  POP r22
+ENDF HAL_I2C_WRITE_REGW_BE

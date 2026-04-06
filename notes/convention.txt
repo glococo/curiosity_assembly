@@ -5,10 +5,10 @@ To ensure high performance and seamless integration between HAL modules and user
 ## 1. Register Usage (The Social Contract)
 
 ### Specialized Registers
-- **`__zero_reg__` (r2)**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
-  - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r2`.
-- **Scratch Registers (r0, r1)**: Volatile scratch registers.
+- **(r0, r1) Scratch Registers**: Volatile scratch registers.
   - **Contract**: Can be modified by any function (and are modified by `mul`). Do not expect them to persist across calls.
+- **(r2) `__zero_reg__`**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
+  - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r2`.
 
 ### Pointer Registers
 AVR has three 16-bit pointer pairs:
@@ -21,7 +21,8 @@ Arguments are passed in registers starting from `r25` down to `r22`.
 - **8-bit**: Use `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
-- **Return Values**: Follow the same register mapping as arguments. Sometimes r18 holds success/fail
+- **Return Values**: Follow function description.
+- **Return success**: Carry clear/carry set.
 
 ### Volatile vs. Callee-Saved
 - **Volatile**: There are no Volatile registers right now

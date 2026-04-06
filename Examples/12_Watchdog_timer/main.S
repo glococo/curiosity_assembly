@@ -21,30 +21,33 @@
 ; -----------------------------------------------------------------------------
 FUNC main
   rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+  _STR("__ CURIOSITY ASSEMBLY __\r\n")
+  _STR("__ WDT: Toggles LED and resets WDT in a loop for 5 seconds\r\n")$ _STR_FLUSH()
 
   ; Indication of reset/start: Fast blink 3 times
   ldi     r20, 6                              ; 6 toggles = 3 blinks
   reset_blink:
-    ldi     r22, 1<<BOARD_LED_PIN
-    sts     _(BOARD_LED_PORT,_OUTTGL), r22
-    HAL_DELAY_MS 100
+    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _DELAY_MS(100)
     dec     r20
     brne    reset_blink
 
   ; Enable WDT with ~2s period (64KCLK at 32kHz OSCULP32K)
   ; Note: WDT_PERIOD_64CLK_gc is approx 2 seconds.
-  ldi     r22, WDT_PERIOD_8KCLK_gc
-  rcall   HAL_WDT_ENABLE
+  ; Optimal call (without push/pop)
+  ;  ldi     r22, WDT_PERIOD_8KCLK_gc
+  ;  rcall   HAL_WDT_ENABLE
+
+  _WDT_ENABLE( WDT_PERIOD_8KCLK_gc )
 
   ; Normal Operation: Loop 10 toggles (5 seconds total), patting the dog.
   ; The LED will toggle every 500ms.
   ldi     r20, 10
   normal_op:
-    HAL_WDT_RESET                             ; Pat the dog
-
-    ldi     r22, 1<<BOARD_LED_PIN
-    sts     _(BOARD_LED_PORT,_OUTTGL), r22
-    HAL_DELAY_MS 500                          ; Wait 0.5s
+    _WDT_RESET()                              ; Pat the dog
+    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _DELAY_MS(500)                            ; Wait 0.5s
     dec     r20
     brne    normal_op
 

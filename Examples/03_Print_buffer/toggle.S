@@ -9,10 +9,6 @@
 ;   rcall a_toggle_function                   ; Call to select string and toggle LED
 ; -----------------------------------------------------------------------------
 
-.section    .progmem.rodata
-HELLO:      .asciz "Hello World!\r\n"
-HOLA:       .asciz "Hola Mundo!\r\n"
-
 ; -----------------------------------------------------------------------------
 ; Function: a_toggle_function
 ; Description: Selects a greeting string based on TOGGLE_REG, sends it to the
@@ -22,19 +18,15 @@ HOLA:       .asciz "Hola Mundo!\r\n"
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC a_toggle_function
-    PUSH_MANY r18, r19, XL, XH
 
     tst     TOGGLE_REG                        ; Check the toggle state bit
     breq    0f                                ; If 0, use HELLO
-    ldi2    XL, MAPPED_PROGMEM_START + HOLA   ; If !0, use HOLA
+    _STR("Hello World!\r\n")
     rjmp    1f                                ; Jump to 1f(orward)
   0:
-    ldi2    XL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
+    _STR("Hola Mundo!\r\n")
   1:
-    rcall   HAL_PRINT_STR                     ; Push selected string to buffer Z
+    _STR_FLUSH()                              ; Push selected string to buffer Z
+    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware register
 
-    ldi     r19, 1<<BOARD_LED_PIN             ; Load LED pin mask
-    sts     _(BOARD_LED_PORT,_OUTTGL), r19    ; Toggle LED via hardware register
-
-    POP_MANY XH, XL, r19, r18
 ENDF a_toggle_function

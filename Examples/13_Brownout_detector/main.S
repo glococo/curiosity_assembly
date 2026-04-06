@@ -10,12 +10,11 @@
 ;   If the supply voltage drops below the VLM threshold, the LED blinks fast.
 ; -----------------------------------------------------------------------------
 
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Main application entry point.
-; -----------------------------------------------------------------------------
 FUNC main
   rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+  _STR("__ CURIOSITY ASSEMBLY __\r\n")
+  _STR("__ BOD: Toggle fast LED on a Voltage Level drop\r\n")$ _STR_FLUSH()
 
   ; 1. Configure BOD
   ; Active mode: Enabled
@@ -35,9 +34,8 @@ FUNC main
   sei                                         ; Enable global interrupts
 
   loop:
-    HAL_DELAY_MS 1000                         ; Slow blink
-    ldi     r22, 1<<BOARD_LED_PIN
-    sts     _(BOARD_LED_PORT,_OUTTGL), r22
+    _DELAY_MS(1000)                         ; Slow blink
+    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
     rjmp    loop
 
 ENDF main
@@ -51,9 +49,8 @@ ISR_START BOD_VLM_vect, r18
     ; Visual Alert: Fast blink 5 times
     ldi     r20, 10
     vlm_alert:
-      ldi     r22, 1<<BOARD_LED_PIN
-      sts     _(BOARD_LED_PORT,_OUTTGL), r22
-      HAL_DELAY_MS 50
+      _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+      _DELAY_MS(50)
       dec     r20
       brne    vlm_alert
 

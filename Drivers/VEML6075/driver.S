@@ -42,6 +42,18 @@ VEML6075_struct:
   VEML6075_UVCOMP2:   .word 0
 
 ; -----------------------------------------------------------------------------
+; Macro: VEML6075_READ_REG reg
+; Description: Read an internal VEML6075 register
+; Outputs:  r23:r22 - Data
+;               r18 - 0: Success, 1: Error
+; -----------------------------------------------------------------------------
+.macro VEML6075_READ_REG reg
+    ldi     r22, VEML6075_ADDR
+    ldi     r23, \reg
+    rcall   HAL_I2C_READ_REGW
+.endm
+
+; -----------------------------------------------------------------------------
 ; Function: VEML6075_READ_ID
 ; Description: Read Device ID (must read 2byte)
 ; Outputs: r22 - Device ID

@@ -37,7 +37,7 @@
 .macro  add2c  dest, reg_start
     add \dest,   \reg_start
     adc \dest+1, \reg_start+1
-    adc \dest+2, __reg_zero__
+    adc \dest+2, __zero_reg__
 .endm
 .macro  add4  dest, reg_start
     add \dest,   \reg_start
@@ -50,7 +50,7 @@
     adc \dest+1, \reg_start+1
     adc \dest+2, \reg_start+2
     adc \dest+3, \reg_start+3
-    adc \dest+4, __reg_zero__
+    adc \dest+4, __zero_reg__
 .endm
 ; Macro: inc4
 ; Description: 32-bit addition of a register value to a 32-bit register pair.
@@ -197,4 +197,32 @@
     ldi   r16,      hhi8( \value )
     cpc   \reg_a+3, r16
   POP r16
+.endm
+
+; Function: andi2
+; Description: AND immediate (16-bit).
+; Inputs:   Ra, immediate value - 16-bit value
+; Output:   SREG
+.macro andi2 reg, value
+    andi   \reg,   lo8( \value )
+    andi   \reg+1, hi8( \value )
+.endm
+
+; Function: ori2
+; Description: OR immediate (16-bit).
+; Inputs:   Ra, immediate value - 16-bit value
+; Output:   SREG
+.macro ori2 reg, value
+    ori   \reg,   lo8( \value )
+    ori   \reg+1, hi8( \value )
+.endm
+
+; Function: mov4
+; Description: MOV 4 contiguous registers (32-bits)
+; Inputs:   reg  - initial register
+;           reg2 - destination register
+; Output:   SREG
+.macro mov4 reg, reg2
+    movw  \reg  , \reg2
+    movw  \reg+2, \reg2+2
 .endm

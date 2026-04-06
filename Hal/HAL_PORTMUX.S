@@ -3,12 +3,12 @@
 ;              Provides a simple interface to route peripheral signals to alternative pins.
 ;
 ; Example Usage:
-;   HAL_PORTMUX_ROUTEA(TWI, 0, DEFAULT)
-;   HAL_PORTMUX_ROUTEA(TWI, 0, ALT2)
-;   HAL_PORTMUX_ROUTEB(USART, 2, ALT1)
+;   _PORTMUX_ROUTEA(TWI, 0, DEFAULT)
+;   _PORTMUX_ROUTEA(TWI, 0, ALT2)
+;   _PORTMUX_ROUTEB(USART, 2, ALT1)
 ;
 ;   ; Raw register version:
-;   HAL_PORTMUX_REG(PORTMUX_USARTROUTEA, (0x04 << 0))
+;   _PORTMUX_REG(PORTMUX_USARTROUTEA, (0x04 << 0))
 
 ; Assembler Macro: HAL_PORTMUX_ASM
 ; Description: Internal assembler macro to generate multiple lines.
@@ -22,13 +22,12 @@
 ; Description: Bridges naming conventions to the assembler macro.
 ;              Token-pasting happens here, and then the preprocessor expands
 ;              the resulting constants before the assembler sees the macro call.
-#define HAL_PORTMUX_ROUTEA( device, id, alternate ) \
+#define _PORTMUX_ROUTEA( device, id, alternate ) \
     HAL_PORTMUX_ASM PORTMUX_##device##id##_##alternate##_gc, PORTMUX_##device##ROUTEA
 
-#define HAL_PORTMUX_ROUTEB( device, id, alternate ) \
+#define _PORTMUX_ROUTEB( device, id, alternate ) \
     HAL_PORTMUX_ASM PORTMUX_##device##id##_##alternate##_gc, PORTMUX_##device##ROUTEB
 
 ; Preprocessor Macro: HAL_PORTMUX_REG
 ; Description: Directly sets a PORTMUX register with a given value/bitmask.
-#define HAL_PORTMUX_REG(reg_addr, value) \
-    HAL_PORTMUX_ASM value, reg_addr
+#define _PORTMUX_REG(reg_addr, value)    HAL_PORTMUX_ASM value, reg_addr

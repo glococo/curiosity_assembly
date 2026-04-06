@@ -85,25 +85,31 @@ FUNC HAL_ADC_EX_READ_POLLING
     lds4    r22, ADC0_RESULT0                   ; Read Result
 ENDF HAL_ADC_EX_READ_POLLING
 
-FUNC HAL_ADC_EX_PRINT_TEMPERATURE
-  PUSH_MANY r18, r19, r22, r23, r24, r25
-    PRINT_STR "Temperature: "
-
-    ; 3. Calculate Temperature in Kelvin
-    ; Formula: [ (ADC_RES + OFFSET) * SLOPE ] / 4096
+FUNC HAL_ADC_EX_GET_TEMPERATURE
+  PUSH_MANY r18, r19, r24, r25, r20, r21
+    ; 1. Read calibration values (Slope and Offset are 16-bit)
     lds2    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
-    add     r22, r18
-    adc     r23, r19                                ; r23:r22 = ADC_RES + Offset
-    lds2    r18, SIGROW_TEMPSENSE0                  ; r19:r18 = Slope (signed 16-bit)
-    rcall   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
-    ldi     r18, 12
-    rcall   MATH_ASR_32                             ; r25:r22 /= 4096 (r25:r22>>12)
+    lds2    r20, SIGROW_TEMPSENSE0                  ; r21:r20 = Slope (signed 16-bit)
 
+    ; 2. (ADC_RES + Offset)
+    add     r22, r18
+    adc     r23, r19                                ; r23:r22 = ADC_RES + Offset (signed 16-bit)
+
+    ; 3. (ADC_RES + Offset) * Slope
+    movw    r18, r20                                ; r19:r18 = Slope
+    rcall   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
+
+    ; 4. Rounding: Add 2048 (4096/2) before dividing by 4096
+    ldi4    r18, 2048
+    add4    r22, r18                                ; r25:r22 += 2048
+
+    ; 5. Divide by 4096 (Shift Right 12)
+    ldi     r18, 12
+    rcall   MATH_ASR_32                             ; r25:r22 /= 4096
+
+    ; 6. Convert Kelvin to Celsius (K - 273)
     subi    r22, lo8(273)
     sbci    r23, hi8(273)                           ; r23:r22 = Temperature in Celsius
 
-    rcall   HAL_PRINT_UINT16_REG
-    PRINT_STR "ºC"
-    rcall   HAL_PRINT_NEW_LINE
-  POP_MANY r25, r24, r23, r22, r19, r18
-ENDF HAL_ADC_EX_PRINT_TEMPERATURE
+  POP_MANY r21, r20, r25, r24, r19, r18
+ENDF HAL_ADC_EX_GET_TEMPERATURE

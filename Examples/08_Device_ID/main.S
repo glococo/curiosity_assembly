@@ -3,53 +3,37 @@
 ; Description: Print Device ID signature rows.
 ;              - Reads values from SIGROW.
 ;              - Print over USART.
-;
-; Example Usage:
-;   This is a standalone example. Compile and flash to a supported AVR board.
 ; -----------------------------------------------------------------------------
-
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Main application entry point.
-; -----------------------------------------------------------------------------
-; Define a 256-byte Dev-Ring-Buffer for USART (regular speed)
-HAL_DEVICEBUFFER_DEFINE  TX_DEVBUFFER, 256, USART_ADDR
 
 FUNC main
-    rcall   HAL_BOARD_SETUP             ; Basic board initialization
-    HAL_DEVICEBUFFER_INIT TX_DEVBUFFER  ; Initialize USART TX buffer
+    rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+    _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR)   ; Initialize the USART ring buffer
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
+    _STR("__ SIGROW reading example\r\n")$ _STR_FLUSH()
 
-    ldi2    ZL, TX_DEVBUFFER            ; Set Z to point to the device buffer for all PRINT functions
-    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
-    PRINT_STR "__ SIGROW reading example\r\n"
-    rcall   HAL_PRINT_NEW_LINE
-
-    PRINT_STR "Device ID:"
     lds2    r22, SIGROW_DEVICEID0
     lds     r24, SIGROW_DEVICEID2
-    ldi     r25, 0
-    rcall   HAL_PRINT_UINT32_REG                  ; Print 32-bit result
-    rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
+    clr     r25
+    _STR("Device ID: ")$ _STR_REG_U32(r22)$ _STR("\r\n")$ _STR_FLUSH()
 
-    DEBUG_STR_LDSW SIGROW_TEMPSENSE0, "Temperature Calibration 0: "
-    DEBUG_STR_LDSW SIGROW_TEMPSENSE1, "Temperature Calibration 1: "
+    lds     r22, SIGROW_TEMPSENSE0              ; Load byte from address
+    _STR("Temperature Calibration 0: ")$ _STR_REG_U8()$ _STR(" 0x")$ _STR_REG_HEX()$ _STR("\r\n")
+    lds     r22, SIGROW_TEMPSENSE1              ; Load byte from address
+    _STR("Temperature Calibration 1: ")$ _STR_REG_U8()$ _STR(" 0x")$ _STR_REG_HEX()$ _STR("\r\n")
 
-    PRINT_STR "Sigrow DEVICE ID:"
+    _STR("Sigrow Serial Nº:")$ _STR_FLUSH()
     ldi2    XL, SIGROW_SERNUM0
     ldi     r21, 0
   0:
     mov     r22, r21
     ld      r22, X+
-    rcall   HAL_PRINT_HEX_REG                     ; Print 8-bit Hex result
-    PRINT_STR " "
+    _STR_REG_HEX(r22)$ _STR(" ")                     ; Print 8-bit Hex result
     cpi     r21, 15
     brcc    1f
     inc     r21
     rjmp    0b
   1:
-    rcall   HAL_PRINT_NEW_LINE
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER
+    _STR("\r\n")$ _STR_FLUSH()
 
   loop:
     rjmp    loop

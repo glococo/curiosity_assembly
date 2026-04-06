@@ -14,18 +14,11 @@
 
 #define CORE_CLOCK_PLL_KHZ      160000
 
-.section    .progmem.rodata
-ASCIZ HELLO "Hello World, Main source clock PLL @ whopping 160mhz !\r\n"
-
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Application entry point. Initializes hardware, USART and PLL,
-;              then enters a periodic loop to toggle the LED.
-; Inputs:      None
-; Outputs:     None
-; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    _DEVBUFFER(RX_DEVBUFFER, 64, USART_ADDR)  ; Initialize the USART ring buffer
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
+    _STR("__ Source clock from PLL\r\n")$ _STR_FLUSH()
 
     ldi     r22, 3                            ; Slowdown CPU before switching to 160mhz
     rcall   HAL_CLKCTRL_PRESCALER             ; to avoid CPU going beyond 20mhz
@@ -44,18 +37,10 @@ FUNC main
     rcall   HAL_CLKCTRL_PRESCALER             ; Rerun function CPU/DIV to 20mhz to update ONE_MS
     rcall   HAL_USART_BAUDRATE_UPD            ; and update baudrate
 
-    ldi2    YL, USART_ADDR                    ; Set Y to point to USART0 for HAL_USART_SEND_LENGTH
-    ldi2    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
-    ldi     r22, LENGTH( HELLO )              ; Load string length
-
   loop:
-    ldi     r21, 1<<BOARD_LED_PIN             ; Load LED pin mask
-    sts     _(BOARD_LED_PORT,_OUTTGL), r21    ; Toggle LED via hardware register
-
-    ldi     r22, LENGTH( HELLO )              ; Load string length
-    rcall   HAL_USART_SEND_LENGTH             ; Send string: r22=len, Z=data, Y=uart
-
-    HAL_DELAY_MS 1000                         ; Wait 1 second (overwrites r22, r23)
+    _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN)
+    _STR("Hello World, PLL @ 160mhz !\r\n")$ _STR_FLUSH()
+    _DELAY_MS(2000)                           ; Wait 1 second (overwrites r22, r23)
     rjmp    loop                              ; Repeat indefinitely
 
 ENDF main

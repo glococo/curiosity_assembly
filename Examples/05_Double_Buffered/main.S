@@ -14,9 +14,6 @@
 ;    Size 10 means it will flip after 10 bytes are received.
 HAL_DOUBLEBUFFER_DEFINE  RX_BUFFER, 10
 
-; 2. Define a 128-byte Dev-Ring-Buffer for USART (regular speed)
-HAL_DEVICEBUFFER_DEFINE  RX_DEVBUFFER, 128, USART_ADDR
-
 ; -----------------------------------------------------------------------------
 ; Function: main
 ; Description: Main application entry point. Initializes buffers and USART interrupts.
@@ -26,7 +23,9 @@ HAL_DEVICEBUFFER_DEFINE  RX_DEVBUFFER, 128, USART_ADDR
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board initialization
     HAL_DOUBLEBUFFER_INIT RX_BUFFER           ; Initialize high-speed double buffer
-    HAL_DEVICEBUFFER_INIT RX_DEVBUFFER        ; Initialize standard ring buffer
+    _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
+    _STR("__ USART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n")$ _STR_FLUSH()
 
     ; Configure USART RX Interrupt
     lds     r18, _(USART,_CTRLB)              ; Read CTRLB
@@ -34,9 +33,6 @@ FUNC main
     sts     _(USART,_CTRLB), r18              ; Update CTRLB
     ldi     r18, USART_RXCIE_bm               ; Enable RX Complete Interrupt
     sts     _(USART,_CTRLA), r18              ; Update CTRLA
-    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
-    PRINT_STR "__ USART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n"
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER      ; Clear boot message
     sei                                       ; Enable global interrupts
 
     ; Set Z to point to the Double Buffer descriptor for the ISRs
@@ -55,7 +51,7 @@ ENDF main
 ; Inputs:      None
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
-ISR_START USART0_RXC_vect r18
+ISR_START _(USART,_RXC_vect), r18
     PUSH_MANY r22
     lds     r22, USART_ADDR                   ; Read received byte (RXDATAL)
     rcall   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns r18=1 if full
@@ -68,7 +64,7 @@ ISR_START USART0_RXC_vect r18
     sts     _(USART,_CTRLA), r22              ; Write back
   0:
     POP_MANY r22
-ISR_END USART0_RXC_vect r18
+ISR_END _(USART,_RXC_vect), r18
 
 ; -----------------------------------------------------------------------------
 ; ISR: USART0_DRE_vect (Data Register Empty)

@@ -60,14 +60,18 @@
   .type \name, @function
   .func \name
   \name:
-    push \r             ; Push the work register (e.g., r24)
-    in   \r, SREG
-    push \r             ; Push SREG
+    .ifnb \r
+      push \r             ; Push the work register (e.g., r24)
+      in   \r, SREG
+      push \r             ; Push SREG
+    .endif
 .endm
 .macro ISR_END name, r
-    pop  \r             ; Restore SREG into the work register
-    out  SREG, \r
-    pop  \r             ; Restore the work register
+    .ifnb \r
+      pop  \r             ; Restore SREG into the work register
+      out  SREG, \r
+      pop  \r             ; Restore the work register
+    .endif
     reti
   .endfunc
   .size \name, .-\name
@@ -106,8 +110,10 @@
         .set _i, _i + 1
     .endr
 .endm
-
+#define _ASCIZ(name,text)   ASCIZ name text
 .macro ASCIZ name, text
+  .pushsection .progmem.rodata
     \name: .asciz "\text"
     .set \name\()_len, . - \name - 1
+  .popsection
 .endm

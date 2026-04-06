@@ -290,20 +290,24 @@ FUNC MATH_MUL_16_32
 ENDF MATH_MUL_16_32
 
 ; Function: MATH_MUL_SU_16_32
-; Description: Signed 16-bit x Unsigned 16-bit -> 32-bit Multiply.
+; Description: Signed 16-bit (A) x Unsigned 16-bit (B) -> 32-bit Multiply.
 FUNC MATH_MUL_SU_16_32
   PUSH_MANY r20, r21
-    movw    r20, r22
-    mul     r20, r18                    ; al*bl
-    movw    r22, r0
-    mulsu   r21, r19                    ; ah*bh
-    movw    r24, r0
-    mul     r20, r19                    ; al*bh
+    movw    r20, r22                    ; r21:r20 = A (signed)
+                                        ; r19:r18 = B (unsigned)
+    mul     r20, r18                    ; al * bl (un*un)
+    movw    r22, r0                     ; r23:r22 = result
+    
+    mulsu   r21, r19                    ; ah * bh (si*un)
+    movw    r24, r0                     ; r25:r24 = result
+    
+    mulsu   r21, r18                    ; ah * bl (si*un)
+    sbc     r25, __zero_reg__           ; Sign extend
     add     r23, r0
     adc     r24, r1
     adc     r25, __zero_reg__
-    mulsu   r21, r18                    ; ah*bl
-    sbc     r25, __zero_reg__
+    
+    mul     r20, r19                    ; al * bh (un*un)
     add     r23, r0
     adc     r24, r1
     adc     r25, __zero_reg__
@@ -311,21 +315,25 @@ FUNC MATH_MUL_SU_16_32
 ENDF MATH_MUL_SU_16_32
 
 ; Function: MATH_MUL_S_16_32
-; Description: Signed 16-bit x Signed 16-bit -> 32-bit Multiply.
+; Description: Signed 16-bit (A) x Signed 16-bit (B) -> 32-bit Multiply.
 FUNC MATH_MUL_S_16_32
   PUSH_MANY r20, r21
-    movw    r20, r22
-    mul     r20, r18                    ; al*bl
-    movw    r22, r0
-    muls    r21, r19                    ; ah*bh
-    movw    r24, r0
-    mulsu   r19, r20                    ; bh*al
-    sbc     r25, __zero_reg__
+    movw    r20, r22                    ; r21:r20 = A (signed)
+                                        ; r19:r18 = B (signed)
+    mul     r20, r18                    ; al * bl (un*un)
+    movw    r22, r0                     ; Byte 1:0
+    
+    muls    r21, r19                    ; ah * bh (si*si)
+    movw    r24, r0                     ; Byte 3:2
+    
+    mulsu   r21, r18                    ; ah * bl (si*un)
+    sbc     r25, __zero_reg__           ; Sign extend
     add     r23, r0
     adc     r24, r1
     adc     r25, __zero_reg__
-    mulsu   r21, r18                    ; ah*bl
-    sbc     r25, __zero_reg__
+    
+    mulsu   r19, r20                    ; bh * al (si*un)
+    sbc     r25, __zero_reg__           ; Sign extend
     add     r23, r0
     adc     r24, r1
     adc     r25, __zero_reg__

@@ -21,7 +21,6 @@
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
-    clr     TOGGLE_REG                        ; Initialize state register (0: Hello, 1: Hola)
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     sei                                       ; Enable global interrupts
 
@@ -29,8 +28,7 @@ FUNC main
 
   loop:
     rcall   a_toggle_function                 ; Select string, send to buffer, toggle LED
-
-    HAL_DELAY_MS 1000                         ; Wait 1 second
+    _DELAY_MS(1000)                           ; Wait 1 second
     rjmp    loop                              ; Repeat indefinitely
 
 ENDF main
@@ -41,10 +39,7 @@ ENDF main
 ; Inputs:      None
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
-ISR_START _(BOARD_BUTTON_PORT,_PORT_vect), r18
-    ldi     r18, 1                            ; Load bit 0
-    eor     TOGGLE_REG, r18                   ; Flip bit 0 of state register
-
-    cbi     _(BOARD_BUTTON_VPORT,_INTFLAGS), BOARD_BUTTON_PIN ; Clear the interrupt flag
-
-ISR_END _(BOARD_BUTTON_PORT,_PORT_vect), r18
+ISR_START _(BOARD_BUTTON_PORT,_PORT_vect)
+    com   TOGGLE_REG                                ; Flip all bits of state register
+    _PORT_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)  ; Clear the interrupt flag
+ISR_END _(BOARD_BUTTON_PORT,_PORT_vect)

@@ -11,9 +11,6 @@
 ;   by the board and echoed back (loopback).
 ; -----------------------------------------------------------------------------
 
-; Define a 128-byte Dev-Ring-Buffer for USART
-HAL_DEVICEBUFFER_DEFINE   TX_BUFFER, 128, USART_ADDR
-
 ; -----------------------------------------------------------------------------
 ; Function: main
 ; Description: Application entry point. Initializes hardware and the ring buffer,
@@ -23,11 +20,9 @@ HAL_DEVICEBUFFER_DEFINE   TX_BUFFER, 128, USART_ADDR
 ; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
-    HAL_DEVICEBUFFER_INIT TX_BUFFER           ; Initialize the USART ring buffer
-
-    ; Set Z to point to the ring buffer for ISR and main loop
-    ldi2    ZL, TX_BUFFER                     ; Load Z with buffer address
-    PRINT_STR "__ CURIOSITY ASSEMBLY __ \r\n"
+    _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
+    _STR("__ USART Loopback test: Start typing!\r\n")$ _STR_FLUSH()
 
     ; Configure USART RX Interrupt
     lds     r18, _(USART,_CTRLB)              ; Read CTRLB
@@ -36,15 +31,13 @@ FUNC main
     ldi     r18, USART_RXCIE_bm               ; Enable RX Complete Interrupt
     sts     _(USART,_CTRLA), r18              ; Update CTRLA
 
-    PRINT_STR "__ USART Loopback test: Start typing!\r\n"
-
   loop:
     cli                                       ; Disable interrupts for atomic flush
-    rcall   HAL_USART_FLUSH_DEVICEBUFFER      ; Send all data in buffer back to TX
+    _STR_FLUSH()                              ; Send all data in buffer back to TX
     sei                                       ; Re-enable interrupts
     sleep                                     ; Wait for new data (RX interrupt)
-
     rjmp    loop                              ; Repeat indefinitely
+
 ENDF main
 
 ; -----------------------------------------------------------------------------
@@ -53,6 +46,6 @@ ENDF main
 ; Inputs:      None
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
-ISR_START USART0_RXC_vect r18
+ISR_START _(USART,_RXC_vect), r18
     rcall   HAL_USART_RECEIVE_DEVICEBUFFER    ; Pull from hardware, push to buffer Z
-ISR_END USART0_RXC_vect r18
+ISR_END _(USART,_RXC_vect), r18

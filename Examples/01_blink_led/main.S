@@ -15,15 +15,16 @@
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
-  rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
 
   loop:
-    HAL_DELAY_MS 500                          ; Wait half a second
-    ldi     r22, 1<<BOARD_LED_PIN             ; Load LED pin mask
-    sts     _(BOARD_LED_PORT,_OUTTGL), r22    ; Toggle LED via hardware register
+    _DELAY_MS(500)                                ; Wait half a second
+    _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN)      ; Toggle LED via hardware register
 
-    ; Instead of hardcoding ports, "_()" macro glue two strings
-    ; sts     PORTF_OUTTGL, r22
+    ; Also, albeit slower option: "_()" macro glue two strings
+    ;           ldi   r22, 1<<BOARD_LED_PIN
+    ; old way   sts   _(BOARD_LED_PORT,_OUTTGL), r22
+    ; or plain  sts   PORTF_OUTTGL, r22
 
     rjmp    loop                              ; Repeat indefinitely
 

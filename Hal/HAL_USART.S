@@ -2,13 +2,6 @@
 ; Description: USART (Universal Synchronous/Asynchronous Receiver/Transmitter)
 ;              helper library for AVR-Dx/Ex families.
 ;
-; Example Usage:
-;   rcall   HAL_USART_BAUDRATE_UPD      ; Recompute BAUD based on current clock
-;
-;   ldi     YL, lo8(USART0_ADDR)
-;   ldi     YH, hi8(USART0_ADDR)
-;   ldi     r22, '!'
-;   rcall   HAL_USART_SEND_BYTE         ; Send single byte
 
 #ifndef USART_BAUD_RATE
   #define USART_BAUD_RATE   115200
@@ -64,7 +57,7 @@ ENDF HAL_USART_SEND_LENGTH
 ; Function: HAL_USART_SEND_BYTE
 ; Description: Sends a single byte to the USART.
 ; Inputs:  r22 - Data byte to send
-;          Y   - Points to USART Peripheral Base Address
+;            Y - Points to USART Peripheral Base Address
 ; Outputs: None
 FUNC HAL_USART_SEND_BYTE
   PUSH r23
@@ -78,14 +71,13 @@ ENDF HAL_USART_SEND_BYTE
 
 ; Function: HAL_USART_FLUSH_DEVICEBUFFER
 ; Description: Drains all bytes from a HAL_DEVICEBUFFER and sends them via USART.
-; Inputs:  Z   - Points to HAL_DEVICEBUFFER Structure
-; Outputs: r18 - 1: Buffer empty (Success)
+; Inputs:  Z  - Points to HAL_DEVICEBUFFER Structure
+;          Carry clear: DevBuffer Empty
 FUNC HAL_USART_FLUSH_DEVICEBUFFER
   PUSH_MANY  r18, r22, YL, YH
   0:
     rcall   HAL_DEVICEBUFFER_PULL       ; Pull byte from ring buffer
-    tst     r18                         ; Check if buffer is empty
-    brne    2f                          ; Exit if empty
+    brcc    2f                          ; Exit if carry is clear
     ldd2    YL, Z, 3                    ; Load USART Base Address L from descriptor
   1:
     ldd     r18, Y+4                    ; Read USART_STATUS
@@ -99,16 +91,15 @@ ENDF HAL_USART_FLUSH_DEVICEBUFFER
 
 ; Function: HAL_USART_RECEIVE_DEVICEBUFFER
 ; Description: Reads all pending bytes from USART and pushes them to a HAL_DEVICEBUFFER.
-; Inputs:  Z   - Points to HAL_DEVICEBUFFER Structure
-; Outputs: r18 - 0: Success, 1: Buffer full
+; Inputs:   Z - Points to HAL_DEVICEBUFFER Structure
+;          Carry clear: Full, Carry Set: Success
 FUNC HAL_USART_RECEIVE_DEVICEBUFFER
   PUSH_MANY r22, YL, YH
     ldd2    YL, Z, 3                    ; Load USART Base Address L
   0:
     ld      r22, Y                      ; Read byte from USART_RXDATAL (Base + 0)
     rcall   HAL_DEVICEBUFFER_PUSH       ; Push into ring buffer
-    tst     r18                         ; Check if full
-    brne    1f                          ; Exit if full
+    brcc    1f                          ; Exit if full
 
     ldd     r22, Y+4                    ; Read USART_STATUS
     sbrc    r22, USART_RXCIF_bp         ; Check Receive Complete Interrupt Flag

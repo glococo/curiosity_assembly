@@ -32,6 +32,7 @@
 
 FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
+    clr     __zero_reg__
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
     ldi     r22, CLKCTRL_FRQSEL_24M_gc
     rcall   HAL_CLKCTRL_OSCHF_SET
