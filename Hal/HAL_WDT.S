@@ -4,12 +4,14 @@
 
 #define _WDT_RESET()          wdr
 #define _WDT_ENABLE( opt )    HAL_WDT_ENABLE opt
+
 .macro HAL_WDT_ENABLE opt
   PUSH r22
     ldi     r22, \opt
     rcall   HAL_WDT_ENABLE
   POP r22
 .endm
+
 ; Function: HAL_WDT_ENABLE
 ; Description: Enables the Watchdog Timer with a specific period.
 ;              Note: This writes to the CCP protected CTRLA register.

@@ -16,16 +16,14 @@ FUNC main
     rcall   HAL_I2C_INIT                            ; Initialize I2C
 
     VEML6075_READ_REG    VEML6075_REG_ID
-    tst     r18
-    breq    read_ok
+    brcc    read_ok
     _STR("Error: Device ID read failed!\r\n")
     jmp     flush_end
 
   read_ok:
     DEBUG_STR_REG r22, "Device ID: "                ; r22 contains ID (Expected 0x26)
     rcall   VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
-    tst     r18
-    breq    start_reading
+    brcc    start_reading
     _STR("Error: Enable failed!\r\n")
     jmp     flush_end
 
@@ -35,8 +33,10 @@ FUNC main
 
   main_loop:
     rcall   VEML6075_READ
-    sbrc    r18, 0
-    rjmp    read_error
+    brcc    read_print
+    _STR("Error: Sensor read failed!\r\n")
+    rjmp    flush_end
+  read_print:
     lds2    r22, VEML6075_UVI
     _STR("UVI: ")$ _STR_REG_U16()
     lds2    r22, VEML6075_UVAc
@@ -54,8 +54,6 @@ FUNC main
     _DELAY_MS(2000)
     rjmp    main_loop
 
-  read_error:
-    _STR("Error: Sensor read failed!\r\n")
   flush_end:
     _STR_FLUSH()
   loop:

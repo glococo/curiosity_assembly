@@ -1,11 +1,6 @@
 ; File: Hal/HAL_DELAY.S
 ; Description: Software-based delay routines for millisecond timing.
 ;
-; Example Usage:
-;   HAL_DELAY_MS 100                    ; Macro for quick millisecond delay
-;
-;   ldi2    r22, 500                    ; Set delay to 500ms
-;   rcall   HAL_SOFT_DELAY_MS           ; Execute delay via function call
 
 #define _DELAY_MS(ms)   HAL_DELAY_MS ms
 

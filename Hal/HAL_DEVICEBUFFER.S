@@ -47,7 +47,7 @@
 ; Description: Adds a single byte to the buffer.
 ; Inputs:    Z - Points to Buffer Structure
 ;          r22 - Value to store
-; Outputs:  Carry clear: Full, Carry Set: Success
+; Outputs:  Cf - Clear: Full, Set: Success
 FUNC HAL_DEVICEBUFFER_PUSH
   PUSH_MANY r24, r25, XL, XH
     ld      r25, Z                      ; r25 = Current Head
@@ -75,7 +75,7 @@ ENDF HAL_DEVICEBUFFER_PUSH
 ; Description: Removes a single byte from the buffer.
 ; Inputs:    Z - Points to Buffer Structure
 ; Outputs: r22 - Value retrieved
-;          Carry clear: Empty, Carry Set: Success
+;           Cf - Clear: Empty, Set: not empty
 FUNC HAL_DEVICEBUFFER_PULL
   PUSH_MANY r24, r25, XL, XH
     ld      r26, Z                      ; r26 = Current Head
@@ -102,15 +102,15 @@ ENDF HAL_DEVICEBUFFER_PULL
 
 ; Function: HAL_DEVICEBUFFER_IS_EMPTY
 ; Description: Checks if the buffer has no data.
-; Inputs:    Z - Points to Buffer Structure
-;          Carry clear: Empty, Carry Set: Success
+; Input :    Z - Points to Buffer Structure
+; Output:   Cf - Clear: empty, Set: not empty
 FUNC HAL_DEVICEBUFFER_IS_EMPTY
   PUSH_MANY r18, r19
     ld      r18, Z                      ; r18 = Head
     ldd     r19, Z+1                    ; r19 = Tail
     cp      r18, r19                    ; Compare Head and Tail
-    breq    1f                          ; If Head == Tail, it's empty (clear carry SREG)
-    sec
+    breq    1f                          ; If Head == Tail, it's empty (clear carry)
+    sec                                 ;
   1:
   POP_MANY r19, r18
 ENDF HAL_DEVICEBUFFER_IS_EMPTY
@@ -118,7 +118,7 @@ ENDF HAL_DEVICEBUFFER_IS_EMPTY
 ; Function: HAL_DEVICEBUFFER_IS_FULL
 ; Description: Checks if the buffer is at capacity.
 ; Inputs:   Z - Points to Buffer Structure
-;          Carry clear: Full, Carry Set: not Full
+;          Cf - Clear: Full, Carry Set: not Full
 FUNC HAL_DEVICEBUFFER_IS_FULL
   PUSH_MANY r18, r19, r20
     ld      r18, Z                      ; r18 = Head

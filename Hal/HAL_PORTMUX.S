@@ -2,21 +2,6 @@
 ; Description: Helper macro for configuring pin multiplexing (PORTMUX) on modern AVR-Dx/Ex families.
 ;              Provides a simple interface to route peripheral signals to alternative pins.
 ;
-; Example Usage:
-;   _PORTMUX_ROUTEA(TWI, 0, DEFAULT)
-;   _PORTMUX_ROUTEA(TWI, 0, ALT2)
-;   _PORTMUX_ROUTEB(USART, 2, ALT1)
-;
-;   ; Raw register version:
-;   _PORTMUX_REG(PORTMUX_USARTROUTEA, (0x04 << 0))
-
-; Assembler Macro: HAL_PORTMUX_ASM
-; Description: Internal assembler macro to generate multiple lines.
-;              This is called by the preprocessor macro to ensure correct line breaks.
-.macro HAL_PORTMUX_ASM val, reg
-    ldi r18, \val
-    sts \reg, r18
-.endm
 
 ; Preprocessor Macro: HAL_PORTMUX
 ; Description: Bridges naming conventions to the assembler macro.
@@ -31,3 +16,11 @@
 ; Preprocessor Macro: HAL_PORTMUX_REG
 ; Description: Directly sets a PORTMUX register with a given value/bitmask.
 #define _PORTMUX_REG(reg_addr, value)    HAL_PORTMUX_ASM value, reg_addr
+
+; Assembler Macro: HAL_PORTMUX_ASM
+; Description: Internal assembler macro to generate multiple lines.
+;              This is called by the preprocessor macro to ensure correct line breaks.
+.macro HAL_PORTMUX_ASM val, reg
+    ldi r18, \val
+    sts \reg, r18
+.endm

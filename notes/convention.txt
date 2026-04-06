@@ -22,7 +22,7 @@ Arguments are passed in registers starting from `r25` down to `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
 - **Return Values**: Follow function description.
-- **Return success**: Carry clear/carry set.
+- **Return success**: Carry clear/carry set (fail/success) 
 
 ### Volatile vs. Callee-Saved
 - **Volatile**: There are no Volatile registers right now

@@ -2,15 +2,7 @@
 ; Description: High-performance Double-Buffer (Ping-Pong) Architecture.
 ;              Provides a "Zero-Copy" path between peripherals and application.
 ;
-; Example Usage:
-;   HAL_DOUBLEBUFFER_DEFINE  my_dbuf, 16
-;   HAL_DOUBLEBUFFER_INIT    my_dbuf
-;
-;   ldi     ZL, lo8(my_dbuf)
-;   ldi     ZH, hi8(my_dbuf)
-;   ldi     r22, 'X'
-;   rcall   HAL_DOUBLEBUFFER_PUSH       ; Returns r18=1 when buffer is full/flipped
-;
+
 ; Descriptor Structure (9 bytes):
 ; [0-1] Active address writing pointer (16-bit)
 ; [2-3] Base address Active (16-bit)
@@ -59,10 +51,9 @@
 ; Description: Pushes a byte into the active buffer and flips if full.
 ; Inputs:  Z   - Points to Buffer Descriptor
 ;          r22 - Data byte to push
-; Outputs: r18 - 0: Not full, 1: Buffer full and flipped
+; Outputs:  Cf - 0: not Full, 1: Buffer full and flipped
 FUNC HAL_DOUBLEBUFFER_PUSH
   PUSH_MANY r23, XL, XH
-    ldi     r18, 0                      ; Default return status: Not full
     ldd     XL, Z+0                     ; Load current Active Write Ptr
     ldd     XH, Z+1                     ;
     st      X+, r22                     ; Store data and increment pointer
@@ -79,8 +70,11 @@ FUNC HAL_DOUBLEBUFFER_PUSH
     rcall   HAL_DOUBLEBUFFER_FLIP       ; Buffer full: Perform the Flip
     std     Z+7, __zero_reg__           ; Reset Bytes Written Active = 0
     std     Z+8, r22                    ; Set Bytes Ready in Spare
-    ldi     r18, 1                      ; Return status: Full/Ready
+    sec                                 ; Return status: Full/Ready
+    rjmp    1f
   0:
+    clc
+  1:
   POP_MANY XH, XL, r23
 ENDF HAL_DOUBLEBUFFER_PUSH
 
@@ -106,13 +100,12 @@ FUNC HAL_DOUBLEBUFFER_FLIP
 ENDF HAL_DOUBLEBUFFER_FLIP
 
 ; Function: HAL_DOUBLEBUFFER_WRITE_BYTE
-; Description: Reads a byte from the Spare buffer and writes it to a target.
-; Inputs:  Z   - Points to Buffer Descriptor
-;          Y   - Points to Target SRAM location
-; Outputs: r18 - 0: Done (more bytes left), 1: Empty (all bytes sent)
+; Description: Reads a byte from the Spare buffer and writes it to target Y.
+; Inputs:    Z - Buffer Descriptor
+;            Y - Target SRAM location
+; Outputs:  Cf - 0: Empty (all bytes sent), 1:Done (more bytes left)
 FUNC HAL_DOUBLEBUFFER_WRITE_BYTE
   PUSH_MANY r19, r20, r22, XL, XH
-    ldi     r18, 1                      ; Default return status: Empty
     ldd     r19, Z+8                    ; Load Spare bytes remaining
     tst     r19                         ; Check if anything to drain
     breq    0f                          ; If 0, exit
@@ -128,8 +121,8 @@ FUNC HAL_DOUBLEBUFFER_WRITE_BYTE
     st      Y, r22                      ; Write byte to Target (e.g., USART TX)
     dec     r23                         ; Decrement remaining counter
     std     Z+8, r23                    ; Store back
-    breq    0f                          ; If now 0, exit (status 1)
-    ldi     r18, 0                      ; Not empty yet (status 0)
+    breq    0f                          ; If now 0, exit (status 0)
+    sec                                 ; Not empty yet (status 1)
   0:
   POP_MANY XH, XL, r22, r20, r19
 ENDF HAL_DOUBLEBUFFER_WRITE_BYTE

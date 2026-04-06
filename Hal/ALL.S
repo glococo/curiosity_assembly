@@ -35,5 +35,4 @@
 #include "HAL_BOD.S"              // Brown-out Detector (BOD) helper
 #include "HAL_USART.S"            // USART Serial communication
 #include "HAL_I2C.S"              // I2C (TWI) Master communication
-//#include "HAL_ADC_EX_define.S"    // ADC EA/EB define constants
 #include "HAL_ADC_EX.S"           // Analog-to-Digital Converter (ADC) helper for EA/EB Series

@@ -16,8 +16,7 @@ FUNC main
     rcall   HAL_I2C_INIT                            ; Initialize I2C
 
     MCP9804_READ_REG    MCP9804_REG_ID
-    tst     r18
-    breq    read_ok
+    brcc    read_ok
     _STR("Error: Sensor read failed!\r\n")
     jmp     flush_end
 
@@ -32,8 +31,7 @@ FUNC main
 
   main_loop:
     rcall   MCP9804_READ_TEMPERATURE
-    tst     r18
-    brne    error_temp
+    brcs    error_temp
     _STR("Temperature: ")$ _STR_REG_U8(r22)$ _STR(".")$ _STR_REG_U16(r24,4)$ _STR("º\n\r")$ _STR_FLUSH()
 
     _DELAY_MS(3000)

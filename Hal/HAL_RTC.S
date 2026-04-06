@@ -2,13 +2,6 @@
 ; Description: Real-Time Counter (RTC) helper library for AVR-Dx/Ex families.
 ;              Provides safe register writes with synchronization guards.
 ;
-; Example Usage:
-;   rcall   RTC_INIT_ONE_SECOND         ; Initialize RTC for 1-second overflow
-;   HAL_RTC_PIT_ENABLE RTC_PERIOD_CYC32768_bm ; Enable Periodic Interrupt Timer
-;
-;   ldi     r22, lo8(1000)
-;   ldi     r23, hi8(1000)
-;   rcall   HAL_RTC_SET_PERIOD          ; Set RTC period to 1000 ticks
 
 ; -----------------------------------------------------------------------------
 ; Compile-time tick calculation macros

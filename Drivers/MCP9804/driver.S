@@ -24,15 +24,14 @@ MCP9804_struct:
 ; Outputs:     r22 - Integer part (Absolute)
 ;              r23 - Sign (0:+, 1:-)
 ;          r25:r24 - Decimal part (x10000, e.g. 625 = .0625)
-;              r18 - 0: Success, 1: Error
+;               Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_READ_TEMPERATURE
   PUSH_MANY r19, r20, r21
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_T_AMB
     rcall   HAL_I2C_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
-    tst     r18
-    brne    .L_error
+    brcs    .L_exit
 
     sts2    MCP9804_LAST, r22           ; Save raw register (LSB in r22, MSB in r23)
     movw    r24, r22                    ; r25:r24 = raw data
@@ -75,12 +74,9 @@ FUNC MCP9804_READ_TEMPERATURE
 
     mov     r22, r20                    ; Return integer in r22
     mov     r23, r21                    ; Return sign in r23
-    ldi     r18, 0                      ; Success
-    rjmp    .L_done
+    clc                                 ; Success
 
-  .L_error:
-    ldi     r18, 1
-  .L_done:
+  .L_exit:
   POP_MANY r21, r20, r19
 ENDF MCP9804_READ_TEMPERATURE
 
@@ -88,7 +84,7 @@ ENDF MCP9804_READ_TEMPERATURE
 ; Macro: MCP9804_READ_REG reg
 ; Description: Read an internal MCP9804 register
 ; Outputs:  r23:r22 - Data
-;               r18 - 0: Success, 1: Error
+;                Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 .macro MCP9804_READ_REG reg
     ldi     r22, MCP9804_ADDR
@@ -99,15 +95,14 @@ ENDF MCP9804_READ_TEMPERATURE
 ; -----------------------------------------------------------------------------
 ; Function: MCP9804_ENABLE
 ; Description: Enable sensor continuous measuring (Clear SHDN bit)
-; Outputs :   r18 - 0: Success, 1: Error
+; Outputs :   Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_ENABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
     rcall   HAL_I2C_READ_REGW_BE
-    tst     r18
-    brne    1f
+    brcs    1f
 
     andi2   r24, ~MCP9804_CONF_SLEEP_bm
     rcall   HAL_I2C_WRITE_REGW_BE
@@ -118,15 +113,14 @@ ENDF MCP9804_ENABLE
 ; -----------------------------------------------------------------------------
 ; Function: MCP9804_DISABLE
 ; Description: Disable sensor (Set SHDN bit)
-; Outputs: r18 - 0: Success, 1: Error
+; Outputs:  Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_DISABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
     rcall   HAL_I2C_READ_REGW_BE
-    tst     r18
-    brne    1f
+    brcs    1f
 
     ori2    r24, MCP9804_CONF_SLEEP_bm
     rcall   HAL_I2C_WRITE_REGW_BE

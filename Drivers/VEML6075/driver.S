@@ -45,7 +45,7 @@ VEML6075_struct:
 ; Macro: VEML6075_READ_REG reg
 ; Description: Read an internal VEML6075 register
 ; Outputs:  r23:r22 - Data
-;               r18 - 0: Success, 1: Error
+;                Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 .macro VEML6075_READ_REG reg
     ldi     r22, VEML6075_ADDR
@@ -57,7 +57,7 @@ VEML6075_struct:
 ; Function: VEML6075_READ_ID
 ; Description: Read Device ID (must read 2byte)
 ; Outputs: r22 - Device ID
-;          r18 - 0: Success, 1: Error
+;           Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC VEML6075_READ_ID
   PUSH r23
@@ -69,7 +69,7 @@ ENDF VEML6075_READ_ID
 ; -----------------------------------------------------------------------------
 ; Function: VEML6075_ENABLE
 ; Description: Enable sensor measuring every 100ms
-; Outputs: r18 - 0: Success, 1: Error
+; Outputs:  Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC VEML6075_ENABLE
   PUSH_MANY r22, r23, r24, r25
@@ -83,7 +83,7 @@ ENDF VEML6075_ENABLE
 ; -----------------------------------------------------------------------------
 ; Function: VEML6075_DISABLE
 ; Description: Disable sensor
-; Outputs: r18 - 0: Success, 1: Error
+; Outputs:  Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC VEML6075_DISABLE
   PUSH_MANY r22, r23, r24
@@ -97,36 +97,32 @@ ENDF VEML6075_DISABLE
 ; Function: VEML6075_READ
 ; Description: Read a block of memory to VEML6075 X structure
 ; Outputs:   X - VEML6075_struct
-;          r18 - 0: Success, 1: Error
+;           Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC VEML6075_READ
   PUSH_MANY r22, r23
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVA
     rcall   HAL_I2C_READ_REGW           ; Read UVA data
-    tst     r18
-    brne    0f
+    brcs    0f
     sts2    VEML6075_UVA, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVB
     rcall   HAL_I2C_READ_REGW           ; Read UVB data
-    tst     r18
-    brne    0f
+    brcs    0f
     sts2    VEML6075_UVB, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVCOMP1
     rcall   HAL_I2C_READ_REGW           ; Read UVCOMP1 data
-    tst     r18
-    brne    0f
+    brcs    0f
     sts2    VEML6075_UVCOMP1, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVCOMP2
     rcall   HAL_I2C_READ_REGW           ; Read UVCOMP2 data
-    tst     r18
-    brne    0f
+    brcs    0f
     sts2    VEML6075_UVCOMP2, r22
 
     rcall   VEML6075_CORRECT            ; do the math
@@ -137,6 +133,7 @@ ENDF VEML6075_READ
 ; -----------------------------------------------------------------------------
 ; Function: VEML6075_CORRECT
 ; Description: Calculate UVAcomp, UVBcomp and UVIndex
+; Output:  Cf - 0: Done
 ; -----------------------------------------------------------------------------
 FUNC VEML6075_CORRECT
   PUSH_MANY r16, r17, r18, r19, r20, r21, r22, r23, r24, r25
@@ -208,5 +205,6 @@ FUNC VEML6075_CORRECT
     lsr     r23                   ; >> 1 (divide by 2)
     ror     r22                   ; result in r23:r22
     sts2    VEML6075_UVI, r22
+    clc                           ; Clear carry: done
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r17, r16
 ENDF VEML6075_CORRECT

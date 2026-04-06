@@ -48,15 +48,12 @@ ENDF main
 ; ISR: USART0_RXC_vect (RX Complete)
 ; Description: Handles incoming USART bytes and pushes them to the double buffer.
 ;              Triggers TX (DRE) interrupt when a buffer is full.
-; Inputs:      None
-; Outputs:     None
 ; -----------------------------------------------------------------------------
 ISR_START _(USART,_RXC_vect), r18
     PUSH_MANY r22
     lds     r22, USART_ADDR                   ; Read received byte (RXDATAL)
-    rcall   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns r18=1 if full
-    tst     r18                               ; Check if flip occurred
-    breq    0f                                ; If not full, exit ISR
+    rcall   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns CS if full
+    brcc    0f                                ; If not full, exit ISR
 
     ; Buffer full: Trigger echoing by enabling Data Register Empty interrupt
     lds     r22, _(USART,_CTRLA)              ; Read current CTRLA
@@ -70,15 +67,12 @@ ISR_END _(USART,_RXC_vect), r18
 ; ISR: USART0_DRE_vect (Data Register Empty)
 ; Description: Drains the "Spare" (full) double buffer and sends it via USART.
 ;              Disables itself once the buffer is empty.
-; Inputs:      None
-; Outputs:     None
 ; -----------------------------------------------------------------------------
-ISR_START USART0_DRE_vect r18
+ISR_START USART0_DRE_vect, r18
     PUSH_MANY YL, YH
     ldi2    YL, USART_ADDR + 2                ; Point Y to USART_TXDATAL
-    rcall   HAL_DOUBLEBUFFER_WRITE_BYTE       ; Pop byte from spare buffer to Y, returns r18=1 if empty
-    tst     r18                               ; Check if all bytes sent
-    breq    0f                                ; If not empty, exit ISR (will re-trigger)
+    rcall   HAL_DOUBLEBUFFER_WRITE_BYTE       ; Pop byte from spare buffer to Y, CS if empty
+    brcs    0f                                ; If not empty, exit. ISR (will re-trigger)
 
     ; Buffer empty: Disable DRE interrupt
     lds     r18, _(USART,_CTRLA)              ; Read current CTRLA
@@ -86,4 +80,4 @@ ISR_START USART0_DRE_vect r18
     sts     _(USART,_CTRLA), r18              ; Write back
   0:
     POP_MANY YH, YL
-ISR_END USART0_DRE_vect r18
+ISR_END USART0_DRE_vect, r18

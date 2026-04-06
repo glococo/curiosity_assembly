@@ -2,15 +2,6 @@
 ; Description: Clock Control (CLKCTRL) driver for modern AVR (Dx/Ex).
 ;              Provides routines for source selection, prescaling, and frequency adjustment.
 ;
-; Example Usage:
-;   ldi     r22, HAL_CLKCTRL_FREQ_20MHZ
-;   rcall   HAL_CLKCTRL_OSCHF_SET       ; Set Internal High Frequency Oscillator
-;
-;   ldi     r22, HAL_CLKCTRL_DIV_4
-;   rcall   HAL_CLKCTRL_PRESCALER       ; Apply /4 prescaler and update timing
-;
-;   ldi     r22, HAL_CLKCTRL_SRC_OSCHF
-;   rcall   HAL_CLKCTRL_MAIN_SELECT     ; Switch to OSCHF as main clock
 
 .section .bss
 HAL_ONE_MS:                 .word 0       ; 16-bit One millisecond in cycles
