@@ -10,15 +10,15 @@
 ; [Offset 4] Device Address H
 ; [Offset 5] Data... (Size bytes)
 
-#define _DEVBUFFER(name,size,dev)  HAL_DEVBUFFER name, size, dev
+#define _DEVBUFFER(name,size,dev)  HAL_DEVBUFFER_DEFINE name, size, dev
 
-; Macro: HAL_DEVBUFFER
+; Macro: HAL_DEVBUFFER_DEFINE
 ; Description: Allocates SRAM space for a ring buffer descriptor and data,
 ;              and Initializes the ring buffer descriptor.
 ; Inputs:  name - Name of the buffer
 ;          size - Buffer size (MUST be power of two)
 ;          dev  - 16-bit device address (e.g., USART0_ADDR)
-.macro HAL_DEVBUFFER name, size, dev
+.macro HAL_DEVBUFFER_DEFINE name, size, dev
   .pushsection .bss
     \name:
         .byte 0                         ; Head index
@@ -26,22 +26,27 @@
         .byte 0                         ; Mask (size-1)
         .word 0                         ; Device Base Address (16-bit)
         .space (\size)                  ; Data storage area
-    .set \name\()_SIZE, (\size-1)       ; Assembler constant for mask
-    .set \name\()_ADDRL, \dev & 0xFF  ; Assembler constant for addrL
-    .set \name\()_ADDRH, (\dev >> 8)  ; Assembler constant for addrH
   .popsection
-  PUSH r18
-    ldi2  ZL, \name
+  PUSH_MANY r21, r22, r23
+    ldi2     ZL, \name
+    ldi2    r22, \dev
+    ldi     r21, \size-1
+    rcall   HAL_DEVICEBUFFER_INIT
+  POP_MANY r23, r22, r21
+.endm
+
+; Function: HAL_DEVICEBUFFER_INIT
+; Description: Initialize a Device Buffer Descriptor.
+; Inputs:       Z - Points to Buffer Descriptor
+;             r21 - Size
+;         r23:r22 - Address
+FUNC HAL_DEVICEBUFFER_INIT
     st    Z, __zero_reg__               ; Reset Head = 0
     std   Z+1, __zero_reg__             ; Reset Tail = 0
-    ldi   r18, \name\()_SIZE
-    std   Z+2, r18                      ; Store Mask
-    ldi   r18, \name\()_ADDRL
-    std   Z+3, r18                      ; Store Device Address L
-    ldi   r18, \name\()_ADDRH
-    std   Z+4, r18                      ; Store Device Address H
-  POP r18
-.endm
+    std   Z+2, r21                      ; Store Mask
+    std   Z+3, r22                      ; Store Device Address L
+    std   Z+4, r23                      ; Store Device Address H
+ENDF HAL_DEVICEBUFFER_INIT
 
 ; Function: HAL_DEVICEBUFFER_PUSH
 ; Description: Adds a single byte to the buffer.

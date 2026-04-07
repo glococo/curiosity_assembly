@@ -11,47 +11,50 @@
 ; [7]   Bytes written in Active (8-bit)
 ; [8]   Bytes written in Spare (8-bit)
 
+#define _DOUBLEBUFFER(name, size)   HAL_DOUBLEBUFFER_DEFINE name, size
+
 ; Macro: HAL_DOUBLEBUFFER_DEFINE
 ; Description: Allocates SRAM space for two buffers and a 9-byte descriptor.
 ; Inputs:  name - Name of the double buffer
 ;          size - Size of each individual buffer (2 to 256)
-; Outputs: None
 .macro HAL_DOUBLEBUFFER_DEFINE name, size
-    .section .bss
+  .pushsection .bss
     \name\()_A:     .space \size        ; Buffer A storage
     \name\()_B:     .space \size        ; Buffer B storage
-    \name:          .space 9            ; Descriptor storage
+    \name\():       .space 9            ; Descriptor (Active,Base,Spare,Limit,Bytes in Active,Bytes ready in Spare)
     .set \name\()_SIZE, \size           ; Store size as assembler constant
+  .popsection
+  PUSH_MANY r21, r22, r23, r24, r25
+    ldi2    ZL, \name
+    ldi     r21, \size-1
+    ldi2    r22, \name\()_A
+    ldi2    r24, \name\()_B
+    rcall   HAL_DOUBLEBUFFER_INIT
+  POP_MANY r25, r24, r23, r22, r21
 .endm
 
-; Macro: HAL_DOUBLEBUFFER_INIT
-; Description: Links buffers to the descriptor and sets initial state.
-; Inputs:  name - Name of the buffer defined with HAL_DOUBLEBUFFER_DEFINE
-; Outputs: None
-.macro HAL_DOUBLEBUFFER_INIT name
-    ldi     ZL, lo8( \name )
-    ldi     ZH, hi8( \name )
-    ldi     r18, lo8(\name\()_A)        ; Load Buffer A start address
-    ldi     r19, hi8(\name\()_A)
-    std     Z+0, r18                    ; Set Active Write Ptr L
-    std     Z+1, r19                    ; Set Active Write Ptr H
-    std     Z+2, r18                    ; Set Base Active L
-    std     Z+3, r19                    ; Set Base Active H
-    ldi     r18, lo8(\name\()_B)        ; Load Buffer B start address
-    ldi     r19, hi8(\name\()_B)
-    std     Z+4, r18                    ; Set Base Spare L
-    std     Z+5, r19                    ; Set Base Spare H
-    ldi     r18, (\name\()_SIZE)-1      ; Limit = size - 1
-    std     Z+6, r18                    ; Store Size Limit
-    std     Z+7, __zero_reg__           ; Reset Bytes Written Active = 0
-    std     Z+8, __zero_reg__           ; Reset Bytes Ready Spare = 0
-.endm
+; Function: HAL_DOUBLEBUFFER_INIT
+; Description: Initialize Double Buffer Descriptor
+; Inputs:       Z - Point to buffer descriptor
+;         r23:r22 - A storage
+;         r25:r24 - B storage
+FUNC HAL_DOUBLEBUFFER_INIT
+    std     Z+0, r22                    ; Set Pointer: Active
+    std     Z+1, r23                    ; Set Pointer: Active
+    std     Z+2, r22                    ; Set A as Active
+    std     Z+3, r23                    ; Set A as Active
+    std     Z+4, r24                    ; Set B as Spare
+    std     Z+5, r25                    ; Set B as Spare
+    std     Z+6, r21                    ; Store Size Limit
+    std     Z+7, __zero_reg__           ; Bytes Written Active = 0
+    std     Z+8, __zero_reg__           ; Bytes Ready Spare = 0
+ENDF HAL_DOUBLEBUFFER_INIT
 
 ; Function: HAL_DOUBLEBUFFER_PUSH
-; Description: Pushes a byte into the active buffer and flips if full.
-; Inputs:  Z   - Points to Buffer Descriptor
+; Description: Pushes a byte into the active buffer and flips if full
+;              (overwrite if both are full)
+; Inputs:    Z - Points to Buffer Descriptor
 ;          r22 - Data byte to push
-; Outputs:  Cf - 0: not Full, 1: Buffer full and flipped
 FUNC HAL_DOUBLEBUFFER_PUSH
   PUSH_MANY r23, XL, XH
     ldd     XL, Z+0                     ; Load current Active Write Ptr
@@ -60,21 +63,19 @@ FUNC HAL_DOUBLEBUFFER_PUSH
     std     Z+0, XL                     ; Update Active Write Ptr
     std     Z+1, XH                     ;
 
-    ldd     r22, Z+7                    ; Load Bytes Written Active
-    inc     r22                         ; Increment counter
-    std     Z+7, r22                    ; Store back
-    ldd     r23, Z+6                    ; Load Buffer Limit
-    cp      r22, r23                    ; Compare counter with limit
-    brne    0f                          ; Not full yet, exit
-
+    ldd     r26, Z+6                    ; Load Buffer Limit
+    ldd     r27, Z+7                    ; Load Bytes Written Active
+    inc     r27                         ; Increment counter
+    cp      r26, r27                    ; Compare counter with limit
+    breq    .L_flip
+    std     Z+7, r27                    ; Store back
+    rjmp    0f
+  .L_flip:
+    std     Z+7, __zero_reg__           ; Bytes Written Active = 0
+    std     Z+8, r26                    ; Set Bytes Ready in Spare
     rcall   HAL_DOUBLEBUFFER_FLIP       ; Buffer full: Perform the Flip
-    std     Z+7, __zero_reg__           ; Reset Bytes Written Active = 0
-    std     Z+8, r22                    ; Set Bytes Ready in Spare
-    sec                                 ; Return status: Full/Ready
-    rjmp    1f
+    sec
   0:
-    clc
-  1:
   POP_MANY XH, XL, r23
 ENDF HAL_DOUBLEBUFFER_PUSH
 
@@ -98,6 +99,34 @@ FUNC HAL_DOUBLEBUFFER_FLIP
     std     Z+2, XL                     ; Update Active Base pointer
     std     Z+3, XH                     ;
 ENDF HAL_DOUBLEBUFFER_FLIP
+
+; Function: HAL_DOUBLEBUFFER_PULL
+; Description: Reads a byte from the Spare buffer and writes it to target Y.
+; Inputs:    Z - Buffer Descriptor
+; Outputs: r22 - Data
+;           Cf - 0: Success, 1: Empty
+FUNC HAL_DOUBLEBUFFER_PULL
+    ldd     r22, Z+8                    ; Load Spare bytes remaining
+    tst     r22                         ; Check if anything to drain
+    brne    1f                          ; If 0, exit
+  0:
+    sec                                 ; "Set" Carry = Empty
+    rjmp   2f
+  1:
+  PUSH_MANY r23, XL, XH
+    ldd     XL, Z+4                     ; Load Spare Base Address
+    ldd     XH, Z+5                     ;
+    ldd     r22, Z+6                    ; Load Limit
+    ldd     r23, Z+8                    ; Load Remaining
+    sub     r22, r23                    ; Calculate offset (Limit - Remaining)
+    add     XL, r22                     ; Add offset to Base
+    adc     XH, __zero_reg__            ; Handle carry and "Clear" CARRY flag
+    ld      r22, X                      ; Read byte from Spare buffer
+    dec     r23                         ; Decrement remaining counter
+    std     Z+8, r23                    ; Store back
+  POP_MANY XH, XL, r23
+  2:
+ENDF HAL_DOUBLEBUFFER_WRITE_BYTE
 
 ; Function: HAL_DOUBLEBUFFER_WRITE_BYTE
 ; Description: Reads a byte from the Spare buffer and writes it to target Y.

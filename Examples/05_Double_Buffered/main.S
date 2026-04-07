@@ -10,22 +10,13 @@
 ;   the board will echo them back once the buffer limit is reached.
 ; -----------------------------------------------------------------------------
 
-; 1. Define a Zero-Copy 10-byte Double Buffer (High Speed)
-;    Size 10 means it will flip after 10 bytes are received.
-HAL_DOUBLEBUFFER_DEFINE  RX_BUFFER, 10
-
-; -----------------------------------------------------------------------------
-; Function: main
-; Description: Main application entry point. Initializes buffers and USART interrupts.
-; Inputs:      None
-; Outputs:     None
-; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board initialization
-    HAL_DOUBLEBUFFER_INIT RX_BUFFER           ; Initialize high-speed double buffer
-    _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
-    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
-    _STR("__ USART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n")$ _STR_FLUSH()
+    _DOUBLEBUFFER( DOUBLE_BUFFER, 10 )        ; Initialize high-speed double buffer (Z point to DoubleBuffer)
+    _DEVBUFFER(DEV_BUFFER, 128, USART_ADDR)   ; Initialize the USART devBuffer (but now, Z point to DevBuffer)
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")     ; Output to devBuffer
+    _STR("__ USART Double Buffered Echo Demo!\r\nWrite +10 characters to output\r\n")
+    _STR_FLUSH()                              ; <- Drain DevBuffer
 
     ; Configure USART RX Interrupt
     lds     r18, _(USART,_CTRLB)              ; Read CTRLB
@@ -35,8 +26,10 @@ FUNC main
     sts     _(USART,_CTRLA), r18              ; Update CTRLA
     sei                                       ; Enable global interrupts
 
-    ; Set Z to point to the Double Buffer descriptor for the ISRs
-    ldi2    ZL, RX_BUFFER
+    ; Switch Z to DOUBLE_BUFFER descriptor (for the ISRs)
+    ldi2    ZL, DOUBLE_BUFFER
+    ; Switch Y to USART_TXDATAL TX address (for the ISRs)
+    ldi2    YL, USART_ADDR + 2
 
   loop:
     sleep                                     ; Wait for interrupts
@@ -49,35 +42,32 @@ ENDF main
 ; Description: Handles incoming USART bytes and pushes them to the double buffer.
 ;              Triggers TX (DRE) interrupt when a buffer is full.
 ; -----------------------------------------------------------------------------
-ISR_START _(USART,_RXC_vect), r18
-    PUSH_MANY r22
+ISR_START _(USART,_RXC_vect), r22
     lds     r22, USART_ADDR                   ; Read received byte (RXDATAL)
     rcall   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns CS if full
-    brcc    0f                                ; If not full, exit ISR
+    brcc    0f
 
-    ; Buffer full: Trigger echoing by enabling Data Register Empty interrupt
+    ; Buffer flipped: Trigger draining/echoing by enabling Data Register Empty ISR
     lds     r22, _(USART,_CTRLA)              ; Read current CTRLA
     ori     r22, USART_DREIE_bm               ; Set DREIE bit
     sts     _(USART,_CTRLA), r22              ; Write back
   0:
-    POP_MANY r22
-ISR_END _(USART,_RXC_vect), r18
+ISR_END _(USART,_RXC_vect), r22
 
 ; -----------------------------------------------------------------------------
 ; ISR: USART0_DRE_vect (Data Register Empty)
 ; Description: Drains the "Spare" (full) double buffer and sends it via USART.
 ;              Disables itself once the buffer is empty.
 ; -----------------------------------------------------------------------------
-ISR_START USART0_DRE_vect, r18
-    PUSH_MANY YL, YH
-    ldi2    YL, USART_ADDR + 2                ; Point Y to USART_TXDATAL
-    rcall   HAL_DOUBLEBUFFER_WRITE_BYTE       ; Pop byte from spare buffer to Y, CS if empty
-    brcs    0f                                ; If not empty, exit. ISR (will re-trigger)
-
-    ; Buffer empty: Disable DRE interrupt
-    lds     r18, _(USART,_CTRLA)              ; Read current CTRLA
-    cbr     r18, USART_DREIE_bm               ; Clear DREIE bit
-    sts     _(USART,_CTRLA), r18              ; Write back
+ISR_START USART0_DRE_vect, r22
+    rcall   HAL_DOUBLEBUFFER_PULL             ; Pop byte from spare buffer to r22, CS if empty
+    brcc    0f                                ; If Carry-Clear = data in r22 -> Send it back
+                                              ; If Carry-Set = Buffer_empty -> Disable DRE ISR
+    lds     r22, _(USART,_CTRLA)              ; Read current CTRLA
+    cbr     r22, USART_DREIE_bm               ; Clear DREIE bit
+    sts     _(USART,_CTRLA), r22              ; Write back
+    rjmp    1f
   0:
-    POP_MANY YH, YL
-ISR_END USART0_DRE_vect, r18
+    st      Y, r22                      ; Write byte to Target (e.g., USART TX)
+  1:
+ISR_END USART0_DRE_vect, r22
