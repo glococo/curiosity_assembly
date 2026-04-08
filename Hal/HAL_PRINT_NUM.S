@@ -68,9 +68,11 @@
      PUSH  \reg
      mov      r22, \reg
   .endif
-    ldi       r23, 0xFF
-    ldi       r24, 0xFF
-    ldi       r25, 0xFF
+    mov       r25, r22
+    lsl       r25
+    sbc       r25, r25
+    mov       r24, r25
+    mov       r23, r25
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT32
   .ifnc \reg, r22
@@ -84,8 +86,10 @@
      PUSH  \reg
      movw     r22, \reg
   .endif
-    ldi       r24, 0xFF
-    ldi       r25, 0xFF
+    mov       r25, r23
+    lsl       r25
+    sbc       r25, r25
+    mov       r24, r25
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT32
   .ifnc \reg, r22

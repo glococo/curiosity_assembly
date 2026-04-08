@@ -1,6 +1,6 @@
 # AVR Assembly HAL: Convention & Social Contract
 
-To ensure high performance and seamless integration between HAL modules and user code, this framework follows a strict "Social Contract" regarding register usage and naming.
+To ensure high performance and seamless integration between HAL modules and user code, this framework follows a strict "Social Contract" regarding register usage, naming, and memory management.
 
 ## 1. Register Usage (The Social Contract)
 
@@ -10,40 +10,65 @@ To ensure high performance and seamless integration between HAL modules and user
 - **(r2) `__zero_reg__`**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
   - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r2`.
 
+### Volatile vs. Callee-Saved
+- **Volatile (r18 - r25, r26, r27, r30, r31)**: These registers are typically used for arguments, return values, and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
+- **Callee-Saved (r3 - r17, r28, r29)**: Any function using these registers **must** preserve them (PUSH/POP).
+
 ### Pointer Registers
 AVR has three 16-bit pointer pairs:
-- **X (r27:r26)**: **Callee-saved** Primary pointer for Streaming (printing strings, moving arrays)
-- **Y (r29:r28)**: **Callee-saved** Primary pointer for DevAddress, Local variables (stack frame)
-- **Z (r31:r30)**: **Callee-saved** Primary pointer for Structures, Ring Buffers, Double Buffers
+- **X (r27:r26)**: Primary pointer for **Streaming** and **Data Processing**. Used for printing strings (`HAL_PRINT_STR`), moving arrays, and temporary indexing.
+- **Y (r29:r28)**: Primary pointer for **Peripheral Base Addresses** and **Local Variables** (stack frame). Many HAL functions expect `Y` to point to a peripheral's base address (e.g., `HAL_USART_SEND_BYTE`).
+- **Z (r31:r30)**: Primary pointer for **Structures** (Ring Buffers, Double Buffers) and **Program Memory (LPM)**. Used to pass descriptors to buffer functions.
 
 ### Function Arguments & Return Values
 Arguments are passed in registers starting from `r25` down to `r22`.
 - **8-bit**: Use `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
-- **Return Values**: Follow function description.
-- **Return success**: Carry clear/carry set (fail/success) 
+- **Return Values**: Success/Failure is typically communicated via the **Carry Flag** (Set = Success/Not Empty, Clear = Fail/Empty). Data returns follow the same register pattern as arguments.
 
-### Volatile vs. Callee-Saved
-- **Volatile**: There are no Volatile registers right now
-- **Callee-Saved (r3 - r31)**: The called function **must** preserve all the register it uses, it must PUSH/POP them
-
-## 2. Macro Naming & Local Labels
+## 2. Macro Naming & Discipline
 
 ### Namespace Discipline
-Every HAL macro must start with the peripheral name to prevent "Namespace Pollution":
-- `HAL_GPIO_`, `HAL_USART_`, `HAL_RTC_`, `MATH_`.
+Every HAL function starts with a prefix to prevent "Namespace Pollution":
+- `HAL_` for Hardware Abstraction Layer functions.
+- `MATH_` for arithmetic routines.
 
-### Local Labels (Avoiding "Duplicate Label" Errors)
-1. **Numeric Labels (1f/1b)**: The preferred way. Use single digits (0–9).
-   - `1: rjmp 1b` (jump backward to 1).
-   - `breq 2f` (jump forward to 2).
-2. **Hidden Labels (.L)**: Use `.L` prefix for descriptive labels that shouldn't appear in the Symbol Table.
-   - `.L_error_state:`
-3. **Unique Macro Labels (\@)**: Inside a macro, use `\@` to generate a unique suffix for every expansion.
-   - `loop_\@:`
+### Shorthand Macros
+Shorthand macros often start with an underscore (`_`) and provide safer or more concise access to HAL functionality:
+- `_DELAY_MS(ms)`, `_PORT_TGL(port, pin)`, `_STR("text")`, `_DEBUG_`.
+- `_()` macro is used for name glueing: `_(USART, _BAUDL)` becomes `USART_BAUDL`.
 
-## 3. Atomic Operations
-Whenever possible, utilize the modern AVR hardware features for atomicity:
-- Use `_OUTTGL` for toggling pins without Read-Modify-Write.
-- Use `_DIRSET` / `_DIRCLR` for configuration.
+### Function & ISR Definition
+Use the standard macros for defining blocks:
+- `FUNC name` / `ENDF name`: Automatically handles sectioning, globals, and `ret`.
+- `ISR_START name, reg` / `ISR_END name, reg`: Handles SREG preservation and `reti`.
+
+### Local Labels
+1. **Numeric Labels (0-9f/b)**: The preferred way for small loops and branches.
+2. **Unique Macro Labels (\@)**: Inside macros, use `\@` to prevent duplicate label errors.
+
+## 3. Extended ISA & Atomic Operations
+
+### Extended Instruction Macros
+Since AVR is an 8-bit architecture, this HAL provides 16/32/64-bit extension macros:
+- **Load/Store**: `ldi2/4/8`, `lds2/4`, `sts2/4`, `ldd2`, `std2`.
+- **Arithmetic**: `add2/4`, `add2s/4s` (saturated), `inc4`, `dec4`.
+- **Logic/Compare**: `lsli2/4`, `cp2/4`, `cpi2/4`, `andi2`, `ori2`.
+
+### Atomic Operations (Modern AVR Dx/Ex)
+Utilize hardware features to avoid Read-Modify-Write cycles:
+- **Virtual Ports**: Use the `V` prefix (e.g., `VPORTA`) for single-cycle `sbi`/`cbi` access.
+- **Direct Toggles**: Use `_PORT_TGL` which writes to the `IN` register (triggering a toggle on Dx/Ex).
+- **Set/Clear Registers**: Use `_DIRSET`, `_DIRCLR`, `_OUTSET`, `_OUTCLR` for atomic bit manipulation.
+
+## 4. Memory Sections & Data
+
+- **`.text.<name>`**: All functions should be in their own subsection for linker garbage collection.
+- **`.progmem.rodata`**: Use for strings and constant tables to save SRAM. Access via `Z` and `lpm` (or the `MAPPED_PROGMEM_START` offset on modern AVRs).
+- **`.bss` / `.noinit`**: For uninitialized or persistent SRAM storage.
+- **`ASCIZ name, "text"`**: Preferred macro for defining strings; it automatically calculates a `name_len` constant.
+
+## 5. Buffer Strategies
+- **HAL_DEVICEBUFFER**: Power-of-two circular buffer. Memory efficient (1x size + 5 bytes). Best for byte streams.
+- **HAL_DOUBLEBUFFER**: Ping-pong buffer. Performance oriented (2x size + 9 bytes). Best for high-speed block processing.

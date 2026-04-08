@@ -27,8 +27,8 @@ FUNC main
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ AVR-DEV Math Library Test Suite!\r\n")
     _STR("----------------------------------------\r\n")$ _STR_FLUSH()
-    ldi   r22, -182
-    _STR("  Test neg: -182 = ")$ _STR_REG_S8(r22)$ _STR("\r\n")$ _STR_FLUSH()
+    ldi   r22, -82
+    _STR("  Test neg: -82 = ")$ _STR_REG_S8(r22)$ _STR("\r\n")$ _STR_FLUSH()
     ldi2  r22, -27182
     _STR("  Test neg: -27182 = ")$ _STR_REG_S16(r22)$ _STR("\r\n")$ _STR_FLUSH()
     ldi4  r22, -1147483048

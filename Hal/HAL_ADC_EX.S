@@ -5,6 +5,10 @@
 .section .progmem.rodata
 ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
 
+#define _ADC_ENABLE(pre, vref, ...)   HAL_ADC_EX_ENABLE pre, vref, ##__VA_ARGS__
+#define _ADC_READ(ain)                HAL_ADC_EX_READ ain
+#define _ADC_BURST(ain, num)          HAL_ADC_EX_BURST ain, num
+
 ; Macro: .macro HAL_ADC_EX_ENABLE
 ; Description: Inline macro for EA/EB series to configure ADC reference voltage, prescaler and ENABLE
 ; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV16_gc

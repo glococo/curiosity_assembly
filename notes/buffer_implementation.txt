@@ -1,51 +1,60 @@
-1. HAL_DOUBLEBUFFER.S (Ping-Pong Architecture)
-  This implementation uses two identical memory blocks (Active and Spare) and a descriptor to manage them. It is designed for high-throughput,
-  block-oriented data handling.
+# AVR Assembly HAL: Buffer Implementations
 
-   * Speed (Strongest):
-       * Interrupt Latency: HAL_DOUBLEBUFFER_PUSH is extremely fast. It performs a direct store with post-increment (st X+) and a simple counter
-         comparison.
-       * Zero-Copy Potential: While the current WRITE_BYTE function pulls bytes one by one, the architecture allows the "Spare" buffer to be handed
-         off entirely to a peripheral (like a DMA or a high-speed loop) while the "Active" buffer continues to collect data.
-   * Memory Usage (Weakest):
-       * High Overhead: Requires double the SRAM for data (2x size) plus a 9-byte descriptor.
-   * Characteristics:
-       * Block-Oriented: It only signals "Ready" (r18=1) once a full block is captured. This is ideal for processing data in chunks (e.g., FFT,
-         display frames, or block-based communication protocols).
-       * Risk of Overrun: If the consumer does not finish draining the Spare buffer before the Active buffer fills up and triggers a FLIP, data in
-         the Spare buffer will be overwritten.
+This document details the technical implementation and selection criteria for the two primary buffering strategies provided by this HAL.
 
-  2. HAL_DEVICEBUFFER.S (Circular/Ring Buffer)
-  This is a classic circular buffer implementation using a power-of-two size to optimize wrap-around logic.
+---
 
-   * Memory Usage (Strongest):
-       * Efficiency: Requires only 1x size for data plus a 5-byte descriptor.
-   * Features & Flexibility (Strongest):
-       * Stream-Oriented: Data can be Pushed and Pulled byte-by-byte asynchronously. There is no "waiting for a block to be full" requirement.
-       * Status Methods: Includes helper functions like IS_EMPTY, IS_FULL, and IN_USE, making it easier to manage flow control.
-   * Speed (Moderate):
-       * Masking Logic: Every PUSH and PULL requires loading the Mask, Head, and Tail, performing an increment, and a bitwise AND. While optimized,
-         it involves more instructions than the double-buffer push.
-   * Constraints:
-       * Power-of-Two Size: The buffer size must be a power of two (64, 128, etc.) because the wrap-around logic relies on bitwise masking instead
-         of conditional branching or division.
+## 1. HAL_DEVICEBUFFER (Circular / Ring Buffer)
+A classic power-of-two ring buffer designed for asynchronous byte streams (e.g., USART, I2C).
 
-  Summary Comparison Table
+### Technical Specification
+- **Descriptor (5 bytes)**:
+  - `[0]` Head: Write index (0-255).
+  - `[1]` Tail: Read index (0-255).
+  - `[2]` Mask: (Buffer Size - 1). Used for fast wrap-around.
+  - `[3-4]` Device Address: 16-bit base address of the associated peripheral.
+- **Constraints**: Size **must** be a power of two (8, 16, 32, 64, 128, 256).
+- **Status Signaling**: Uses the **Carry Flag** (`Set` = Success/Not Empty, `Clear` = Full/Empty).
 
+### Characteristics
+- **Memory Efficient**: Low overhead (1x data size + 5-byte descriptor).
+- **Stream-Oriented**: Data can be pushed and pulled byte-by-byte asynchronously.
+- **Moderate Speed**: Requires loading Head/Tail and Masking for every operation.
 
-  ┌─────────────────┬───────────────────────────────────────┬──────────────────────────────┐
-  │ Feature         │ HAL_DOUBLEBUFFER                      │ HAL_DEVICEBUFFER             │
-  ├─────────────────┼───────────────────────────────────────┼──────────────────────────────┤
-  │ Primary Use     │ High-speed block transfers / DMA-like │ General purpose byte streams │
-  │ ISR Performance │ Fastest (Simple counter + st X+)      │ Fast (Incremental + Masking) │
-  │ SRAM Cost       │ High (2x size + 9 bytes)              │ Low (1x size + 5 bytes)      │
-  │ Data Access     │ Block-based (Full/Empty)              │ Byte-based (Continuous)      │
-  │ Complexity      │ Higher (Requires FLIP management)     │ Lower (Standard Head/Tail)   │
-  │ Size Constraint │ 2 to 256 bytes                        │ Power-of-Two only            │
-  └─────────────────┴───────────────────────────────────────┴──────────────────────────────┘
+---
 
-  Recommendation:
-   * Use HAL_DOUBLEBUFFER for high-speed peripherals (like USART at high baud rates or SPI) where you want to minimize the time spent in the ISR and
-     process data in fixed-size packets.
-   * Use HAL_DEVICEBUFFER for general-purpose UIs, command parsing, or low-to-medium speed communication where memory efficiency and asynchronous
-     byte access are more important.
+## 2. HAL_DOUBLEBUFFER (Ping-Pong / Double Buffer)
+A block-oriented buffering strategy designed for high-throughput data processing and "Zero-Copy" potential.
+
+### Technical Specification
+- **Descriptor (9 bytes)**:
+  - `[0-1]` Active Write Pointer: 16-bit address of the next free byte.
+  - `[2-3]` Active Base Address: 16-bit start address of the buffer currently being filled.
+  - `[4-5]` Spare Base Address: 16-bit start address of the buffer currently being drained.
+  - `[6]`   Buffer Limit: Size of an individual buffer (0-255).
+  - `[7]`   Bytes Written in Active: Counter for current filling.
+  - `[8]`   Bytes Ready in Spare: Counter for bytes remaining in the processed block.
+- **Constraints**: Size can be any value from 2 to 256.
+- **Status Signaling**: Signals "Full" and performs an automatic `FLIP` once the limit is reached.
+
+### Characteristics
+- **High Performance**: `PUSH` operation is extremely fast (direct store with post-increment).
+- **Block-Oriented**: Ideal for processing data in fixed-size chunks (e.g., 64-byte packets).
+- **Zero-Copy Potential**: The Spare buffer can be handed off to a processing loop while the Active buffer continues to collect data.
+- **Higher SRAM Cost**: Requires double the data storage (2x size + 9-byte descriptor).
+
+---
+
+## 3. Comparison Summary
+
+| Feature         | HAL_DEVICEBUFFER                      | HAL_DOUBLEBUFFER                      |
+|-----------------|---------------------------------------|---------------------------------------|
+| **Primary Use** | General purpose byte streams (USART)  | High-speed block transfers / DMA-like |
+| **ISR Speed**   | Fast (Masking overhead)               | **Fastest** (Simple pointer inc)      |
+| **SRAM Cost**   | **Low** (1x size + 5)                 | High (2x size + 9)                    |
+| **Data Flow**   | Continuous / Asynchronous             | Block-based (Full/Empty)              |
+| **Size Constraint**| Power-of-Two only                  | 2 to 256 bytes                        |
+
+### Selection Recommendation
+- **Use `HAL_DEVICEBUFFER`** for standard terminal I/O, command parsers, and low-to-medium speed communication where memory efficiency is prioritized.
+- **Use `HAL_DOUBLEBUFFER`** for high-speed ADC sampling, SPI sensors, or high-baud USART where minimizing ISR latency is critical and data arrives in fixed packets.

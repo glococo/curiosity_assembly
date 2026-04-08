@@ -1,61 +1,46 @@
 # AVR GNU Assembler: Sections and Data Directives
 
-This document summarizes how the GNU Assembler (GAS) handles memory sections and data allocation for AVR microcontrollers.
+This document summarizes how this HAL utilizes memory sections and data allocation for modern AVR (Dx/Ex) microcontrollers.
 
 ## 1. Memory Sections Summary
 
-| Section         | Location | Startup Init?       | Typical Use Case |
-|-----------------|----------|---------------------|------------------|
-| `.text`         | Flash    | N/A                 | Executable program code. |
-| `.rodata`       | Flash    | N/A                 | Read-only constants (accessible via `lpm`). |
-| `.progmem.data` | Flash    | N/A                 | Large PROGMEM arrays and strings. |
-| `.data`         | SRAM     | **Yes** (Flash copy)| Initialized variables (copied from Flash at boot). |
-| `.bss`          | SRAM     | **Yes** (Zeroed)    | Uninitialized global variables (cleared at boot). |
-| `.noinit`       | SRAM     | **No**              | Persistent variables that survive a software reset. |
-| `.eeprom`       | EEPROM   | N/A                 | Non-volatile configuration and counters. |
-| `.fuse`         | Fuses    | N/A                 | Microcontroller hardware configuration. |
+| Section            | Location | Typical Use Case |
+|--------------------|----------|------------------|
+| `.text.<name>`     | Flash    | Executable code. Using sub-sections allows for `--gc-sections` optimization. |
+| `.progmem.rodata`  | Flash    | Read-only constants and strings. |
+| `.data`            | SRAM     | Initialized variables (copied from Flash at boot). |
+| `.bss`             | SRAM     | Uninitialized global variables (cleared at boot). Used by `_DEVBUFFER`. |
+| `.noinit`          | SRAM     | Variables that survive software reset. |
+| `.eeprom`          | EEPROM   | Non-volatile configuration. |
+| `.fuse`            | Fuses    | Hardware configuration. |
 
 ---
 
-## 2. Common Data Directives
+## 2. String and Data Management
 
-Directives tell the assembler how to allocate space in the current section.
+### Unified Memory Mapping (Dx/Ex)
+Modern AVRs map Flash into the SRAM address space. This HAL leverages this by using `MAPPED_PROGMEM_START` (typically `0x8000` or `0x4000` depending on the device) to access strings using standard `ld` instructions instead of `lpm`.
 
-### Constants and Strings (Flash)
+### The `ASCIZ` Macro
+Located in `HAL_MACRO.S`, this is the preferred way to define strings.
 ```assembly
-.section .rodata
-    my_byte:     .byte   0x42             ; Allocate 1 byte
-    my_byt2:     .short  0x4232           ; Allocate 2 bytes
-    my_word:     .word   0x1234           ; Allocate 2 bytes (Little-Endian: 34 12)
-    my_4bytes:   .long   0x42323232       ; Allocate 4 bytes
-    status_msg:  .asciz  "System OK"      ; Null-terminated string
-    raw_text:    .ascii  "Wait"           ; Non-terminated string
+ASCIZ my_string, "Hello World"
 ```
+- **Section**: Automatically pushes to `.progmem.rodata`.
+- **Metadata**: Generates a `my_string_len` constant (excluding null terminator).
+- **Storage**: Null-terminates the string automatically.
 
-### Initialized Variables (SRAM / `.data`)
-*Note: In pure assembly, you often use Flash directly. Use `.data` only if the value must be changed at runtime.*
-```assembly
-.section .data
-    runtime_limit: .word 5000             ; Copied from Flash to SRAM at startup
-```
-
-### Uninitialized Space (SRAM / `.bss` or `.noinit`)
-```assembly
-.section .bss
-    tx_buffer:   .space  64               ; Reserve 64 zeroed bytes
-    temp_var:    .lcomm  local_var, 2     ; Reserve 2 bytes for a local symbol
-
-.section .noinit
-    reset_count: .byte   0                ; Will not be zeroed on startup
-```
+### Register-Sized Data Types
+Since AVR is 8-bit, this HAL uses macros for multi-byte operations. While not "types" in the C sense, these are the standard widths:
+- **8-bit**: `.byte`
+- **16-bit**: `.short` or `.word` (Accessed via `ldi2`, `lds2`, etc.)
+- **32-bit**: `.long` (Accessed via `ldi4`, `lds4`, etc.)
 
 ---
 
 ## 3. Best Practices for this HAL
 
-1. **Use `.text.<name>` for Functions**: When defining a function, use a specific subsection to allow the linker to perform garbage collection (`--gc-sections`).
-   ```assembly
-   .section .text.my_function, "ax", @progbits
-   ```
-2. **Prefer `.rodata` for strings**: Keep strings in Flash to save precious SRAM. Access them using the `Z` register and `lpm` instruction.
-3. **Atomic Toggles**: For modern AVR (Dx/Ex), use the `_OUTTGL` register instead of modifying variables in SRAM whenever possible.
+1. **Sub-sectioning**: Always use the `FUNC` macro which places code in `.text.function_name`. This ensures that unused functions are removed during the link stage.
+2. **Flash for Constants**: Never use `.data` for read-only strings. Use `ASCIZ` or `.pushsection .progmem.rodata`.
+3. **Descriptor Initialization**: Large structures (like `HAL_DEVICEBUFFER`) should be defined in `.bss` and initialized at runtime via an `_INIT` function to save Flash space.
+4. **Alignment**: The AVR CPU requires word alignment for instructions, but bytes are fine for data. However, for 16-bit or 32-bit data accessed via `lds2/4`, ensure they are placed such that they don't cross page boundaries if performance is critical (though usually not an issue on Dx/Ex).
