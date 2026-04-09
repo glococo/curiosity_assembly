@@ -35,4 +35,10 @@
 #include "HAL_BOD.S"              // Brown-out Detector (BOD) helper
 #include "HAL_USART.S"            // USART Serial communication
 #include "HAL_I2C.S"              // I2C (TWI) Master communication
-#include "HAL_ADC_EX.S"           // Analog-to-Digital Converter (ADC) helper for EA/EB Series
+
+#if (SIGNATURE_1 == 0x94) || (SIGNATURE_1 == 0x95)
+  #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for EA/EB Series
+#else
+  #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for DA/DB Series
+#endif
+

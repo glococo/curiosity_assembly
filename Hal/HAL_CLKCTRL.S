@@ -87,7 +87,9 @@ FUNC HAL_CLKCTRL_PRESCALER
     brcs    _update_one_us_done
     inc     r22
   _update_one_us_done:
+#ifdef CLKCTRL_MCLKTIMEBASE
     andi    r22, 0x1F                   ; MCLKTIMEBASE is 5-bit (0-31)
     sts     CLKCTRL_MCLKTIMEBASE, r22
+#endif
   POP_MANY r25, r24, r23, r19, r18
 ENDF HAL_CLKCTRL_PRESCALER

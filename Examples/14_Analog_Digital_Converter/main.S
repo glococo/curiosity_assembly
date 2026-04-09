@@ -12,17 +12,21 @@
 
 FUNC main
   rcall   HAL_BOARD_SETUP                         ; Basic board initialization
-  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)       ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
 
   ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-  HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_gc, ADC_REFSEL_VDD_gc
+#ifdef ADC_REFSEL_VDD_gc
+  _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_VDD_gc)
+#else
+  _ADC_ENABLE(ADC_PRESC_DIV16_gc, VREF_REFSEL_VDD_gc)
+#endif
 
   loop:
-    HAL_ADC_EX_READ ADC_MUXPOS_AIN0_gc              ; Do one time instant ADC Read
+    _ADC_READ(ADC_MUXPOS_AIN0_gc)                 ; Do one time instant ADC Read
 
-    _STR("ADC result: ")$ _STR_REG_U16()$ _STRNR()$ _STR_FLUSH()
+    _STR("ADC result: ")$ _STR_U16()$ _STRNR()$ _STR_FLUSH()
 
     ; If result > 2048 (approx VDD/2), blink fast
     ; If result <= 2048, blink slow

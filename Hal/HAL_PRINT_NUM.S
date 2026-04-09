@@ -2,14 +2,14 @@
 ; Description: Numeric printing functions for HAL_DEVICEBUFFER.
 ;
 
-#define _STR_REG_U8(  reg, ...)   PRINT_REG_U8  reg, ##__VA_ARGS__
-#define _STR_REG_U16( reg, ...)   PRINT_REG_U16 reg, ##__VA_ARGS__
-#define _STR_REG_U32( reg, ...)   PRINT_REG_U32 reg, ##__VA_ARGS__
-#define _STR_REG_S8(  reg, ...)   PRINT_REG_S8  reg, ##__VA_ARGS__
-#define _STR_REG_S16( reg, ...)   PRINT_REG_S16 reg, ##__VA_ARGS__
-#define _STR_REG_S32( reg, ...)   PRINT_REG_S32 reg, ##__VA_ARGS__
-#define _STR_REG_U64( reg, ...)   PRINT_REG_U64 reg, ##__VA_ARGS__
-#define _STR_REG_S64( reg, ...)   PRINT_REG_S64 reg, ##__VA_ARGS__
+#define _STR_U8(  reg, ...)   PRINT_REG_U8  reg, ##__VA_ARGS__
+#define _STR_U16( reg, ...)   PRINT_REG_U16 reg, ##__VA_ARGS__
+#define _STR_U32( reg, ...)   PRINT_REG_U32 reg, ##__VA_ARGS__
+#define _STR_S8(  reg, ...)   PRINT_REG_S8  reg, ##__VA_ARGS__
+#define _STR_S16( reg, ...)   PRINT_REG_S16 reg, ##__VA_ARGS__
+#define _STR_S32( reg, ...)   PRINT_REG_S32 reg, ##__VA_ARGS__
+#define _STR_U64( reg, ...)   PRINT_REG_U64 reg, ##__VA_ARGS__
+#define _STR_S64( reg, ...)   PRINT_REG_S64 reg, ##__VA_ARGS__
 
 .macro PRINT_REG_U8 reg=r22, pad=0
   PUSH_MANY r16, r23, r24, r25

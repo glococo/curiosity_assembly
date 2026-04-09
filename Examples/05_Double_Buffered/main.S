@@ -38,7 +38,7 @@ FUNC main
 ENDF main
 
 ; -----------------------------------------------------------------------------
-; ISR: USART0_RXC_vect (RX Complete)
+; ISR: USART?_RXC_vect (RX Complete)
 ; Description: Handles incoming USART bytes and pushes them to the double buffer.
 ;              Triggers TX (DRE) interrupt when a buffer is full.
 ; -----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ ISR_END _(USART,_RXC_vect), r22
 ; Description: Drains the "Spare" (full) double buffer and sends it via USART.
 ;              Disables itself once the buffer is empty.
 ; -----------------------------------------------------------------------------
-ISR_START USART0_DRE_vect, r22
+ISR_START _(USART,_DRE_vect), r22
     rcall   HAL_DOUBLEBUFFER_PULL             ; Pop byte from spare buffer to r22, CS if empty
     brcc    0f                                ; If Carry-Clear = data in r22 -> Send it back
                                               ; If Carry-Set = Buffer_empty -> Disable DRE ISR
@@ -70,4 +70,4 @@ ISR_START USART0_DRE_vect, r22
   0:
     st      Y, r22                      ; Write byte to Target (e.g., USART TX)
   1:
-ISR_END USART0_DRE_vect, r22
+ISR_END _(USART,_DRE_vect), r22

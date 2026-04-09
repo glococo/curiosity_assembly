@@ -14,11 +14,18 @@ FUNC main
     _STR("__ ADC: Reads the internal Temperature sensor\r\n")$ _STR_FLUSH()
 
 
-    HAL_ADC_EX_ENABLE ADC_PRESC_DIV16_gc, ADC_REFSEL_1V024_gc, 32
-    HAL_ADC_EX_READ ADC_MUXPOS_TEMPSENSE_gc         ; Do one time instant ADC Read
+#ifdef ADC_REFSEL_1V024_gc
+    _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_1V024_gc, 32)
+#else
+    _ADC_ENABLE(ADC_PRESC_DIV16_gc, VREF_REFSEL_2V048_gc)   ; DB Series
+#endif
 
-    rcall   HAL_ADC_EX_GET_TEMPERATURE
-    _STR("Int Temperature: ")$ _STR_REG_U16()$ _STR("ºC")$ _STR_FLUSH()
+    _ADC_READ(ADC_MUXPOS_TEMPSENSE_gc)         ; Do one time instant ADC Read
+    movw    r14, r22
+    rcall   HAL_ADC_GET_TEMPERATURE
+    _STR("Int Temperature: ")$ _STR_S8()$ _STR("ºC")$ _STR_FLUSH()
+    movw    r22, r14
+    _STR(" _ RAW data: ")$ _STR_U16()$ _STR_FLUSH()
 
   loop:
     rjmp    loop

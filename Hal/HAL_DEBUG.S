@@ -24,7 +24,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     mov     r22, \reg                   ; Load byte from address
-    _STR_REG_U8()                       ; Print 8-bit result
+    _STR_U8()                           ; Print 8-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX()                          ; Print 8-bit HEX result
@@ -41,7 +41,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     movw    r22, \reg                   ; Load byte from address
-    _STR_REG_U16()                      ; Print 16-bit result
+    _STR_U16()                      ; Print 16-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX(r23, r22)                  ; Print16-bit HEX result
@@ -58,7 +58,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     movw    r22, \reg                   ; Load byte from address
-    _STR_REG_U32()                      ; Print 32-bit result
+    _STR_U32()                      ; Print 32-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX(r25,r24,r23,r22)           ; Print 32-bit HEX result
@@ -81,7 +81,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     lds     r22, \addr                  ; Load byte from address
-    _STR_REG_U8()                       ; Print 8-bit result
+    _STR_U8()                       ; Print 8-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX()                          ; Print 8-bit result
@@ -98,7 +98,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     lds2    r22, \addr                  ; Load byte from address
-    _STR_REG_U16()                      ; Print 16-bit result
+    _STR_U16()                      ; Print 16-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX(r23, r22)                 ; Print 16-bit HEX result
@@ -115,7 +115,7 @@
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     lds4    r22, \addr                  ; Load byte from address
-    _STR_REG_U32()                      ; Print 32-bit result
+    _STR_U32()                      ; Print 32-bit result
     ldi2    XL, ( MAPPED_PROGMEM_START + (str_hex_\@) )
     rcall   HAL_PRINT_STR               ; Call string print function
     _STR_HEX(r25, r24, r23, r22)        ; Print 32-bit HEX result

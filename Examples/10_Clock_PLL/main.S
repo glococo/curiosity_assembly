@@ -13,6 +13,10 @@
 ; -----------------------------------------------------------------------------
 
 #define CORE_CLOCK_PLL_KHZ      160000
+#ifndef CLKCTRL_CLKSEL_PLL_gc
+  .error "This core do not support Main Clock Source from PLL"
+  .abort
+#endif
 
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization

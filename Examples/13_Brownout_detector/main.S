@@ -20,7 +20,7 @@ FUNC main
   ; Active mode: Enabled
   ; Sleep mode: Disabled
   ; Level: 0 (typically the lowest safe level, e.g., 1.8V-2.0V)
-  ldi     r22, (BOD_ACTIVE_ENABLED_gc | BOD_SLEEP_DISABLE_gc)
+  ldi     r22, BOD_ACTIVE_ENABLED_gc
   ldi     r23, BOD_LVL_BODLEVEL3_gc
   rcall   HAL_BOD_CONFIG
 

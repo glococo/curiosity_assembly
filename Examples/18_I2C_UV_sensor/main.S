@@ -21,7 +21,7 @@ FUNC main
     jmp     flush_end
 
   read_ok:
-    DEBUG_STR_REG r22, "Device ID: "                ; r22 contains ID (Expected 0x26)
+    _DEBUG_REG(r22, "Device ID: ")                  ; r22 contains ID (Expected 0x26)
     rcall   VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
     brcc    start_reading
     _STR("Error: Enable failed!\r\n")
@@ -38,19 +38,19 @@ FUNC main
     rjmp    flush_end
   read_print:
     lds2    r22, VEML6075_UVI
-    _STR("UVI: ")$ _STR_REG_U16()
+    _STR("UVI: ")$ _STR_U16()
     lds2    r22, VEML6075_UVAc
-    _STR("  UVA comp: ")$ _STR_REG_U16()
+    _STR("  UVA comp: ")$ _STR_U16()
     lds2    r22, VEML6075_UVBc
-    _STR("  UVB comp: ")$ _STR_REG_U16()$ _STRNR()
+    _STR("  UVB comp: ")$ _STR_U16()$ _STRNR()
     lds2    r22, VEML6075_UVA
-    _STR("  UVA raw: ")$ _STR_REG_U16()
+    _STR("  UVA raw: ")$ _STR_U16()
     lds2    r22, VEML6075_UVB
-    _STR("  UVB raw: ")$ _STR_REG_U16()
+    _STR("  UVB raw: ")$ _STR_U16()
     lds2    r22, VEML6075_UVCOMP1
-    _STR("  COMP1: ")$ _STR_REG_U16()
+    _STR("  COMP1: ")$ _STR_U16()
     lds2    r22, VEML6075_UVCOMP2
-    _STR("  COMP2: ")$ _STR_REG_U16()$ _STRNR()$ _STR_FLUSH()
+    _STR("  COMP2: ")$ _STR_U16()$ _STRNR()$ _STR_FLUSH()
     _DELAY_MS(2000)
     rjmp    main_loop
 

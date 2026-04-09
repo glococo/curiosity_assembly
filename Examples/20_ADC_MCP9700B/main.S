@@ -11,18 +11,23 @@ FUNC main
   _STR("__ MCP9700B ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
 
   ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-  _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_1V024_gc)
+
+#ifdef ADC_REFSEL_1V024_gc
+    _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_1V024_gc, 32)
+#else
+    _ADC_ENABLE(ADC_PRESC_DIV24_gc, VREF_REFSEL_2V048_gc)     ; DB Series
+#endif
 
   loop:
     _ADC_READ(ADC_MUXPOS_AIN0_gc)              ; Do one time instant ADC Read
 
-    _STR("Raw value: ")$ _STR_REG_U16()$ _STR(" - ")
+    _STR("Raw value: ")$ _STR_U16()$ _STR(" - ")
     rcall   GET_MCP9700B_TEMP
-    _STR("Temperature: ")$ _STR_REG_S16()$ _STR(".")
+    _STR("Temperature: ")$ _STR_S16()$ _STR(".")
     movw    r22, r18
     ldi2    r18, 25
     rcall   MATH_MUL_16_16
-    _STR_REG_S16(r22, 3)$ _STR(" C\r\n")$ _STR_FLUSH()
+    _STR_S16(r22, 3)$ _STR(" C\r\n")$ _STR_FLUSH()
     _DELAY_MS(4000)
 
   toggle_led:

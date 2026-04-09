@@ -1,49 +1,49 @@
-; File: Hal/HAL_ADC_EX.S
-; Description: Analog-to-Digital Converter (ADC) helper library for modern AVR (Dx/Ex).
+; File: Hal/HAL_ADC_v2.S
+; Description: Analog-to-Digital Converter (ADC) helper library for modern AVR (Ex).
 ;              Provides routines for initializing, reading, and configuring ADC.
 
 .section .progmem.rodata
 ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
 
-#define _ADC_ENABLE(pre, vref, ...)   HAL_ADC_EX_ENABLE pre, vref, ##__VA_ARGS__
-#define _ADC_READ(ain)                HAL_ADC_EX_READ ain
-#define _ADC_BURST(ain, num)          HAL_ADC_EX_BURST ain, num
+#define _ADC_ENABLE(pre, vref, ...)   HAL_ADC_ENABLE pre, vref, ##__VA_ARGS__
+#define _ADC_READ(ain)                HAL_ADC_READ ain
+#define _ADC_BURST(ain, num)          HAL_ADC_BURST ain, num
 
-; Macro: .macro HAL_ADC_EX_ENABLE
+; Macro: .macro HAL_ADC_ENABLE
 ; Description: Inline macro for EA/EB series to configure ADC reference voltage, prescaler and ENABLE
 ; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV16_gc
 ;          vreference - Voltage reference, ex: ADC_REFSEL_VDD_gc
 ;          sampdur    - Sample duration in us, ex: 4
 ; Outputs: None
-.macro HAL_ADC_EX_ENABLE prescaler, vreference, sampdur=4
+.macro HAL_ADC_ENABLE prescaler, vreference, sampdur=4
     ldi     r22, ADC_ENABLE_bm
     ldi     r23, \prescaler
     ldi     r24, \vreference
     ldi     r25, \sampdur
-    rcall   HAL_ADC_EX_SETUP
+    rcall   HAL_ADC_SETUP
 .endm
 
-.macro HAL_ADC_EX_READ ain
+.macro HAL_ADC_READ ain
     ldi     r22, \ain
     ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_SINGLE_12BIT_gc)
-    rcall   HAL_ADC_EX_READ_POLLING
+    rcall   HAL_ADC_READ_POLLING
 .endm
-.macro HAL_ADC_EX_BURST ain, sampnum
+.macro HAL_ADC_BURST ain, sampnum
     ldi     r22, \sampnum
     sts     ADC0_CTRLF, r22
     ldi     r22, \ain
     ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_BURST_gc)
-    rcall   HAL_ADC_EX_READ_POLLING
+    rcall   HAL_ADC_READ_POLLING
 .endm
 
-; Function: HAL_ADC_EX_SETUP (EA/EB series)
+; Function: HAL_ADC_SETUP (EA/EB series)
 ; Description: Initializes the ADC and calculate SAMPDUR.
 ; Inputs:  r22 - CTRLA (Enable)
 ;          r23 - CTRLB (Prescaler)
 ;          r24 - CTRLC (V_reference)
 ;          r25 - CTRLE (Sample duration in us)
 ; Outputs: None
-FUNC HAL_ADC_EX_SETUP
+FUNC HAL_ADC_SETUP
   PUSH_MANY r18, XL, XH
     sts     ADC0_CTRLC, r24     ; CTRLC (V_reference)
     sts     ADC0_CTRLB, r23     ; CTRLB (Prescaler)
@@ -68,17 +68,19 @@ FUNC HAL_ADC_EX_SETUP
     inc     r22                 ; Rounding +1
     sts     ADC0_CTRLE, r22
   0:
+#ifdef ADC0_STATUS
     lds     r22, ADC0_STATUS
     sbrc    r22, ADC_ADCBUSY_bp                 ; Wait for ADCBUSY (bit 0)
     rjmp    0b
+#endif
   POP_MANY XH, XL, r18
-ENDF HAL_ADC_EX_SETUP
+ENDF HAL_ADC_SETUP
 
-; Function: HAL_ADC_EX_READ_POLLING
+; Function: HAL_ADC_READ_POLLING
 ; Description: Performs a single conversion on the specified channel.
 ; Inputs:  r22 - ADC0_MUXPOS (Channel)
 ; Outputs: r25:r22 - 32-bit ADC Result
-FUNC HAL_ADC_EX_READ_POLLING
+FUNC HAL_ADC_READ_POLLING
     sts     ADC0_MUXPOS, r22                    ; Select Channel
     sts     ADC0_COMMAND, r23                   ; Start Conversion
   0:
@@ -87,9 +89,9 @@ FUNC HAL_ADC_EX_READ_POLLING
     rjmp    0b
     sts     ADC0_INTFLAGS, r22                  ; Clear flag
     lds4    r22, ADC0_RESULT0                   ; Read Result
-ENDF HAL_ADC_EX_READ_POLLING
+ENDF HAL_ADC_READ_POLLING
 
-FUNC HAL_ADC_EX_GET_TEMPERATURE
+FUNC HAL_ADC_GET_TEMPERATURE
   PUSH_MANY r18, r19, r24, r25, r20, r21
     ; 1. Read calibration values (Slope and Offset are 16-bit)
     lds2    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
@@ -116,4 +118,4 @@ FUNC HAL_ADC_EX_GET_TEMPERATURE
     sbci    r23, hi8(273)                           ; r23:r22 = Temperature in Celsius
 
   POP_MANY r21, r20, r25, r24, r19, r18
-ENDF HAL_ADC_EX_GET_TEMPERATURE
+ENDF HAL_ADC_GET_TEMPERATURE

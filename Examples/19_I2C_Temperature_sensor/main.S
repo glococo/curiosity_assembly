@@ -32,7 +32,7 @@ FUNC main
   main_loop:
     rcall   MCP9804_READ_TEMPERATURE
     brcs    error_temp
-    _STR("Temperature: ")$ _STR_REG_U8(r22)$ _STR(".")$ _STR_REG_U16(r24,4)$ _STR("º\n\r")$ _STR_FLUSH()
+    _STR("Temperature: ")$ _STR_U8(r22)$ _STR(".")$ _STR_U16(r24,4)$ _STR("º\n\r")$ _STR_FLUSH()
 
     _DELAY_MS(3000)
     rjmp    main_loop
