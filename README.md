@@ -28,13 +28,15 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 - **`HAL_EXTEND.S`**: 16, 32, and 64-bit instruction extensions (Load, Store, Add, Compare, Shift).
 - **`HAL_CLKCTRL.S`**: Full Clock Control (CLKCTRL) driver—source selection, OSCHF frequency, prescaling, and PLL configuration.
 - **`HAL_DELAY.S`**: Frequency-aware, cycle-accurate software delays.
-- **`HAL_PRINT.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
-- **`HAL_PORT.S`**: Atomic Port-Pin helper utilizing Virtual Ports (VPORT) for single-cycle access.
+- **`HAL_PRINT.S`, `HAL_PRINT_HEX.S`, `HAL_PRINT_NUM.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
+- **`HAL_PIN.S`**: Atomic Port-Pin helper utilizing Virtual Ports (VPORT) for single-cycle access.
+- **`HAL_PORTMUX.S`**: Port Multiplexer configuration.
 - **`HAL_RTC.S`**: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) helpers.
 - **`HAL_USART.S`**: High-level USART configuration and dynamic baud rate calculations.
-- **`HAL_ADC.S`**: 10/12-bit ADC driver with polling and interrupt-driven modes.
+- **`HAL_ADC_v1.S`, `HAL_ADC_v2.S`**: 10/12-bit ADC driver variants with polling and interrupt-driven modes.
 - **`HAL_BOD.S`**: Brown-out Detector and Voltage Level Monitor (VLM) configuration.
 - **`HAL_WDT.S`**: Watchdog Timer management—period selection and reset routines.
+- **`HAL_GC.S`**: Constant helpers.
 
 ### 📦 Data Structures & Math
 - **`HAL_DEVICEBUFFER.S`**: High-performance Ring Buffer with device-address binding.
@@ -75,7 +77,7 @@ Explore the `Examples/` directory for ready-to-flash implementations:
 - **`18_I2C_UV_sensor`**: Advanced I2C example reading UV index data from a VEML6075 sensor.
 - **`19_I2C_Temperature_sensor`**: Reading high-precision temperature data from an MCP9804 sensor via I2C.
 - **`20_ADC_MCP9700B`**: Interfacing with an MCP9700B analog temperature sensor and performing fixed-point math.
-
+- **`21_SPI_EtherCAT`**: Basic operations interfacing with an LAN2952 EtherCAT Controller via SPI.
 ---
 
 ## 🛠️ Getting Started

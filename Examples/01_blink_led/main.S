@@ -19,7 +19,7 @@ FUNC main
 
   loop:
     _DELAY_MS(500)                                ; Wait half a second
-    _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN)      ; Toggle LED via hardware register
+    _PIN_TGL(BOARD_LED_PORT, BOARD_LED_PIN)      ; Toggle LED via hardware register
 
     ; Also, albeit slower option: "_()" macro glue two strings
     ;           ldi   r22, 1<<BOARD_LED_PIN

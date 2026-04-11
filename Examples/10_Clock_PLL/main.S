@@ -42,7 +42,7 @@ FUNC main
     rcall   HAL_USART_BAUDRATE_UPD            ; and update baudrate
 
   loop:
-    _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT, BOARD_LED_PIN)
     _STR("Hello World, PLL @ 160mhz !\r\n")$ _STR_FLUSH()
     _DELAY_MS(2000)                           ; Wait 1 second (overwrites r22, r23)
     rjmp    loop                              ; Repeat indefinitely

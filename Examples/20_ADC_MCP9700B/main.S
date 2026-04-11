@@ -31,7 +31,7 @@ FUNC main
     _DELAY_MS(4000)
 
   toggle_led:
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
     rjmp    loop
 
 ENDF main

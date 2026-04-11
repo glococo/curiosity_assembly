@@ -14,14 +14,14 @@
 .macro PRINT_REG_U8 reg=r22, pad=0
   PUSH_MANY r16, r23, r24, r25
   .ifnc \reg, r22
-     PUSH  \reg
+     PUSH     \reg
      mov      r22, \reg
   .endif
     CLR_MANY  r23, r24, r25
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
-     POP  \reg
+     POP      \reg
   .endif
   POP_MANY r25, r24, r23, r16
 .endm

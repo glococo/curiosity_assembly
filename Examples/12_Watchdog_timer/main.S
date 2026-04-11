@@ -28,7 +28,7 @@ FUNC main
   ; Indication of reset/start: Fast blink 3 times
   ldi     r20, 6                              ; 6 toggles = 3 blinks
   reset_blink:
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
     _DELAY_MS(100)
     dec     r20
     brne    reset_blink
@@ -46,7 +46,7 @@ FUNC main
   ldi     r20, 10
   normal_op:
     _WDT_RESET()                              ; Pat the dog
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
     _DELAY_MS(500)                            ; Wait 0.5s
     dec     r20
     brne    normal_op

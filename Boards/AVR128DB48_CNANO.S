@@ -17,6 +17,7 @@
 #define BOARD_BUTTON_PORT     PORTB
 
 ; USART Config
+#define USART_CONFIGURED
 #define USART                 USART3
 #define USART_TX              PIN0_bp
 #define USART_RX              PIN1_bp
@@ -24,6 +25,15 @@
 #define USART_ADDR            USART3_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
+; TWI Config (default)
+#define TWI_CONFIGURED
+; SPI Config
+#define SPI_CONFIGURED
+#define SPI_PORT              PORTA
+#define SPI_MOSI              PIN4_bp
+#define SPI_MISO              PIN5_bp
+#define SPI_SCK               PIN6_bp
+#define SPI_SS                PIN7_bp
 
 #include "../Hal/ALL.S"
 
@@ -44,19 +54,28 @@ FUNC HAL_BOARD_SETUP
     rcall   HAL_CLKCTRL_PRESCALER
     rcall   HAL_USART_BAUDRATE_UPD
 
-    ; USART CONFIG
-    _PORT_DIR(USART_PORT, USART_TX)                       ; Set USART_TX PIN as OUTPUT
+    #ifdef TWI_CONFIGURED                                 /* TWI CONFIG */
+    _PORTMUX_ROUTEA( TWI, 0, DEFAULT )                    ; Ensure TWI0 is in PA2/PA3
+    #endif
+
+    #ifdef SPI_CONFIGURED                                 /* SPI CONFIG */
+    ldi     r22, ( PIN4_bm | PIN6_bm | PIN7_bm )          ; MOSI, SCK, SS
+    out     _(_(V,SPI_PORT),_DIR), r22
+    _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
+    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; PORTF PIN0 as IRQ
+    sts     PORTF_PIN0CTRL, r18
+    #endif
+
+    #ifdef USART_CONFIGURED                               /* USART CONFIG */
+    _PIN_DIR_SET(USART_PORT, USART_TX)                    ; Set USART_TX PIN as OUTPUT
     ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
     sts     _(USART,_CTRLB), r18                          ;
+    #endif
 
     ; PIN LED CONFIG
-    _PORT_DIR(BOARD_LED_PORT, BOARD_LED_PIN)              ; Set PIN as OUTPUT
+    _PIN_DIR_SET(BOARD_LED_PORT, BOARD_LED_PIN)           ; Set PIN as OUTPUT
 
     ; PIN BUTTON CONFIG
-    ldi     r18, 0x0B                                     ; Config BOARD_BUTTON/SW0 Pin
+    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; Config BOARD_BUTTON/SW0 Pin
     sts     _(BOARD_BUTTON_PORT, _PIN2CTRL), r18
 ENDF HAL_BOARD_SETUP
-
-
-
-

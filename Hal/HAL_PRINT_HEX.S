@@ -2,8 +2,12 @@
 ; Description: Hex printing functions for HAL_DEVICEBUFFER.
 ;
 
-#define _STR_HEX( ... )       PRINT_HEX __VA_ARGS__
+#define _STR_HEX( ... )         PRINT_HEX __VA_ARGS__
+#define _STR_HEX32( reg )       PRINT_HEX32 reg
 
+.macro  PRINT_HEX32 reg=r22
+  PRINT_HEX \reg+3, \reg+2, \reg+1, \reg
+.endm
 .macro PRINT_HEX regs:vararg
   .ifb \regs
     rcall HAL_PRINT_HEX_REG

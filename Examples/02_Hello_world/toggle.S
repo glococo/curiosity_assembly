@@ -33,7 +33,7 @@ FUNC a_toggle_function
     ldi     r22, LENGTH( HELLO )              ; Load string length
   1:
     rcall   HAL_USART_SEND_LENGTH             ; Send string: r22=len, Z=data, Y=uart
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
 
   POP_MANY ZH, ZL, r22
 ENDF a_toggle_function

@@ -30,7 +30,7 @@ ENDF main
 ; -----------------------------------------------------------------------------
 ISR_START _(BOARD_BUTTON_PORT,_PORT_vect), r18
     _STR("Button interrupt fired!\r\n")             ; Push string to devbuffer
-    _PORT_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)  ; Clear the interrupt flag
+    _PIN_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)   ; Clear the interrupt flag
 ISR_END _(BOARD_BUTTON_PORT,_PORT_vect), r18
 
 ; -----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ ISR_END _(BOARD_BUTTON_PORT,_PORT_vect), r18
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 ISR_START RTC_PIT_vect r18
-    _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN ) ; Toggle LED via hardware register
+    _PIN_TGL(BOARD_LED_PORT, BOARD_LED_PIN )  ; Toggle LED via hardware register
     ldi     r18, RTC_PI_bm                    ; Load RTC overflow flag mask
     sts     RTC_PITINTFLAGS, r18              ; Clear RTC interrupt flag
 ISR_END RTC_PIT_vect r18

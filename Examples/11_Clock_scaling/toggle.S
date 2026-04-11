@@ -20,7 +20,7 @@ FUNC print_and_toggle
 #endif
 
   blink:
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware TGL reg
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware TGL reg
 
   POP_MANY r22
 ENDF print_and_toggle

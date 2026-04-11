@@ -27,7 +27,7 @@
 #include "HAL_DOUBLEBUFFER.S"     // Double-Buffer (Ping-Pong) library
 
 ; SOC Drivers
-#include "HAL_PORT.S"             // Port-Pin helper
+#include "HAL_PIN.S"              // Port-Pin helper
 #include "HAL_PORTMUX.S"          // Pin Multiplexing (PORTMUX) helper
 #include "HAL_CLKCTRL.S"          // Core Clock and CPU Control (CLKCTRL)
 #include "HAL_RTC.S"              // Real-Time Counter (RTC) helper
@@ -35,6 +35,7 @@
 #include "HAL_BOD.S"              // Brown-out Detector (BOD) helper
 #include "HAL_USART.S"            // USART Serial communication
 #include "HAL_I2C.S"              // I2C (TWI) Master communication
+#include "HAL_SPI.S"              // SPI Master communication
 
 #if (SIGNATURE_1 == 0x94) || (SIGNATURE_1 == 0x95)
   #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for EA/EB Series

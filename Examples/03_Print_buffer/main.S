@@ -43,5 +43,5 @@ ENDF main
 ; -----------------------------------------------------------------------------
 ISR_START _(BOARD_BUTTON_PORT,_PORT_vect)
     com   TOGGLE_REG                                ; Flip all bits of state register
-    _PORT_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)  ; Clear the interrupt flag
+    _PIN_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)  ; Clear the interrupt flag
 ISR_END _(BOARD_BUTTON_PORT,_PORT_vect)

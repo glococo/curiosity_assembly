@@ -35,7 +35,7 @@ FUNC main
 
   loop:
     _DELAY_MS(1000)                         ; Slow blink
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
     rjmp    loop
 
 ENDF main
@@ -49,7 +49,7 @@ ISR_START BOD_VLM_vect, r18
     ; Visual Alert: Fast blink 5 times
     ldi     r20, 10
     vlm_alert:
-      _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
+      _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
       _DELAY_MS(50)
       dec     r20
       brne    vlm_alert

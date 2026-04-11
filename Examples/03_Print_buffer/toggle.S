@@ -27,6 +27,6 @@ FUNC a_toggle_function
     _STR("Hola Mundo!\r\n")
   1:
     _STR_FLUSH()                              ; Push selected string to buffer Z
-    _PORT_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware register
+    _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware register
 
 ENDF a_toggle_function
