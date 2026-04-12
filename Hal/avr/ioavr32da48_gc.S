@@ -948,77 +948,80 @@
 #define PORT_ISC_FALLING_gc  (0x03<<0) /* Sense Falling Edge */
 #define PORT_ISC_INPUT_DISABLE_gc  (0x04<<0) /* Digital Input Buffer disabled */
 #define PORT_ISC_LEVEL_gc  (0x05<<0)  /* Sense low Level */
-#define PORTMUX_AC0_DEFAULT_gc  (0x00<<0) /* OUT on PA7 */
-#define PORTMUX_AC0_ALT1_gc  (0x01<<0)  /* OUT on PC6 */
-#define PORTMUX_AC1_DEFAULT_gc  (0x00<<1) /* OUT on PA7 */
-#define PORTMUX_AC1_ALT1_gc  (0x01<<1)  /* OUT on PC6 */
-#define PORTMUX_AC2_DEFAULT_gc  (0x00<<2) /* OUT on PA7 */
-#define PORTMUX_AC2_ALT1_gc  (0x01<<2)  /* OUT on PC6 */
-#define PORTMUX_EVOUTA_DEFAULT_gc  (0x00<<0) /* EVOUT on PA2 */
-#define PORTMUX_EVOUTA_ALT1_gc  (0x01<<0)  /* EVOUT on PA7 */
-#define PORTMUX_EVOUTB_DEFAULT_gc  (0x00<<1)  /* EVOUT on PB2 */
-#define PORTMUX_EVOUTC_DEFAULT_gc  (0x00<<2) /* EVOUT on PC2 */
-#define PORTMUX_EVOUTC_ALT1_gc  (0x01<<2)  /* EVOUT on PC7 */
-#define PORTMUX_EVOUTD_DEFAULT_gc  (0x00<<3) /* EVOUT on PD2 */
-#define PORTMUX_EVOUTD_ALT1_gc  (0x01<<3)  /* EVOUT on PD7 */
-#define PORTMUX_EVOUTE_DEFAULT_gc  (0x00<<4)  /* EVOUT on PE2 */
-#define PORTMUX_EVOUTF_DEFAULT_gc  (0x00<<5)  /* EVOUT on PF2 */
-#define PORTMUX_LUT0_DEFAULT_gc  (0x00<<0) /* Out: PA3 In: PA0, PA1, PA2 */
-#define PORTMUX_LUT0_ALT1_gc  (0x01<<0)  /* Out: PA6 In: PA0, PA1, PA2 */
-#define PORTMUX_LUT1_DEFAULT_gc  (0x00<<1) /* Out: PC3 In: PC0, PC1, PC2 */
-#define PORTMUX_LUT1_ALT1_gc  (0x01<<1)  /* Out: PC6 In: PC0, PC1, PC2 */
-#define PORTMUX_LUT2_DEFAULT_gc  (0x00<<2) /* Out: PD3 In: PD0, PD1, PD2 */
-#define PORTMUX_LUT2_ALT1_gc  (0x01<<2)  /* Out: PD6 In: PD0, PD1, PD2 */
-#define PORTMUX_LUT3_DEFAULT_gc  (0x00<<3)  /* Out: PF3 In: PF0, PF1, PF2 */
-#define PORTMUX_LUT4_DEFAULT_gc  (0x00<<4)  /* Out: PB3 In: PB0, PB1, PB2 */
-#define PORTMUX_SPI0_DEFAULT_gc  (0x00<<0) /* PA4, PA5, PA6, PA7 */
-#define PORTMUX_SPI0_ALT1_gc  (0x01<<0) /* PE0, PE1, PE2, PE3 */
+#define PORTMUX_AC0_DEFAULT_gc  (0x00<<0) /* OUT: PA7 */
+#define PORTMUX_AC0_ALT1_gc  (0x01<<0)  /* OUT: PC6 */
+#define PORTMUX_AC1_DEFAULT_gc  (0x00<<1) /* OUT: PA7 */
+#define PORTMUX_AC1_ALT1_gc  (0x01<<1)  /* OUT: PC6 */
+#define PORTMUX_AC2_DEFAULT_gc  (0x00<<2) /* OUT: PA7 */
+#define PORTMUX_AC2_ALT1_gc  (0x01<<2)  /* OUT: PC6 */
+#define PORTMUX_EVOUTA_DEFAULT_gc  (0x00<<0) /* EVOUT: PA2 */
+#define PORTMUX_EVOUTA_ALT1_gc  (0x01<<0)  /* EVOUT: PA7 */
+#define PORTMUX_EVOUTB_DEFAULT_gc  (0x00<<1)  /* EVOUT: PB2 */
+#define PORTMUX_EVOUTC_DEFAULT_gc  (0x00<<2) /* EVOUT: PC2 */
+#define PORTMUX_EVOUTC_ALT1_gc  (0x01<<2)  /* EVOUT: PC7 */
+#define PORTMUX_EVOUTD_DEFAULT_gc  (0x00<<3) /* EVOUT: PD2 */
+#define PORTMUX_EVOUTD_ALT1_gc  (0x01<<3)  /* EVOUT: PD7 */
+#define PORTMUX_EVOUTE_DEFAULT_gc  (0x00<<4)  /* EVOUT: PE2 */
+#define PORTMUX_EVOUTF_DEFAULT_gc  (0x00<<5)  /* EVOUT: PF2 */
+#define PORTMUX_LUT0_DEFAULT_gc  (0x00<<0) /* In: PA0, PA1, PA2 Out: PA3 */
+#define PORTMUX_LUT0_ALT1_gc  (0x01<<0)  /* In: PA0, PA1, PA2 Out: PA6 */
+#define PORTMUX_LUT1_DEFAULT_gc  (0x00<<1) /* In: PC0, PC1, PC2 Out: PC3 */
+#define PORTMUX_LUT1_ALT1_gc  (0x01<<1)  /* In: PC0, PC1, PC2 Out: PC6 */
+#define PORTMUX_LUT2_DEFAULT_gc  (0x00<<2) /* In: PD0, PD1, PD2 Out: PD3 */
+#define PORTMUX_LUT2_ALT1_gc  (0x01<<2)  /* In: PD0, PD1, PD2 Out: PD6 */
+#define PORTMUX_LUT3_DEFAULT_gc  (0x00<<3)  /* In: PF0, PF1, PF2 Out: PF3 */
+#define PORTMUX_LUT4_DEFAULT_gc  (0x00<<4) /* In: PB0, PB1, PB2 Out: PB3 */
+#define PORTMUX_LUT4_ALT1_gc  (0x01<<4)  /* In: PB0, PB1, PB2 Out: - */
+#define PORTMUX_SPI0_DEFAULT_gc  (0x00<<0) /* MOSI: PA4, MISO: PA5, SCK: PA6, SS: PA7 */
+#define PORTMUX_SPI0_ALT1_gc  (0x01<<0) /* MOSI: PE0, MISO: PE1, SCK: PE2, SS: PE3 */
 #define PORTMUX_SPI0_NONE_gc  (0x03<<0)  /* Not connected to any pins */
-#define PORTMUX_SPI1_DEFAULT_gc  (0x00<<2) /* PC0, PC1, PC2, PC3 */
-#define PORTMUX_SPI1_ALT1_gc  (0x01<<2) /* PC4, PC5, PC6, PC7 */
+#define PORTMUX_SPI1_DEFAULT_gc  (0x00<<2) /* MOSI: PC0, MISO: PC1, SCK: PC2, SS: PC3 */
+#define PORTMUX_SPI1_ALT1_gc  (0x01<<2) /* MOSI: PC4, MISO: PC5, SCK: PC6, SS: PC7 */
+#define PORTMUX_SPI1_ALT2_gc  (0x02<<2) /* MOSI: PB4, MISO: PB5, SCK: -, SS: - */
 #define PORTMUX_SPI1_NONE_gc  (0x03<<2)  /* Not connected to any pins */
-#define PORTMUX_TCA0_PORTA_gc  (0x00<<0) /* PA0, PA1, PA2, PA3, PA4, PA5 */
-#define PORTMUX_TCA0_PORTB_gc  (0x01<<0) /* PB0, PB1, PB2, PB3, PB4, PB5 */
-#define PORTMUX_TCA0_PORTC_gc  (0x02<<0) /* PC0, PC1, PC2, PC3, PC4, PC5 */
-#define PORTMUX_TCA0_PORTD_gc  (0x03<<0) /* PD0, PD1, PD2, PD3, PD4, PD5 */
-#define PORTMUX_TCA0_PORTE_gc  (0x04<<0) /* PE0, PE1, PE2, PE3, PE4, PE5 */
-#define PORTMUX_TCA0_PORTF_gc  (0x05<<0)  /* PF0, PF1, PF2, PF3, PF4, PF5 */
-#define PORTMUX_TCA1_PORTB_gc  (0x00<<3) /* PB0, PB1, PB2, PB3, PB4, PB5 */
-#define PORTMUX_TCA1_PORTC_gc  (0x01<<3)  /* PC4, PC5, PC6 */
-#define PORTMUX_TCB0_DEFAULT_gc  (0x00<<0) /* WO on PA2 */
-#define PORTMUX_TCB0_ALT1_gc  (0x01<<0)  /* WO on PF4 */
-#define PORTMUX_TCB1_DEFAULT_gc  (0x00<<1) /* WO on PA3 */
-#define PORTMUX_TCB1_ALT1_gc  (0x01<<1)  /* WO on PF5 */
-#define PORTMUX_TCB2_DEFAULT_gc  (0x00<<2) /* WO on PC0 */
-#define PORTMUX_TCB2_ALT1_gc  (0x01<<2)  /* WO on PB4 */
-#define PORTMUX_TCB3_DEFAULT_gc  (0x00<<3) /* WO on PB5 */
-#define PORTMUX_TCB3_ALT1_gc  (0x01<<3)  /* WO on PC1 */
-#define PORTMUX_TCD0_DEFAULT_gc  (0x00<<0) /* PA4, PA5, PA6, PA7 */
-#define PORTMUX_TCD0_ALT1_gc  (0x01<<0) /* PB4, PB5, PB6, PB7 */
-#define PORTMUX_TCD0_ALT2_gc  (0x02<<0)  /* PF0, PF1, PF2, PF3 */
-#define PORTMUX_TWI0_DEFAULT_gc  (0x00<<0) /* PA2, PA3, PC2, PC3 */
-#define PORTMUX_TWI0_ALT1_gc  (0x01<<0) /* PA2, PA3, PC6, PC7 */
-#define PORTMUX_TWI0_ALT2_gc  (0x02<<0)  /* PC2, PC3, PC6, PC7 */
-#define PORTMUX_TWI1_DEFAULT_gc  (0x00<<2) /* PF2, PF3, PB2, PB3 */
-#define PORTMUX_TWI1_ALT2_gc  (0x02<<2)  /* PB2, PB3, PB6, PB7 */
-#define PORTMUX_USART0_DEFAULT_gc  (0x00<<0) /* PA0, PA1, PA2, PA3 */
-#define PORTMUX_USART0_ALT1_gc  (0x01<<0) /* PA4, PA5, PA6, PA7 */
+#define PORTMUX_TCA0_PORTA_gc  (0x00<<0) /* WOn: PA0, PA1, PA2, PA3, PA4, PA5 */
+#define PORTMUX_TCA0_PORTB_gc  (0x01<<0) /* WOn: PB0, PB1, PB2, PB3, PB4, PB5 */
+#define PORTMUX_TCA0_PORTC_gc  (0x02<<0) /* WOn: PC0, PC1, PC2, PC3, PC4, PC5 */
+#define PORTMUX_TCA0_PORTD_gc  (0x03<<0) /* WOn: PD0, PD1, PD2, PD3, PD4, PD5 */
+#define PORTMUX_TCA0_PORTE_gc  (0x04<<0) /* WOn: PE0, PE1, PE2, PE3, -, - */
+#define PORTMUX_TCA0_PORTF_gc  (0x05<<0)  /* WOn: PF0, PF1, PF2, PF3, PF4, PF5 */
+#define PORTMUX_TCA1_PORTB_gc  (0x00<<3) /* WOn: PB0, PB1, PB2, PB3, PB4, PB5 */
+#define PORTMUX_TCA1_PORTC_gc  (0x01<<3)  /* WOn: PC4, PC5, PC6, -, -, - */
+#define PORTMUX_TCB0_DEFAULT_gc  (0x00<<0) /* WO: PA2 */
+#define PORTMUX_TCB0_ALT1_gc  (0x01<<0)  /* WO: PF4 */
+#define PORTMUX_TCB1_DEFAULT_gc  (0x00<<1) /* WO: PA3 */
+#define PORTMUX_TCB1_ALT1_gc  (0x01<<1)  /* WO: PF5 */
+#define PORTMUX_TCB2_DEFAULT_gc  (0x00<<2) /* WO: PC0 */
+#define PORTMUX_TCB2_ALT1_gc  (0x01<<2)  /* WO: PB4 */
+#define PORTMUX_TCB3_DEFAULT_gc  (0x00<<3) /* WO: PB5 */
+#define PORTMUX_TCB3_ALT1_gc  (0x01<<3)  /* WO: PC1 */
+#define PORTMUX_TCD0_DEFAULT_gc  (0x00<<0) /* WOx: PA4, PA5, PA6, PA7 */
+#define PORTMUX_TCD0_ALT1_gc  (0x01<<0) /* WOx: PB4, PB5, -, - */
+#define PORTMUX_TCD0_ALT2_gc  (0x02<<0)  /* WOx: PF0, PF1, PF2, PF3 */
+#define PORTMUX_TWI0_DEFAULT_gc  (0x00<<0) /* SDA: PA2, SCL: PA3. Dual mode: SDA: PC2, SCL: PC3. */
+#define PORTMUX_TWI0_ALT1_gc  (0x01<<0) /* SDA: PA2, SCL: PA3. Dual mode: SDA: PC6, SCL: PC7. */
+#define PORTMUX_TWI0_ALT2_gc  (0x02<<0)  /* SDA: PC2, SCL: PC3. Dual mode: SDA: PC6, SCL: PC7. */
+#define PORTMUX_TWI1_DEFAULT_gc  (0x00<<2) /* SDA: PF2, SCL: PF3. Dual mode: SDA: PB2, SCL: PB3. */
+#define PORTMUX_TWI1_ALT1_gc  (0x01<<2) /* SDA: PF2, SCL: PF3. Dual mode: SDA: -, SCL: -. */
+#define PORTMUX_TWI1_ALT2_gc  (0x02<<2)  /* SDA: PB2, SCL: PB3. Dual mode: SDA: -, SCL: -. */
+#define PORTMUX_USART0_DEFAULT_gc  (0x00<<0) /* TxD: PA0, RxD: PA1, XCK: PA2, XDIR: PA3 */
+#define PORTMUX_USART0_ALT1_gc  (0x01<<0) /* TxD: PA4, RxD: PA5, XCK: PA6, XDIR: PA7 */
 #define PORTMUX_USART0_NONE_gc  (0x03<<0)  /* Not connected to any pins */
-#define PORTMUX_USART1_DEFAULT_gc  (0x00<<2) /* PC0, PC1, PC2, PC3 */
-#define PORTMUX_USART1_ALT1_gc  (0x01<<2) /* PC4, PC5, PC6, PC7 */
+#define PORTMUX_USART1_DEFAULT_gc  (0x00<<2) /* TxD: PC0, RxD: PC1, XCK: PC2, XDIR: PC3 */
+#define PORTMUX_USART1_ALT1_gc  (0x01<<2) /* TxD: PC4, RxD: PC5, XCK: PC6, XDIR: PC7 */
 #define PORTMUX_USART1_NONE_gc  (0x03<<2)  /* Not connected to any pins */
-#define PORTMUX_USART2_DEFAULT_gc  (0x00<<4) /* PF0, PF1, PF2, PF3 */
-#define PORTMUX_USART2_ALT1_gc  (0x01<<4) /* PF4, PF5 */
+#define PORTMUX_USART2_DEFAULT_gc  (0x00<<4) /* TxD: PF0, RxD: PF1, XCK: PF2, XDIR: PF3 */
+#define PORTMUX_USART2_ALT1_gc  (0x01<<4) /* TxD: PF4, RxD: PF5, XCK: -, XDIR: - */
 #define PORTMUX_USART2_NONE_gc  (0x03<<4)  /* Not connected to any pins */
-#define PORTMUX_USART3_DEFAULT_gc  (0x00<<6) /* PB0, PB1, PB2, PB3 */
-#define PORTMUX_USART3_ALT1_gc  (0x01<<6) /* PB4, PB5, PB6, PB7 */
+#define PORTMUX_USART3_DEFAULT_gc  (0x00<<6) /* TxD: PB0, RxD: PB1, XCK: PB2, XDIR: PB3 */
+#define PORTMUX_USART3_ALT1_gc  (0x01<<6) /* TxD: PB4, RxD: PB5, XCK: -, XDIR: - */
 #define PORTMUX_USART3_NONE_gc  (0x03<<6)  /* Not connected to any pins */
-#define PORTMUX_USART4_DEFAULT_gc  (0x00<<0) /* PE0, PE1, PE2, PE3 */
+#define PORTMUX_USART4_DEFAULT_gc  (0x00<<0) /* TxD: PE0, RxD: PE1, XCK: PE2, XDIR: PE3 */
 #define PORTMUX_USART4_NONE_gc  (0x03<<0)  /* Not connected to any pins */
-#define PORTMUX_ZCD0_DEFAULT_gc  (0x00<<0) /* OUT on PA7 */
-#define PORTMUX_ZCD0_ALT1_gc  (0x01<<0)  /* OUT on PC7 */
-#define PORTMUX_ZCD1_DEFAULT_gc  (0x00<<1) /* OUT on PA7 */
-#define PORTMUX_ZCD1_ALT1_gc  (0x01<<1)  /* OUT on PC7 */
+#define PORTMUX_ZCD0_DEFAULT_gc  (0x00<<0) /* OUT: PA7 */
+#define PORTMUX_ZCD0_ALT1_gc  (0x01<<0)  /* OUT: PC7 */
+#define PORTMUX_ZCD1_DEFAULT_gc  (0x00<<1) /* OUT: PA7 */
+#define PORTMUX_ZCD1_ALT1_gc  (0x01<<1)  /* OUT: PC7 */
 #define RTC_CLKSEL_OSC32K_gc  (0x00<<0) /* 32.768 kHz from OSC32K */
 #define RTC_CLKSEL_OSC1K_gc  (0x01<<0) /* 1.024 kHz from OSC32K */
 #define RTC_CLKSEL_XOSC32K_gc  (0x02<<0) /* 32.768 kHz from XOSC32K */
@@ -1107,7 +1110,6 @@
 #define TCA_SPLIT_CLKSEL_DIV256_gc  (0x06<<1) /* CLK_PER / 256 */
 #define TCA_SPLIT_CLKSEL_DIV1024_gc  (0x07<<1)  /* CLK_PER / 1024 */
 #define TCA_SPLIT_CMD_NONE_gc  (0x00<<2) /* No Command */
-#define TCA_SPLIT_CMD_UPDATE_gc  (0x01<<2) /* Force Update */
 #define TCA_SPLIT_CMD_RESTART_gc  (0x02<<2) /* Force Restart */
 #define TCA_SPLIT_CMD_RESET_gc  (0x03<<2)  /* Force Hard Reset */
 #define TCA_SPLIT_CMDEN_NONE_gc  (0x00<<0) /* None */

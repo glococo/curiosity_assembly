@@ -2,10 +2,14 @@
 ; Description: Master include file for the Hardware Abstraction Layer (HAL).
 ;              Includes all core macros, math routines, and peripheral drivers.
 ;
-; AVR-GCC _gc register defines
-#include "HAL_GC.S"
+
 ; Basic assembly macros and register defines
 #include "HAL_MACRO.S"
+
+; AVR-GCC _gc "group configuration" defines
+# define __AVR_GC__ STRINGIFY(avr/_(io,__AVR_DEVICE_NAME__)_gc.S)
+# include __AVR_GC__
+
 ; Instruction Set Extension
 #include "HAL_EXTEND.S"
 ; String and numeric printing functions
@@ -36,10 +40,11 @@
 #include "HAL_USART.S"            // USART Serial communication
 #include "HAL_I2C.S"              // I2C (TWI) Master communication
 #include "HAL_SPI.S"              // SPI Master communication
+#include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 
-#if (SIGNATURE_1 == 0x94) || (SIGNATURE_1 == 0x95)
-  #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for EA/EB Series
+#ifdef CLKCTRL_MCLKTIMEBASE
+  #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
 #else
-  #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for DA/DB Series
+  #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
 #endif
 

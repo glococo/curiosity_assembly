@@ -611,7 +611,6 @@
 #define TCA_SPLIT_CLKSEL_DIV256_gc  (0x06<<1) /* CLK_PER / 256 */
 #define TCA_SPLIT_CLKSEL_DIV1024_gc  (0x07<<1)  /* CLK_PER / 1024 */
 #define TCA_SPLIT_CMD_NONE_gc  (0x00<<2) /* No Command */
-#define TCA_SPLIT_CMD_UPDATE_gc  (0x01<<2) /* Force Update */
 #define TCA_SPLIT_CMD_RESTART_gc  (0x02<<2) /* Force Restart */
 #define TCA_SPLIT_CMD_RESET_gc  (0x03<<2)  /* Force Hard Reset */
 #define TCA_SPLIT_CMDEN_NONE_gc  (0x00<<0) /* None */
