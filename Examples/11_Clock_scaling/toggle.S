@@ -15,9 +15,10 @@ FUNC print_and_toggle
 
     _DEBUG_LDS2( _(USART,_BAUDL), "Auto-configured Baudrate clock: ")
     _DEBUG_LDS2( HAL_ONE_MS, "Clocks/mS (HAL_ONE_MS): ")
-#ifdef CLKCTRL_MCLKTIMEBASE
-    _DEBUG_LDS2( CLKCTRL_MCLKTIMEBASE, "Clocks/μS: ")
-#endif
+
+  #ifdef CLKCTRL_MCLKTIMEBASE
+    _DEBUG_LDS( CLKCTRL_MCLKTIMEBASE, "Clocks/μS: ")
+  #endif
 
   blink:
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)   ; Toggle LED via hardware TGL reg

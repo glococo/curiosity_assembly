@@ -109,12 +109,16 @@
 #define ESC_AL_CONTROL                   0x0120     /* 16-bit */
 #define ESC_AL_STATUS                    0x0130     /* 16-bit */
 #define ESC_AL_STATUS_CODE               0x0134     /* 16-bit */
-#define ESC_RUN_LED_OVERRIDE             0x0138
-#define ESC_PDI_CONTROL                  0x0140
-#define ESC_ESC_CONFIG                   0x0141
+#define ESC_RUN_LED_OVERRIDE             0x0138     /*  8-bit */
+#define ESC_PDI_CONTROL                  0x0140     /*  8-bit */
+#define ESC_ESC_CONFIG                   0x0141     /*  8-bit */
 #define ESC_ASIC_CONFIG                  0x0142     /* 16-bit */
-#define ESC_PDI_CONFIG                   0x0150     /* 16-bit */
-#define ESC_AL_EVENT_MASK                0x0200     /* 16-bit */
+#define ESC_PDI_CONFIG                   0x0150     /*  8-bit */
+#define ESC_PDI_SYNC_LATCH_CONFIG        0x0151     /*  8-bit */
+#define ESC_PDI_CONFIG_EXTENDED          0x0152     /* 16-bit */
+#define ESC_ECAT_EVENT_MASK              0x0200     /* 16-bit */
+#define ESC_AL_EVENT_MASK                0x0204     /* 32-bit */
+#define ESC_ECAT_EVENT_REQUEST           0x0210     /* 16-bit */
 #define ESC_AL_EVENT_REQUEST             0x0220     /* 32-bit */
 #define ESC_WDOG_DIVIDER                 0x0400     /* 16-bit */
 #define ESC_WDOG_TIME_PDI                0x0410     /* 16-bit */
@@ -179,3 +183,10 @@
 #define PHY_INDEX_AUTO_NEG_LP_ABILITY    5
 #define PHY_INDEX_AUTO_NEG_EXPANSION     6
 #define PHY_INDEX_SPECIAL_CONTROL_STATUS 31
+
+/* Actual State of the Device State Machine */
+#define ESM_STATE_INIT                    0x1
+#define ESM_STATE_PREOP                   0x2
+#define ESM_STATE_BOOTSTRAP               0x3
+#define ESM_STATE_SAFEOP                  0x4
+#define ESM_STATE_OP                      0x8

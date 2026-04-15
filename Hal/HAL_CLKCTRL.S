@@ -19,7 +19,7 @@ FUNC HAL_CLKCTRL_OSCHF_SET
     sts     CLKCTRL_OSCHFCTRLA, r22
   0:
     lds     r18, CLKCTRL_MCLKSTATUS
-    sbrc    r18, 0                      ; SOSC is bit 5 in MCLKSTATUS
+    sbrs    r18, 1                      ; Wait for OSCHFS (bit 1) to be 1 (stable)
     rjmp    0b
 ENDF HAL_CLKCTRL_OSCHF_SET
 
@@ -89,6 +89,8 @@ FUNC HAL_CLKCTRL_PRESCALER
   _update_one_us_done:
 #ifdef CLKCTRL_MCLKTIMEBASE
     andi    r22, 0x1F                   ; MCLKTIMEBASE is 5-bit (0-31)
+    ldi     r18, 0xD8
+    out     CPU_CCP, r18
     sts     CLKCTRL_MCLKTIMEBASE, r22
 #endif
   POP_MANY r25, r24, r23, r19, r18

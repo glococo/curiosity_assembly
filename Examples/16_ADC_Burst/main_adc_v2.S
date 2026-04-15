@@ -23,7 +23,7 @@ FUNC main
 
     ; Do an instant Burst ADC Read
     _ADC_BURST(ADC_MUXPOS_TEMPSENSE_gc, ADC_SAMPNUM_ACC64_gc)
-    _DEBUG_REG4(r22, "ADC RAW RESULT 32-bit value: ")
+    _DEBUG_REG4(r22, "ADC RAW RESULT 32-bit value: ")$ _STRNR()
 
     ldi     r18, 6                                  ; Shift right 4pos (RESULT/16)
     rcall   MATH_LSR_32

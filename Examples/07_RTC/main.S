@@ -17,7 +17,7 @@ FUNC main
 
   loop:
     _STR_FLUSH()                              ; Drain buffer to USART hardware
-    sleep                                     ; Wait for interrupts
+    _SLEEP()                                  ; Wait for interrupts
     rjmp    loop                              ; Repeat indefinitely
 
 ENDF main

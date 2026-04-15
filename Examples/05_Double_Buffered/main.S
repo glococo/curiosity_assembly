@@ -32,7 +32,7 @@ FUNC main
     ldi2    YL, USART_ADDR + 2
 
   loop:
-    sleep                                     ; Wait for interrupts
+    _SLEEP()                                  ; Wait for interrupts
     rjmp    loop                              ; Repeat
 
 ENDF main

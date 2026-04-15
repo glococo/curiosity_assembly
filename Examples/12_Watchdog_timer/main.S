@@ -7,52 +7,46 @@
 ;
 ; Example Usage:
 ;   This is a standalone example. Compile and flash to a supported AVR board.
-;   The LED will blink 3 times fast on reset, then 5 times slowly (1s toggles).
-;   After 5s, the LED will stay in its last state until the WDT resets the MCU.
+;   The LED will blink 4 times slow on reset, then 5 times faster.
+;   After 1s, the LED will stay in its last state until the WDT resets the MCU.
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
 ; Function: main
 ; Description: Main application entry point.
-;              - Performs a fast blink on startup (to indicate reset/boot).
+;              - Performs a slow blink on startup (to indicate reset/boot).
 ;              - Enables the WDT.
-;              - Toggles LED and resets WDT in a loop for 5 seconds.
+;              - Toggles LED faster and resets WDT in a loop for one second.
 ;              - Stops resetting WDT and enters a busy loop to trigger reset.
 ; -----------------------------------------------------------------------------
 FUNC main
   rcall   HAL_BOARD_SETUP                     ; Basic board initialization
-  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)   ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
-  _STR("__ WDT: Toggles LED and resets WDT in a loop for 5 seconds\r\n")$ _STR_FLUSH()
+  _STR("__ WDT: Toggles LED and resets WDT in a loop for a second\r\n")$ _STR_FLUSH()
 
-  ; Indication of reset/start: Fast blink 3 times
-  ldi     r20, 6                              ; 6 toggles = 3 blinks
+  ; Indication of reset/start: Fast blink 4 times
+  ldi     r20, 8                              ; 8 toggles = 4 blinks
   reset_blink:
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
-    _DELAY_MS(100)
+    _DELAY_MS(800)
     dec     r20
     brne    reset_blink
 
-  ; Enable WDT with ~2s period (64KCLK at 32kHz OSCULP32K)
-  ; Note: WDT_PERIOD_64CLK_gc is approx 2 seconds.
-  ; Optimal call (without push/pop)
-  ;  ldi     r22, WDT_PERIOD_8KCLK_gc
-  ;  rcall   HAL_WDT_ENABLE
+    _WDT_ENABLE( WDT_PERIOD_8KCLK_gc )
 
-  _WDT_ENABLE( WDT_PERIOD_8KCLK_gc )
-
-  ; Normal Operation: Loop 10 toggles (5 seconds total), patting the dog.
-  ; The LED will toggle every 500ms.
-  ldi     r20, 10
+    ; Normal Operation: Loop 10 toggles (1 second total), patting the dog.
+    ; The LED will toggle every 100ms.
+    ldi     r20, 10
   normal_op:
     _WDT_RESET()                              ; Pat the dog
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
-    _DELAY_MS(500)                            ; Wait 0.5s
+    _DELAY_MS(100)                            ; Wait 100ms
     dec     r20
     brne    normal_op
 
   ; System will now stop patting and enter a busy loop.
-  ; The WDT will trigger a reset after ~2 seconds.
+  ; The WDT will trigger a reset after 250 milliseconds.
   ; After reset, the "Fast blink" sequence at the start of main will repeat.
   loop_forever:
     rjmp    loop_forever

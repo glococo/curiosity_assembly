@@ -34,6 +34,7 @@
 #include "HAL_PIN.S"              // Port-Pin helper
 #include "HAL_PORTMUX.S"          // Pin Multiplexing (PORTMUX) helper
 #include "HAL_CLKCTRL.S"          // Core Clock and CPU Control (CLKCTRL)
+#include "HAL_SLPCTRL.S"          // Sleep controller
 #include "HAL_RTC.S"              // Real-Time Counter (RTC) helper
 #include "HAL_WDT.S"              // Watchdog Timer (WDT) helper
 #include "HAL_BOD.S"              // Brown-out Detector (BOD) helper
@@ -43,7 +44,11 @@
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 
 #ifdef CLKCTRL_MCLKTIMEBASE
-  #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
+  #ifdef ADC0_RESULT0
+    #include "HAL_ADC_v2.S"       // Analog-to-Digital Converter (ADC) helper for ADC v2
+  #else
+    #include "HAL_ADC_v2_lite.S"  // Analog-to-Digital Converter (ADC) helper for ADC v2_lite
+  #endif
 #else
   #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
 #endif

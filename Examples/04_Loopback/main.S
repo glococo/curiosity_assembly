@@ -34,8 +34,8 @@ FUNC main
   loop:
     cli                                       ; Disable interrupts for atomic flush
     _STR_FLUSH()                              ; Send all data in buffer back to TX
-    sei                                       ; Re-enable interrupts
-    sleep                                     ; Wait for new data (RX interrupt)
+    sei
+    _SLEEP()                                  ; Wait for new data (RX interrupt)
     rjmp    loop                              ; Repeat indefinitely
 
 ENDF main
