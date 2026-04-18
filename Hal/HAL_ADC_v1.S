@@ -42,13 +42,13 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
 ; Description: Initializes the ADC and calculate SAMPDUR.
 ; Inputs:  r22 - CTRLA (Enable)
 ;          r23 - CTRLB (Prescaler)
-;          r24 - VREF_ADC0REF (vRef)
+;          r24 - CTRLC (vRef)
 ;          r25 - SAMPCTRL (Sample duration in us)
 ; Outputs: None
 FUNC HAL_ADC_SETUP
   PUSH_MANY r18, XL, XH
     sts     ADC0_SAMPCTRL, r25  ;
-    sts     VREF_ADC0REF, r24   ; CTRLC (V_reference)
+    sts     ADC0_CTRLC, r24     ; CTRLC (V_reference)
     sts     ADC0_CTRLB, r23     ; CTRLB (Prescaler)
     sts     ADC0_CTRLA, r22     ; CTRLA (Enable)
 

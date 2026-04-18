@@ -24,4 +24,27 @@ for file in "$HDR_DIR"/ioavr*.h; do
     sed -n '/_gc/{s/^[[:space:]]*//; s/=[[:space:]]*/ /; s/,[[:space:]]*\(\/\*.*\)/ \1/; s/,[[:space:]]*$//; s/^/#define /; p}' "$file" > "$output"
 done
 
+# Iterate over all iotn*.h files
+for file in "$HDR_DIR"/iotn*.h; do
+    # Check if files exist to avoid processing the literal glob pattern
+    [ -e "$file" ] || continue
+
+    # Get the base filename without extension
+    # iotn* -> ioattiny*
+    oldb=$(basename "$file" .h)
+    base=$(basename "$file" .h | sed 's/iotn/ioattiny/')
+
+    # Define the output filename
+    output="${base}_gc.S"
+
+    echo "Processing $oldb.h -> $output"
+    # Apply the transformation:
+    # 1. Filter for lines containing '_gc'
+    # 2. Remove leading whitespace
+    # 3. Replace '=' with a space
+    # 4. Remove trailing commas before comments or at the end of the line
+    # 5. Prepend '#define '
+    sed -n '/_gc/{s/^[[:space:]]*//; s/=[[:space:]]*/ /; s/,[[:space:]]*\(\/\*.*\)/ \1/; s/,[[:space:]]*$//; s/^/#define /; p}' "$file" > "$output"
+done
+
 echo "Done."

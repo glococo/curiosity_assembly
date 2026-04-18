@@ -17,8 +17,10 @@ FUNC main
   _STR("__ ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
 
   ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-#ifdef ADC_REFSEL_VDD_gc
+#if defined( ADC_REFSEL_VDD_gc )
   _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_VDD_gc)
+#elif defined( ADC_REFSEL_VDDREF_gc )
+  _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_VDDREF_gc)
 #else
   _ADC_ENABLE(ADC_PRESC_DIV16_gc, VREF_REFSEL_VDD_gc)
 #endif

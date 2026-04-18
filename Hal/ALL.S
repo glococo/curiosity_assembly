@@ -44,10 +44,12 @@
 
 #if defined ADC0_RESULT0
   #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
-#elif defined CLKCTRL_MCLKTIMEBASE
+#elif defined( CLKCTRL_MCLKTIMEBASE )
   #include "HAL_ADC_v2_lite.S"    // Analog-to-Digital Converter (ADC) helper for ADC v2_lite
-#else
+#elif defined( VREF_ADC0REF )
   #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
+#else
+  .warning "ADC library not found"
 #endif
 
 #ifdef IS_FAMILY_SD

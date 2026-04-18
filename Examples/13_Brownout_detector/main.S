@@ -25,7 +25,7 @@ FUNC main
   #else
     ldi     r22, BOD_ACTIVE_ENABLED_gc
   #endif
-  ldi     r23, BOD_LVL_BODLEVEL3_gc
+  ldi     r23, BOD_LVL_BODLEVEL2_gc
   rcall   HAL_BOD_CONFIG
 
   ; 2. Configure VLM

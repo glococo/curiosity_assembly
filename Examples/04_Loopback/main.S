@@ -15,8 +15,6 @@
 ; Function: main
 ; Description: Application entry point. Initializes hardware and the ring buffer,
 ;              then enters a loop to flush received data back to USART.
-; Inputs:      None
-; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
     rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
@@ -43,8 +41,6 @@ ENDF main
 ; -----------------------------------------------------------------------------
 ; ISR: USART0_RXC_vect (RX Complete)
 ; Description: Receives incoming data and pushes it into the ring buffer.
-; Inputs:      None
-; Outputs:     None
 ; -----------------------------------------------------------------------------
 ISR_START _(USART,_RXC_vect), r18
     rcall   HAL_USART_RECEIVE_DEVICEBUFFER    ; Pull from hardware, push to buffer Z
