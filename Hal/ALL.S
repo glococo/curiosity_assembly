@@ -5,21 +5,20 @@
 
 ; Basic assembly macros and register defines
 #include "HAL_MACRO.S"
-
-; AVR-GCC _gc "group configuration" defines
-# define __AVR_GC__ STRINGIFY(avr/_(io,__AVR_DEVICE_NAME__)_gc.S)
-# include __AVR_GC__
-
+#include "HAL_FAMILY.S"
 ; Instruction Set Extension
 #include "HAL_EXTEND.S"
+; ISR helpers
+#include "HAL_ISR.S"
+; Software delay routines
+#include "HAL_DELAY.S"
+
 ; String and numeric printing functions
 #include "HAL_PRINT.S"
 #include "HAL_PRINT_NUM.S"
 #include "HAL_PRINT_HEX.S"
 ; Basic Debug macros
 #include "HAL_DEBUG.S"
-; Software delay routines
-#include "HAL_DELAY.S"
 
 ; Arithmetics
 #include "MATH_MUL.S"             // Multiplication routines
@@ -43,13 +42,14 @@
 #include "HAL_SPI.S"              // SPI Master communication
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 
-#ifdef CLKCTRL_MCLKTIMEBASE
-  #ifdef ADC0_RESULT0
-    #include "HAL_ADC_v2.S"       // Analog-to-Digital Converter (ADC) helper for ADC v2
-  #else
-    #include "HAL_ADC_v2_lite.S"  // Analog-to-Digital Converter (ADC) helper for ADC v2_lite
-  #endif
+#if defined ADC0_RESULT0
+  #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
+#elif defined CLKCTRL_MCLKTIMEBASE
+  #include "HAL_ADC_v2_lite.S"    // Analog-to-Digital Converter (ADC) helper for ADC v2_lite
 #else
   #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
 #endif
 
+#ifdef IS_FAMILY_SD
+  #include "HAL_ERRCTRL.S"        // Error controller on SD Devices
+#endif

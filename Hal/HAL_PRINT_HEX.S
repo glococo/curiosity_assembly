@@ -1,7 +1,8 @@
 ; File: Hal/HAL_PRINT_NUM.S
 ; Description: Hex printing functions for HAL_DEVICEBUFFER.
 ;
-
+#define _STR_X( ... )           PRINT_HEX __VA_ARGS__
+#define _STR_X32( reg )         PRINT_HEX32 reg
 #define _STR_HEX( ... )         PRINT_HEX __VA_ARGS__
 #define _STR_HEX32( reg )       PRINT_HEX32 reg
 

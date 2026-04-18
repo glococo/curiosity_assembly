@@ -31,15 +31,25 @@
 #define r30               30
 #define r31               31
 
-#define r(n)              (n)
-#define __zero_reg__      r2
+#define r(n)                              (n)
+#define __scratch0__                      r0
+#define __scratch1__                      r1
+#define __zero_reg__                      r2
+#define __full_reg__                      r3
 
-#define GLUE(a, b)        a##b
-#define _(p, r)           GLUE(p, r)
+#define GLUE(a, b)                        a##b
+#define _(p, r)                           GLUE(p, r)
+#define DEF_TO_STR(x)                     #x
+#define STRINGIFY(x)                      DEF_TO_STR(x)
+#define LENGTH(s)                         (s##_len)
+#define _WRITE_PROTECTED(reg,val)         HAL_WRITE_PROTECTED reg, val
+#define _ZERO_FULL_INIT()                 HAL_ZERO_FULL_INIT
 
-#define DEF_TO_STR(x)     #x
-#define STRINGIFY(x)      DEF_TO_STR(x)
-#define LENGTH(s)         (s##_len)
+.macro HAL_ZERO_FULL_INIT
+    clr     __zero_reg__
+    ldi    r16, 0xFF
+    mov     __full_reg__, r16
+.endm
 
 .macro FUNC name
   .section .text.\name, "ax", @progbits
@@ -110,10 +120,9 @@
         .set _i, _i + 1
     .endr
 .endm
-#define _ASCIZ(name,text)   ASCIZ name text
-.macro ASCIZ name, text
-  .pushsection .progmem.rodata
-    \name: .asciz "\text"
-    .set \name\()_len, . - \name - 1
-  .popsection
+
+.macro HAL_WRITE_PROTECTED memory, register
+    ldi     r18, 0xD8                   ; CCP unlock key
+    out     CPU_CCP, r18
+    sts     \memory, \register
 .endm

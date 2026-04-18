@@ -24,7 +24,7 @@
 #define USART_PORT            PORTC
 #define USART_ADDR            USART0_RXDATAL
 #define USART_BAUD_RATE       38400
-#define USART_DOUBLE_SPEED    1
+#define USART_DOUBLE_SPEED    0
 ; TWI Config (default)
 #define TWI_CONFIGURED
 ; SPI Config

@@ -2,10 +2,24 @@
 ; Description: String printing functions for HAL_DEVICEBUFFER.
 ;
 
+#define _ASCIZ(name,text)         ASCIZ name text
 #define _STR( text )              PRINT_STR text
 #define _STRNR()                  PRINT_STR_NEWLINE
 #define _STRC( reg )              PRINT_STR_CHAR reg
-#define _STR_FLUSH()              rcall HAL_USART_FLUSH_DEVICEBUFFER
+#define _STR_FLUSH(ms)            HAL_FLUSH ms
+
+.macro HAL_FLUSH ms=0
+  rcall HAL_USART_FLUSH_DEVICEBUFFER
+  .if \ms > 0
+    _DELAY_MS(\ms)
+  .endif
+.endm
+.macro ASCIZ name, text
+  .pushsection .progmem.rodata
+    \name: .asciz "\text"
+    .set \name\()_len, . - \name - 1
+  .popsection
+.endm
 
 .macro PRINT_STR_NEWLINE
   PUSH r22

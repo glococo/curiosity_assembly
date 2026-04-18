@@ -49,6 +49,7 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 Configuration files for standard Curiosity Nano (CNANO) boards:
 - `AVR16EB32_CNANO.S`
 - `AVR128DB48_CNANO.S`
+- `AVR32SD32_CNANO.S`
 - `AVR64DU32_CNANO.S`
 
 ---
@@ -119,12 +120,14 @@ To ensure high performance and seamless integration, this framework follows a st
 | Register | Usage | Contract |
 | :--- | :--- | :--- |
 | **`r2`** | `__zero_reg__` | **Permanent Zero.** Never write to `r2`. |
+| **`r3`** | `__full_reg__` | **Permanent 0xFF.** Never write to `r3`. |
 | **`r0, r1`** | Volatile | Scratch registers. Modified by `mul`. |
-| **`r18-r25`** | Volatile | Arguments (`r25:r22`) and Return values. |
-| **`X (r27:r26)`** | Volatile | Primary for **Streaming** (strings, arrays). |
+| **`r16-r17`** | Caller-Saved | Local Scratch registers, scratch LDI |
+| **`X (r27:r26)`** | Callee-Saved | Primary for **Streaming** (strings, arrays). |
 | **`Y (r29:r28)`** | Callee-Saved | Primary for **Peripheral Base Addresses**. |
-| **`Z (r31:r30)`** | Volatile | Primary for **Structures** and **Program Memory**. |
-| **`r3-r17`** | Callee-Saved | Strictly preserved via PUSH/POP. |
+| **`Z (r31:r30)`** | Callee-Saved | Primary for **Structures** and **Program Memory**. |
+| **`r4-r15, r18-r31`** | Callee-Saved | Strictly preserved via PUSH/POP. |
+
 
 **Success Signaling**: Functions typically use the **Carry Flag** (Set = Success/True, Clear = Failure/Empty).
 

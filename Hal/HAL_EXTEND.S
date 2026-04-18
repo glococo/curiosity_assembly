@@ -226,3 +226,17 @@
     movw  \reg  , \reg2
     movw  \reg+2, \reg2+2
 .endm
+
+.macro  tst2  reg_start, reg_scratch=r0
+    mov   \reg_scratch, \reg_start+0
+    or    \reg_scratch, \reg_start+1
+    tst   \reg_scratch
+.endm
+
+.macro  tst4  reg_start, reg_scratch=__scratch0__
+    mov   \reg_scratch, \reg_start+0
+    or    \reg_scratch, \reg_start+1
+    or    \reg_scratch, \reg_start+2
+    or    \reg_scratch, \reg_start+3
+    tst   \reg_scratch
+.endm

@@ -9,10 +9,23 @@ To ensure high performance and seamless integration between HAL modules and user
   - **Contract**: Can be modified by any function (and are modified by `mul`). Do not expect them to persist across calls.
 - **(r2) `__zero_reg__`**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
   - **Contract**: Initialized to zero by the HAL startup. **Never** write to `r2`.
+- **(r3) `__full_reg__`**: Treated as a permanent 0xFF. Used for efficient programming and clearing interrupts (e.g., `and rd, r3`).
+  - **Contract**: Initialized to 0xFF by the HAL startup. **Never** write to `r3`.
+
+| Register | Usage | Contract |
+| :--- | :--- | :--- |
+| **`r2`** | `__zero_reg__` | **Permanent Zero.** Never write to `r2`. |
+| **`r3`** | `__full_reg__` | **Permanent 0xFF.** Never write to `r3`. |
+| **`r0, r1`** | Volatile | Scratch registers. Modified by `mul`. |
+| **`r16-r17`** | Caller-Saved | Local Scratch registers, scratch LDI |
+| **`X (r27:r26)`** | Callee-Saved | Primary for **Streaming** (strings, arrays). |
+| **`Y (r29:r28)`** | Callee-Saved | Primary for **Peripheral Base Addresses**. |
+| **`Z (r31:r30)`** | Callee-Saved | Primary for **Structures** and **Program Memory**. |
+| **`r4-r15, r18-r31`** | Callee-Saved | Strictly preserved via PUSH/POP. |
 
 ### Volatile vs. Callee-Saved
-- **Volatile (r18 - r25, r26, r27, r30, r31)**: These registers are typically used for arguments, return values, and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
-- **Callee-Saved (r3 - r17, r28, r29)**: Any function using these registers **must** preserve them (PUSH/POP).
+- **Volatile (r0, r1, r16 - r17)**: These registers are typically used for loading constant and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
+- **Callee-Saved (r4 - r15, r18, r31)**: Any function using these registers **must** preserve them (PUSH/POP).
 
 ### Pointer Registers
 AVR has three 16-bit pointer pairs:
@@ -21,7 +34,7 @@ AVR has three 16-bit pointer pairs:
 - **Z (r31:r30)**: Primary pointer for **Structures** (Ring Buffers, Double Buffers) and **Program Memory (LPM)**. Used to pass descriptors to buffer functions.
 
 ### Function Arguments & Return Values
-Arguments are passed in registers starting from `r25` down to `r22`.
+Arguments are passed in registers starting from `r22` up to `r25`.
 - **8-bit**: Use `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
@@ -65,7 +78,7 @@ Utilize hardware features to avoid Read-Modify-Write cycles:
 ## 4. Memory Sections & Data
 
 - **`.text.<name>`**: All functions should be in their own subsection for linker garbage collection.
-- **`.progmem.rodata`**: Use for strings and constant tables to save SRAM. Access via `Z` and `lpm` (or the `MAPPED_PROGMEM_START` offset on modern AVRs).
+- **`.progmem.rodata`**: Use for strings and constant tables to save SRAM. Access via the `MAPPED_PROGMEM_START` offset on modern AVRs.
 - **`.bss` / `.noinit`**: For uninitialized or persistent SRAM storage.
 - **`ASCIZ name, "text"`**: Preferred macro for defining strings; it automatically calculates a `name_len` constant.
 
