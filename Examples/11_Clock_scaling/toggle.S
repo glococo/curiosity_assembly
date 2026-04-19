@@ -15,6 +15,7 @@ FUNC print_and_toggle
 
     _DEBUG_LDS2( _(USART,_BAUDL), "Auto-configured Baudrate clock: ")
     _DEBUG_LDS2( HAL_ONE_MS, "Clocks/mS (HAL_ONE_MS): ")
+    _DEBUG_LDS2( HAL_CLK_MAIN_KHZ, "HAL_CLK_MAIN_KHZ: ")
 
   #ifdef CLKCTRL_MCLKTIMEBASE
     _DEBUG_LDS( CLKCTRL_MCLKTIMEBASE, "Clocks/μS: ")

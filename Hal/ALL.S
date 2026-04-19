@@ -42,7 +42,7 @@
 #include "HAL_SPI.S"              // SPI Master communication
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 
-#if defined ADC0_RESULT0
+#ifdef ADC0_RESULT0
   #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
 #elif defined( CLKCTRL_MCLKTIMEBASE )
   #include "HAL_ADC_v2_lite.S"    // Analog-to-Digital Converter (ADC) helper for ADC v2_lite

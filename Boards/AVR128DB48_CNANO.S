@@ -48,7 +48,8 @@ FUNC HAL_BOARD_SETUP
     ; (For lds access to .progmem.rodata text)
     sts     NVMCTRL_CTRLB, __zero_reg__
 
-    _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
+    ;_CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
+    _CLOCK_HARDCODED_INIT()
     _USART_CONFIG()
     _SPI_CONFIG()
     _TWI_CONFIG()

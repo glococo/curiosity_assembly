@@ -9,7 +9,28 @@ HAL_ONE_MS_DELAY:           .word 0       ; 16-bit One millisecond in cycles for
 HAL_CLK_MAIN_KHZ:           .long 0       ; 32-bit MAIN Clock Source
 HAL_CLK_MAIN_DIV:           .byte 0       ;  8-bit Current CPU clock divisor
 
-#define _CLOCK_AWARENESS_INIT(div)      HAL_CLK_AWARENESS_INIT div
+#define _CLOCK_AWARENESS_INIT(div)        HAL_CLK_AWARENESS_INIT div
+#define _CLOCK_HARDCODED_INIT()           HAL_CLK_HARDCODED_INIT
+
+.macro HAL_CLK_HARDCODED_INIT
+    sts     HAL_CLK_MAIN_DIV, __zero_reg__
+    ldi4    r22, BOARD_CLOCK_MAIN
+    sts4    HAL_CLK_MAIN_KHZ, r22
+    sts2    HAL_ONE_MS, r22
+    ldi2    r22, BOARD_CLOCK_MAIN/4
+    sts2    HAL_ONE_MS_DELAY, r22
+  #ifdef CLKCTRL_MCLKCTRLB
+    _WRITE_PROTECTED(CLKCTRL_MCLKCTRLB, __zero_reg__)
+  #endif
+  #ifdef CLKCTRL_MCLKTIMEBASE
+    ldi     r22, BOARD_CLOCK_MAIN/1000
+    sts     CLKCTRL_MCLKTIMEBASE, r22
+  #endif
+  #ifdef USART_CONFIGURED
+    ldi2    r22, (BOARD_CLOCK_MAIN * 64000) / (USART_BAUD_RATE * (16>>USART_DOUBLE_SPEED))
+    sts2    _(USART,_BAUDL), r22
+  #endif
+.endm
 
 .macro HAL_CLK_AWARENESS_INIT div=0
     ldi4    r22, BOARD_CLOCK_MAIN
