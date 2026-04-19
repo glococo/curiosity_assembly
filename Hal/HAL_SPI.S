@@ -3,8 +3,24 @@
 ;              Provides routines for initialization and basic SPI communication.
 ;
 
-#define _SPI_READ(  address, bytes)    _SPI_READ_ADDRESS16  address, bytes
-#define _SPI_WRITE( address, bytes)    _SPI_WRITE_ADDRESS16 address, bytes
+#define _SPI_READ(  address, bytes)     _SPI_READ_ADDRESS16  address, bytes
+#define _SPI_WRITE( address, bytes)     _SPI_WRITE_ADDRESS16 address, bytes
+#define _SPI_CONFIG()                   HAL_SPI_CONFIG
+
+.macro HAL_SPI_CONFIG
+  #ifdef SPI_CONFIGURED
+    ldi     r22, ( 1<<SPI_MOSI | 1<<SPI_SCK | 1<<SPI_SS ) ; MOSI, SCK, SS
+    out     _(_(V,SPI_PORT),_DIR), r22
+    _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
+   #ifdef SPI_ALT
+      _PORTMUX( SPI, SPI_ALT, PORTMUX_SPIROUTEA )
+   #endif
+   #ifdef SPI_IRQ_PORT
+    ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
+    sts     _PIN_CTRL(SPI_IRQ_PORT,SPI_IRQ_PIN), r22      ; SPI_IRQ_PORT PIN as SPI slave IRQ
+   #endif
+  #endif
+.endm
 
 ; Function: HAL_SPI_MASTER
 ; Description: Initializes SPI0 as Master (Mode 0, MSB first).

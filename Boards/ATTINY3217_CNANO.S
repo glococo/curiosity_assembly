@@ -26,45 +26,31 @@
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
 ; TWI Config (default)
-; #define TWI_CONFIGURED
+#define TWI_CONFIGURED
 ; SPI Config
-; #define SPI_CONFIGURED
+#define SPI_CONFIGURED
 #define SPI_PORT              PORTC
 #define SPI_MOSI              PIN2_bp
 #define SPI_MISO              PIN1_bp
 #define SPI_SCK               PIN0_bp
 #define SPI_SS                PIN3_bp
+#define SPI_IRQ_PIN           PIN6_bp
+#define SPI_IRQ_PORT          PORTB
 
 #include "../Hal/ALL.S"
 
 FUNC HAL_BOARD_SETUP
-    clr     __zero_reg__
-    ; HAL SPEED AWARENESS
-    ldi4    r22, BOARD_CLOCK_MAIN
-    sts4    HAL_CLK_MAIN_KHZ, r22
+    _ZERO_FULL_INIT()
+    _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
 
-    ldi     r22, 0
-    rcall   HAL_CLKCTRL_PRESCALER
-    rcall   HAL_USART_BAUDRATE_UPD
-
-    #ifdef SPI_CONFIGURED                                 /* SPI CONFIG */
-    ldi     r22, ( SPI_MOSI | SPI_SCK | SPI_SS )
-    out     _(_(V,SPI_PORT),_DIR), r22
-    _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
-    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; "PORTB PIN6" as IRQ
-    sts     PORTB_PIN6CTRL, r18
-    #endif
-
-    #ifdef USART_CONFIGURED                               /* USART CONFIG */
-    _PIN_DIR_SET( USART_PORT, USART_TX )                  ; Set USART_TX PIN as OUTPUT
-    ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
-    sts     _(USART,_CTRLB), r18                          ;
-    #endif
+    _USART_CONFIG()
+    _SPI_CONFIG()
+    _TWI_CONFIG()
 
     ; PIN LED CONFIG
     _PIN_DIR_SET( BOARD_LED_PORT, BOARD_LED_PIN )         ; Set PIN as OUTPUT
 
     ; PIN BUTTON CONFIG
-    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; Config BOARD_BUTTON/SW0 Pin
-    sts     _(BOARD_BUTTON_PORT, _PIN7CTRL), r18          ; Make sure with PINcntrl use
+    ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
+    sts     _PIN_CTRL( BOARD_BUTTON_PORT, BOARD_BUTTON_PIN ), r22  ; Config BOARD_BUTTON/SW0 Pin
 ENDF HAL_BOARD_SETUP

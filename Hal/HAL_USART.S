@@ -3,12 +3,22 @@
 ;              helper library for AVR-Dx/Ex families.
 ;
 
-#ifndef USART_BAUD_RATE
-  #define USART_BAUD_RATE   115200
-#endif
-#ifndef USART_DOUBLE_SPEED
-  #define USART_DOUBLE_SPEED  1
-#endif
+#define _USART_CONFIG()     HAL_USART_CONFIG
+
+.macro HAL_USART_CONFIG
+  #ifdef USART_CONFIGURED
+    _PIN_DIR_SET( USART_PORT, USART_TX )                  ; Set USART_TX PIN as OUTPUT
+    ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
+    sts     _(USART,_CTRLB), r18                          ;
+   #ifdef USART_ALT
+    #if USART == USART0 || USART == USART1 || USART == USART2 || USART == USART3
+      _PORTMUX( USART, USART_ALT, PORTMUX_USARTROUTEA )
+    #else
+      _PORTMUX( USART, USART_ALT, PORTMUX_USARTROUTEB )
+    #endif
+   #endif
+  #endif
+.endm
 
 ; Function: HAL_USART_BAUDRATE_UPD
 ; Description: Recomputes the USART BAUD register based on BOARD_CLOCK_MAIN,

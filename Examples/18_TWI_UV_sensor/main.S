@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------------------
-; File: Examples/18_I2C_UV_sensor/main.S
-; Description: Reads raw UV light data from VEML6075 sensor via I2C.
-;              - Initializes I2C and VEML6075.
+; File: Examples/18_TWI_UV_sensor/main.S
+; Description: Reads raw UV light data from VEML6075 sensor via TWI.
+;              - Initializes TWI and VEML6075.
 ;              - Periodically reads UVA, UVB, UVCOMP1 (Visible), and UVCOMP2 (IR).
 ;              - Prints raw counts to USART.
 ; -----------------------------------------------------------------------------
@@ -13,7 +13,7 @@ FUNC main
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ VEML6075 UV Sensor Example __\r\n")$ _STR_FLUSH()
 
-    rcall   HAL_I2C_INIT                            ; Initialize I2C
+    rcall   HAL_TWI_INIT                            ; Initialize TWI
 
     VEML6075_READ_REG    VEML6075_REG_ID
     brcc    read_ok

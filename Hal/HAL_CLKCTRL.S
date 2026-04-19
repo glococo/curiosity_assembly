@@ -9,6 +9,18 @@ HAL_ONE_MS_DELAY:           .word 0       ; 16-bit One millisecond in cycles for
 HAL_CLK_MAIN_KHZ:           .long 0       ; 32-bit MAIN Clock Source
 HAL_CLK_MAIN_DIV:           .byte 0       ;  8-bit Current CPU clock divisor
 
+#define _CLOCK_AWARENESS_INIT(div)      HAL_CLK_AWARENESS_INIT div
+
+.macro HAL_CLK_AWARENESS_INIT div=0
+    ldi4    r22, BOARD_CLOCK_MAIN
+    sts4    HAL_CLK_MAIN_KHZ, r22
+    ldi     r22, \div
+    rcall   HAL_CLKCTRL_PRESCALER
+#ifdef USART_CONFIGURED
+    rcall   HAL_USART_BAUDRATE_UPD
+#endif
+.endm
+
 ; Function: HAL_CLKCTRL_OSCHF_SET
 ; Description: Selects the main clock source.
 ; Inputs:  r22 - FREQ index (e.g., CLKCTRL_FRQSEL_24M_gc)

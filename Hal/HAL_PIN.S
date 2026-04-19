@@ -5,3 +5,5 @@
 
 #define _PIN_FLG(port,pin)       sbi _(_(V, port), _INTFLAGS), pin
 #define _PIN_TGL(port,pin)       sbi _(_(V, port), _IN), pin
+
+#define _PIN_CTRL(port,pin)    _(_(_(port,_PIN),pin),CTRL)

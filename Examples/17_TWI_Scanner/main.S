@@ -1,6 +1,6 @@
 ; -----------------------------------------------------------------------------
-; File: Examples/17_I2C_Scanner/main.S
-; Description: Scans the I2C bus for devices and prints their addresses.
+; File: Examples/17_TWI_Scanner/main.S
+; Description: Scans the TWI bus for devices and prints their addresses.
 ;
 ; Example Usage:
 ;   This is a standalone example. Compile and flash to a supported AVR board.
@@ -12,19 +12,19 @@ FUNC main
     _DELAY_MS(1000)                                     ; Wait for termux to reconnect everytime the board is plugged
 
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
-    _STR("__ I2C: Scans the I2C bus for devices\r\n")$ _STR_FLUSH()
+    _STR("__ TWI: Scans the TWI bus for devices\r\n")$ _STR_FLUSH()
 
-    rcall   HAL_I2C_INIT
+    rcall   HAL_TWI_INIT
     ldi     r20, 1                                      ; Start address
 
   scan_loop:
     mov     r22, r20
-    rcall   HAL_I2C_START_WRITE                         ; Try to address device
+    rcall   HAL_TWI_START_WRITE                         ; Try to address device
     brcs    not_found
     _DEBUG_REG(r20, "Found device at: ")$ _STR_FLUSH()  ; Device found!
 
   not_found:
-    rcall   HAL_I2C_STOP                ; Even on NACK, send STOP to go back to IDLE
+    rcall   HAL_TWI_STOP                ; Even on NACK, send STOP to go back to IDLE
 
   next_addr:
     inc     r20

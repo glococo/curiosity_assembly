@@ -44,6 +44,7 @@
 #define LENGTH(s)                         (s##_len)
 #define _WRITE_PROTECTED(reg,val)         HAL_WRITE_PROTECTED reg, val
 #define _ZERO_FULL_INIT()                 HAL_ZERO_FULL_INIT
+#define MSG_WITH_VALUE(msg, value)        msg " = " STRINGIFY(value)
 
 .macro HAL_ZERO_FULL_INIT
     clr     __zero_reg__

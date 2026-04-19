@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------------------
-; File: Examples/19_I2C_Temperature_sensor/main.S
-; Description: Reads temperature data from MCP9804 sensor via I2C.
-;              - Initializes I2C and read MCP9804 DEV ID.
+; File: Examples/19_TWI_Temperature_sensor/main.S
+; Description: Reads temperature data from MCP9804 sensor via TWI.
+;              - Initializes TWI and read MCP9804 DEV ID.
 ;              - Periodically reads Temperature register
 ;              - Prints raw to USART.
 ; -----------------------------------------------------------------------------
@@ -13,7 +13,7 @@ FUNC main
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ MCP9804 Temperature Sensor Example __\r\n")$ _STR_FLUSH()
 
-    rcall   HAL_I2C_INIT                            ; Initialize I2C
+    rcall   HAL_TWI_INIT                            ; Initialize TWI
 
     MCP9804_READ_REG    MCP9804_REG_ID
     brcc    read_ok

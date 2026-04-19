@@ -68,10 +68,11 @@ FUNC main
 
 ENDF main
 
+#if SPI_IRQ_PORT == BOARD_BUTTON_PORT
 ; -----------------------------------------------------------------------------
-; ISR: PORTF_vect (PIN0 -> LAN9252 Interrupt)
+; ISR: SPI_IRQ_PORT + BUTTON_PORT _vect (PIN -> LAN9252 Interrupt)
 ; -----------------------------------------------------------------------------
-ISR_START PORTF_PORT_vect, r22
+ISR_START _(SPI_PORT,_PORT_vect), r22
   PUSH_MANY r18, r19, r20, r21, r23, r24, r25
     in      r22, VPORTF_INTFLAGS
     _STR("INT_FLG: 0x")$ _STR_HEX(r18)$ _STRNR()$ _STR_FLUSH()
@@ -110,4 +111,5 @@ ISR_START PORTF_PORT_vect, r22
   exit:
     _PIN_TGL(BOARD_LED_PORT, BOARD_LED_PIN)           ; Toggle LED pin
   POP_MANY r25, r24, r23, r21, r20, r19, r18
-ISR_END PORTF_PORT_vect, r22
+ISR_END _(SPI_PORT,_PORT_vect), r22
+#endif

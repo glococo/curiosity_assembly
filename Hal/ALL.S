@@ -38,7 +38,7 @@
 #include "HAL_WDT.S"              // Watchdog Timer (WDT) helper
 #include "HAL_BOD.S"              // Brown-out Detector (BOD) helper
 #include "HAL_USART.S"            // USART Serial communication
-#include "HAL_I2C.S"              // I2C (TWI) Master communication
+#include "HAL_TWI.S"              // I2C (TWI) Master communication
 #include "HAL_SPI.S"              // SPI Master communication
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 

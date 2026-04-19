@@ -30,7 +30,7 @@ FUNC MCP9804_READ_TEMPERATURE
   PUSH_MANY r19, r20, r21
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_T_AMB
-    rcall   HAL_I2C_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
+    rcall   HAL_TWI_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
     brcs    .L_exit
 
     sts2    MCP9804_LAST, r22           ; Save raw register (LSB in r22, MSB in r23)
@@ -89,7 +89,7 @@ ENDF MCP9804_READ_TEMPERATURE
 .macro MCP9804_READ_REG reg
     ldi     r22, MCP9804_ADDR
     ldi     r23, \reg
-    rcall   HAL_I2C_READ_REGW_BE
+    rcall   HAL_TWI_READ_REGW_BE
 .endm
 
 ; -----------------------------------------------------------------------------
@@ -101,11 +101,11 @@ FUNC MCP9804_ENABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
-    rcall   HAL_I2C_READ_REGW_BE
+    rcall   HAL_TWI_READ_REGW_BE
     brcs    1f
 
     andi2   r24, ~MCP9804_CONF_SLEEP_bm
-    rcall   HAL_I2C_WRITE_REGW_BE
+    rcall   HAL_TWI_WRITE_REGW_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_ENABLE
@@ -119,11 +119,11 @@ FUNC MCP9804_DISABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
-    rcall   HAL_I2C_READ_REGW_BE
+    rcall   HAL_TWI_READ_REGW_BE
     brcs    1f
 
     ori2    r24, MCP9804_CONF_SLEEP_bm
-    rcall   HAL_I2C_WRITE_REGW_BE
+    rcall   HAL_TWI_WRITE_REGW_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_DISABLE
