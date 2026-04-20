@@ -35,7 +35,7 @@ avr-objcopy -O ihex main.elf main.hex || exit 1
 
 if [ $DEBUG == true ]; then
     # Disassemble HEX file for inspection
-    avr-objdump -s -m avr6 -D main.hex
+    avr-objdump -d -m avr6 main.elf
 fi
 
 # Flash to device using avrdude
