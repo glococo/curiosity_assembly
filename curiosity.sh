@@ -1,10 +1,20 @@
 #!/bin/bash
-DEBUG=true
+DEBUG=false
+
+# Parse command-line options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -debug) DEBUG=true ;;
+        -*) echo "Unknown option: $1"; exit 1 ;;
+        *) break ;;
+    esac
+    shift
+done
 
 # Check if BOARD and PROGRAM are provided as command-line arguments
 if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "Usage: $0 <BOARD_NAME> <PROGRAM_FILE>"
-    echo "Example: $0 AVR16EB32_CNANO Examples/Hello_world/main.S"
+    echo "Usage: $0 [-debug] <BOARD_NAME> <PROGRAM_FILE>"
+    echo "Example: $0 AVR16EB32_CNANO Examples/02_Hello_world/main.S"
     exit 1
 fi
 

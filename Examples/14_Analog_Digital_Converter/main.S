@@ -17,13 +17,12 @@ FUNC main
   _STR("__ ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
 
   ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-#if defined( ADC_REFSEL_VDD_gc )
-  _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_VDD_gc)
-#elif defined( ADC_REFSEL_VDDREF_gc )
-  _ADC_ENABLE(ADC_PRESC_DIV16_gc, ADC_REFSEL_VDDREF_gc)
-#else
-  _ADC_ENABLE(ADC_PRESC_DIV16_gc, VREF_REFSEL_VDD_gc)
-#endif
+  #ifdef ADC_REFSEL_VDDREF_gc
+    _ADC_ENABLE( ADC_PRESC_DIV16_gc, ADC_REFSEL_VDDREF_gc )
+  #else
+    _VREF_ADC0_CONFIG( VREF_REFSEL_VDD_gc )
+    _ADC_ENABLE()
+  #endif
 
   loop:
     _ADC_READ(ADC_MUXPOS_AIN0_gc)                 ; Do one time instant ADC Read

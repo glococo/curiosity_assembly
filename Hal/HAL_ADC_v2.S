@@ -1,27 +1,12 @@
 ; File: Hal/HAL_ADC_v2.S
 ; Description: Analog-to-Digital Converter (ADC) helper library for modern AVR (Ex).
 ;              Provides routines for initializing, reading, and configuring ADC.
-
 .section .progmem.rodata
 ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
 
-#define _ADC_ENABLE(pre, vref, ...)   HAL_ADC_ENABLE pre, vref, ##__VA_ARGS__
-#define _ADC_READ(ain)                HAL_ADC_READ ain
-#define _ADC_BURST(ain, num)          HAL_ADC_BURST ain, num
-
-; Macro: .macro HAL_ADC_ENABLE
-; Description: Inline macro for EA/EB series to configure ADC reference voltage, prescaler and ENABLE
-; Inputs:  prescaler  - Prescaler, ex: ADC_PRESC_DIV16_gc
-;          vreference - Voltage reference, ex: ADC_REFSEL_VDD_gc
-;          sampdur    - Sample duration in us, ex: 4
-; Outputs: None
-.macro HAL_ADC_ENABLE prescaler, vreference, sampdur=4
-    ldi     r22, ADC_ENABLE_bm
-    ldi     r23, \prescaler
-    ldi     r24, \vreference
-    ldi     r25, \sampdur
-    rcall   HAL_ADC_SETUP
-.endm
+#define _ADC_ENABLE( ... )              HAL_ADC_ENABLE __VA_ARGS__
+#define _ADC_READ( ain )                HAL_ADC_READ ain
+#define _ADC_BURST( ain, num )          HAL_ADC_BURST ain, num
 
 .macro HAL_ADC_READ ain
     ldi     r22, \ain
@@ -36,13 +21,19 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
     rcall   HAL_ADC_READ_POLLING
 .endm
 
+.macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0, sampdur=10
+    ldi     r25, \sampdur
+    ldi     r24, \vref
+    ldi     r23, \prescaler
+    ldi     r22, ADC_ENABLE_bm
+    sts     ADC0_CTRLF, __zero_reg__    ; CTRLF Sampnum reset
+.endm
 ; Function: HAL_ADC_SETUP (EA/EB series)
 ; Description: Initializes the ADC and calculate SAMPDUR.
 ; Inputs:  r22 - CTRLA (Enable)
 ;          r23 - CTRLB (Prescaler)
 ;          r24 - CTRLC (V_reference)
 ;          r25 - CTRLE (Sample duration in us)
-; Outputs: None
 FUNC HAL_ADC_SETUP
   PUSH_MANY r18, XL, XH
     sts     ADC0_CTRLC, r24     ; CTRLC (V_reference)

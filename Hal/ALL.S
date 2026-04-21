@@ -41,17 +41,14 @@
 #include "HAL_TWI.S"              // I2C (TWI) Master communication
 #include "HAL_SPI.S"              // SPI Master communication
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
+#include "HAL_VREF.S"             // VREF helper
+#include "HAL_DAC.S"              // Digital-to-Analog Converter (DAC) helper
+#include "HAL_ERRCTRL.S"          // Error controller on SD Devices
 
-#ifdef ADC0_RESULT0
+
+#ifdef MCLKTIMEBASE
   #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
-#elif defined( CLKCTRL_MCLKTIMEBASE )
-  #include "HAL_ADC_v2_lite.S"    // Analog-to-Digital Converter (ADC) helper for ADC v2_lite
-#elif defined( VREF_ADC0REF )
-  #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
 #else
-  .warning "ADC library not found"
+  #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
 #endif
 
-#ifdef IS_FAMILY_SD
-  #include "HAL_ERRCTRL.S"        // Error controller on SD Devices
-#endif

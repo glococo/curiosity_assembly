@@ -9,7 +9,7 @@
 
 FUNC main
   rcall   HAL_BOARD_SETUP                         ; Basic board initialization
-  _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+  _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)          ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ ADC: Burst reading of Int temperature sensor\r\n")$ _STR_FLUSH()
 

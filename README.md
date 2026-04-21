@@ -93,7 +93,7 @@ sudo apt install gcc-avr avrdude avr-libc
 Use the `curiosity.sh` automation script. It handles MCU detection, compilation, and UPDI flashing via Curiosity Nano boards.
 
 ```bash
-./curiosity.sh <BOARD_NAME> <PROGRAM_FILE>
+./curiosity.sh [-debug] <BOARD_NAME> <PROGRAM_FILE>
 ```
 
 **Example:**

@@ -1,4 +1,6 @@
 ; ERROR CONTROLLER on SD FAMILY
+#ifdef IS_FAMILY_SD
+
 #define _ERRCTRL_INIT()               HAL_ERRCTRL_INIT
 #define _ERRCTRL_NORMAL()             HAL_ERRCTRL_NORMAL
 #define _ERRCTRL_RESET_ESF()          HAL_ERRCTRL_RESET_ESF
@@ -55,3 +57,5 @@ HAL_ERR_ESF:           .long 0       ; 32-bit PREVIOUS ERROR ESF
     _WRITE_PROTECTED(ERRCTRL_CTRLA, r24)            ; End configuration
   POP_MANY r27, r26, r25, r24
 .endm
+
+#endif
