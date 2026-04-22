@@ -4,9 +4,14 @@
 .section .progmem.rodata
 ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
 
-#define _ADC_ENABLE( ... )              HAL_ADC_ENABLE __VA_ARGS__
-#define _ADC_READ( ain )                HAL_ADC_READ ain
-#define _ADC_BURST( ain, num )          HAL_ADC_BURST ain, num
+#define _ADC_ENABLE_VDD()             HAL_ADC_ENABLE_VDD
+#define _ADC_ENABLE( ... )            HAL_ADC_ENABLE __VA_ARGS__
+#define _ADC_READ( ain )              HAL_ADC_READ ain
+#define _ADC_BURST( ain, num )        HAL_ADC_BURST ain, num
+
+.macro HAL_ADC_ENABLE_VDD
+  _ADC_ENABLE( ADC_PRESC_DIV16_gc )
+.endm
 
 .macro HAL_ADC_READ ain
     ldi     r22, \ain
@@ -21,12 +26,13 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
     rcall   HAL_ADC_READ_POLLING
 .endm
 
-.macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0, sampdur=10
+.macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0, sampdur=5
     ldi     r25, \sampdur
     ldi     r24, \vref
     ldi     r23, \prescaler
     ldi     r22, ADC_ENABLE_bm
     sts     ADC0_CTRLF, __zero_reg__    ; CTRLF Sampnum reset
+    rcall   HAL_ADC_SETUP
 .endm
 ; Function: HAL_ADC_SETUP (EA/EB series)
 ; Description: Initializes the ADC and calculate SAMPDUR.
@@ -40,9 +46,10 @@ FUNC HAL_ADC_SETUP
     sts     ADC0_CTRLB, r23     ; CTRLB (Prescaler)
     sts     ADC0_CTRLA, r22     ; CTRLA (Enable)
 
+    ; WRONG FUNCTION ___________________________ WIP _____________
     ; SAMPDUR = SampleTime_us * fCLK_ADC
     ; fCLK_ADC = fCLK_MAIN / Prescaler
-    ; fCLK_MAIN = MCLKTIMEBASE (MHz)
+    ; fCLK_MAIN = MCLKTIMEBASE
     ; SAMPDUR = (SampleTime_us * MCLKTIMEBASE) / Prescaler
 
     lds     r22, CLKCTRL_MCLKTIMEBASE
@@ -58,12 +65,13 @@ FUNC HAL_ADC_SETUP
     rcall   MATH_UDIV_08        ; r22 = (SampleTime_us * MCLKTIMEBASE) / Prescaler
     inc     r22                 ; Rounding +1
     sts     ADC0_CTRLE, r22
+    ; _DEBUG_REG(r22,"DADC0_CTRLE: ")$ _STR_FLUSH()
+    ; END WRONG FUNCTION ___________________________ WIP _____________
+
   0:
-#ifdef ADC0_STATUS
     lds     r22, ADC0_STATUS
     sbrc    r22, ADC_ADCBUSY_bp                 ; Wait for ADCBUSY (bit 0)
     rjmp    0b
-#endif
   POP_MANY XH, XL, r18
 ENDF HAL_ADC_SETUP
 

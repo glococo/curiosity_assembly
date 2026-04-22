@@ -2,12 +2,19 @@
 ; Description: Analog-to-Digital Converter (ADC) helper library for modern AVR.
 ;              Provides routines for initializing, reading, and configuring ADC.
 
-.section .progmem.rodata
-ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
-
 #define _ADC_ENABLE( ... )            HAL_ADC_ENABLE __VA_ARGS__
+#define _ADC_ENABLE_VDD()             HAL_ADC_ENABLE_VDD
 #define _ADC_READ( ain )              HAL_ADC_READ ain
 #define _ADC_BURST( ain, num )        HAL_ADC_BURST ain, num
+
+.macro HAL_ADC_ENABLE_VDD
+  #ifdef ADC_REFSEL_VDDREF_gc
+    _ADC_ENABLE( ADC_PRESC_DIV16_gc, ADC_REFSEL_VDDREF_gc )
+  #else
+    _VREF_ADC0_CONFIG( VREF_REFSEL_VDD_gc )
+    _ADC_ENABLE()
+  #endif
+.endm
 
 .macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0
   #ifdef ADC_REFSEL_VDDREF_gc

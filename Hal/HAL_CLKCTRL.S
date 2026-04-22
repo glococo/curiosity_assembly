@@ -120,12 +120,12 @@ FUNC HAL_CLKCTRL_PRESCALER
     brcs    _update_one_us_done
     inc     r22
   _update_one_us_done:
-#ifdef IS_FAMILY_SD
+#ifdef CLKCTRL_MCLKTIMEBASE
     andi    r22, 0x1F                   ; MCLKTIMEBASE is 5-bit (0-31)
+  #ifdef IS_FAMILY_SD
     ldi     r18, 0xD8
     out     CPU_CCP, r18
-    sts     CLKCTRL_MCLKTIMEBASE, r22
-#elif defined(CLKCTRL_MCLKTIMEBASE)
+  #endif
     sts     CLKCTRL_MCLKTIMEBASE, r22
 #endif
   POP_MANY r25, r24, r23, r19, r18

@@ -42,8 +42,8 @@
 
 FUNC HAL_BOARD_SETUP
     _ZERO_FULL_INIT()
-;   _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
-    _CLOCK_HARDCODED_INIT()
+    _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
+;    _CLOCK_HARDCODED_INIT()
 
     _USART_CONFIG()
     _SPI_CONFIG()

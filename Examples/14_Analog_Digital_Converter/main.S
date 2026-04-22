@@ -1,12 +1,12 @@
 ; -----------------------------------------------------------------------------
 ; File: Examples/14_Analog_Digital_Converter/main.S
-; Description: Analog-to-Digital Converter (ADC) example for EA/EB Series
-;              - Reads an analog value from AIN0.
+; Description: Analog-to-Digital Converter (ADC) example for Dx/Ex/SD/Attiny1-2 Series
+;              - Reads an analog value from AIN1.
 ;              - Toggles LED based on the reading.
 ;
 ; Example Usage:
 ;   This is a standalone example. Compile and flash to a supported AVR board.
-;   Apply a variable voltage (0 to VDD) to the AIN0 pin (e.g., PD0 on EB32).
+;   Apply a variable voltage (0 to VDD) to the AIN1 pin (e.g., PA1 on Attiny3217).
 ;   The LED will blink faster as the voltage increases.
 ; -----------------------------------------------------------------------------
 
@@ -14,19 +14,16 @@ FUNC main
   rcall   HAL_BOARD_SETUP                         ; Basic board initialization
   _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)       ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
-  _STR("__ ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
+  _STR("__ ADC: Reads an analog value from AIN1\r\n")$ _STR_FLUSH()
 
   ; Ref: VDD, Prescaler: /16 (1250kHz ADC clock at 20MHz CPU)
-  #ifdef ADC_REFSEL_VDDREF_gc
-    _ADC_ENABLE( ADC_PRESC_DIV16_gc, ADC_REFSEL_VDDREF_gc )
-  #else
-    _VREF_ADC0_CONFIG( VREF_REFSEL_VDD_gc )
-    _ADC_ENABLE()
-  #endif
+  _ADC_ENABLE_VDD()
 
   loop:
-    _ADC_READ(ADC_MUXPOS_AIN0_gc)                 ; Do one time instant ADC Read
 
+    ; Do one time instant ADC0 Read. Depending on the ADC max resolution,
+    ;  range will vary between 10 or 12-bits (1023-0 or 4095-0)
+    _ADC_READ(ADC_MUXPOS_AIN1_gc)
     _STR("ADC result: ")$ _STR_U16()$ _STRNR()$ _STR_FLUSH()
 
     ; If result > 2048 (approx VDD/2), blink fast

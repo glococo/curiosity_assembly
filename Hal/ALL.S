@@ -46,7 +46,7 @@
 #include "HAL_ERRCTRL.S"          // Error controller on SD Devices
 
 
-#ifdef MCLKTIMEBASE
+#ifdef CLKCTRL_MCLKTIMEBASE
   #include "HAL_ADC_v2.S"         // Analog-to-Digital Converter (ADC) helper for ADC v2
 #else
   #include "HAL_ADC_v1.S"         // Analog-to-Digital Converter (ADC) helper for ADC v1
