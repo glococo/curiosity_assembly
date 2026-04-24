@@ -1,6 +1,13 @@
 ; Helper macros to split 64-bit value
 #define lo32(x) ((x) & 0xFFFFFFFF)          ; Bits  0-31
 #define hi32(x) (((x) >> 32) & 0xFFFFFFFF)  ; Bits 32-63
+#define Q7(i, f)   (((i) * 128) + (((f) * 128) / 1000))
+#define Q15(i, f)  (((i) * 32768) + (((f) * 32768) / 1000))
+#define LOG2(x) (((x) >> 1) != 0) + (((x) >> 2) != 0) + (((x) >> 3) != 0) + (((x) >> 4) != 0) + \
+                 (((x) >> 5) != 0) + (((x) >> 6) != 0) + (((x) >> 7) != 0) + (((x) >> 8) != 0) + \
+                 (((x) >> 9) != 0) + (((x) >> 10) != 0) + (((x) >> 11) != 0) + (((x) >> 12) != 0) + \
+                 (((x) >> 13) != 0) + (((x) >> 14) != 0) + (((x) >> 15) != 0)
+
 
 ; Function: add2s
 ; Description: Saturated 16-bit add.

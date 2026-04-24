@@ -20,7 +20,6 @@ FUNC main
   _ADC_ENABLE_VDD()
 
   loop:
-
     ; Do one time instant ADC0 Read. Depending on the ADC max resolution,
     ;  range will vary between 10 or 12-bits (1023-0 or 4095-0)
     _ADC_READ(ADC_MUXPOS_AIN1_gc)
