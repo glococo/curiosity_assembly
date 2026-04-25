@@ -25,7 +25,7 @@
     clr2    r24
     ldi2    r22, \a                           ; Load A
     ldi2    r18, \b                           ; Load B
-    call   \i                                ; Software multiply 16x16 -> 32-bit
+    call    \i                                ; Software multiply 16x16 -> 32-bit
     _STR("  \i 16x16: \a * \b = ")$ \ptype
     cpi4    r22, \c
     brne    0f
@@ -43,7 +43,7 @@
     ldi4    r22, \a                           ; Load A
     ldi2    r20, \b                           ; Load B
     ldi2    r18, \c                           ; Load C
-    call   \i                                ; Software multiply and accumulate 16x16
+    call    \i                                ; Software multiply and accumulate 16x16
     _STR("  \i 16x16: \a + (\b * \c) = ")$ \ptype
     cpi4    r22, \d
     brne    0f
@@ -59,7 +59,7 @@
 .macro _ASSERT32 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
-    call   \i                                ; Software multiply 32x32 -> 32-bit
+    call    \i                                ; Software multiply 32x32 -> 32-bit
     _STR("  \i 32x32: \a * \b = ")$ \ptype
     cpi4    r22, \c
     brne    0f
@@ -76,7 +76,7 @@
     ldi4    r18, \b                           ; Load B
     mov4    r14, r18
     ldi4    r18, \a                           ; Load A
-    call   \i                                ; Software multiply 32x32 -> 32-bit
+    call    \i                                ; Software multiply 32x32 -> 32-bit
     _STR("  \i 32x32: \c + (\a * \b) = ")$ \ptype
     cpi4    r22, \d
     brne    0f
@@ -94,7 +94,7 @@
 .macro _ASSERT3264 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
-    call   \i                                ; Software multiply 32x32 -> 64-bit
+    call    \i                                ; Software multiply 32x32 -> 64-bit
     _STR("  \i 32x32: \a * \b = ")$ \ptype
     cpi8    r18, \c
     brne    0f
@@ -113,7 +113,7 @@
     ldi8    r18, \b                           ; Load B
     mov8    r10, r18
     ldi8    r18, \a                           ; Load A
-    call   \i                                ; Software multiply 64x64 -> 64-bit
+    call    \i                                ; Software multiply 64x64 -> 64-bit
     _STR("  \i 64x64: \a * \b = ")$ \ptype
     cpi8    r18, \c
     brne    0f
@@ -130,9 +130,43 @@
 .macro _ASSERTD8 i, a, b, c, ptype
     ldi     r22, \a                           ; Load A Dividend
     ldi     r18, \b                           ; Load B divisor
-    call   \i                                ; Software divide 8/8 -> 8-bit
+    call    \i                                ; Software divide 8/8 -> 8-bit
     _STR("  \i 8/8: \a / \b = ")$ \ptype
     cpi     r22, \c
+    brne    0f
+    _STR(" _OK\r\n")
+    jmp   1f
+  0:
+    _STR(" _WRONG!\r\n")
+  1:
+  _STR_FLUSH()
+.endm
+
+#define _ASSERT_D16U(a, b, c)     _ASSERTD16 MATH_UDIV_16, a, b, c, _STR_U16()
+#define _ASSERT_D16S(a, b, c)     _ASSERTD16 MATH_SDIV_16, a, b, c, _STR_S16()
+.macro _ASSERTD16 i, a, b, c, ptype
+    ldi2    r22, \a                           ; Load A Dividend
+    ldi2    r18, \b                           ; Load B divisor
+    call    \i                                ; Software divide 16/16 -> 16-bit
+    _STR("  \i 16/16: \a / \b = ")$ \ptype
+    cpi2    r22, \c
+    brne    0f
+    _STR(" _OK\r\n")
+    jmp   1f
+  0:
+    _STR(" _WRONG!\r\n")
+  1:
+  _STR_FLUSH()
+.endm
+
+#define _ASSERT_D32U(a, b, c)     _ASSERTD32 MATH_UDIV_32, a, b, c, _STR_U32()
+#define _ASSERT_D32S(a, b, c)     _ASSERTD32 MATH_SDIV_32, a, b, c, _STR_S32()
+.macro _ASSERTD32 i, a, b, c, ptype
+    ldi4    r22, \a                           ; Load A Dividend
+    ldi4    r18, \b                           ; Load B divisor
+    call    \i                                ; Software divide 32/32 -> 32-bit
+    _STR("  \i 32/32: \a / \b = ")$ \ptype
+    cpi4    r22, \c
     brne    0f
     _STR(" _OK\r\n")
     jmp   1f

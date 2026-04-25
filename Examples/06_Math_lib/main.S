@@ -73,8 +73,14 @@ FUNC main
     _STR("\r\nTesting div 8-bit Operation:\r\n")$ _STR_FLUSH()
     _ASSERT_D8U( 246, 51,  246/51)
     _ASSERT_D8S(-116, 51, -116/51)
-;    _ASSERTd8s(-102,   89, -102*89 )
-;    _ASSERTd8x(-102,  189, -102*189)
+
+    _STR("\r\nTesting div 16-bit Operation:\r\n")$ _STR_FLUSH()
+    _ASSERT_D16U( 63246, 292, 63246/292)
+    _ASSERT_D16S(-31216, 292,-31216/292)
+
+    _STR("\r\nTesting div 32-bit Operation:\r\n")$ _STR_FLUSH()
+    _ASSERT_D32U( 1234567890, 54321, 1234567890/54321)
+    _ASSERT_D32S(-1234567890, 54321,-1234567890/54321)
 
   loop:
     jmp    loop                              ; End of tests
