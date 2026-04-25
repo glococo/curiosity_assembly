@@ -205,6 +205,29 @@
     cpc   \reg_a+3, r16
   POP r16
 .endm
+; Function: cpi8
+; Description: Compare (64-bit).
+; Inputs:   Ra, immediate value - 64-bit value
+; Output:   SREG
+.macro cpi8 reg_a, value
+  PUSH r16
+    cpi   \reg_a,   lo8( \value )
+    ldi   r16,      hi8( \value )
+    cpc   \reg_a+1, r16
+    ldi   r16,      hlo8( \value )
+    cpc   \reg_a+2, r16
+    ldi   r16,      hhi8( \value )
+    cpc   \reg_a+3, r16
+    ldi   r16,      lo8( (\value) >> 32 )
+    cpc   \reg_a+4, r16
+    ldi   r16,      hi8( (\value) >> 32 )
+    cpc   \reg_a+5, r16
+    ldi   r16,      hlo8( (\value) >> 32 )
+    cpc   \reg_a+6, r16
+    ldi   r16,      hhi8( (\value) >> 32 )
+    cpc   \reg_a+7, r16
+  POP r16
+.endm
 
 ; Function: andi2
 ; Description: AND immediate (16-bit).
@@ -234,6 +257,18 @@
     movw  \reg+2, \reg2+2
 .endm
 
+; Function: mov8
+; Description: MOV 8 contiguous registers (64-bits)
+; Inputs:   reg  - initial register
+;           reg2 - destination register
+; Output:   SREG
+.macro mov8 reg, reg2
+    movw  \reg  , \reg2
+    movw  \reg+2, \reg2+2
+    movw  \reg+4, \reg2+4
+    movw  \reg+6, \reg2+6
+.endm
+
 .macro  tst2  reg_start, reg_scratch=r0
     mov   \reg_scratch, \reg_start+0
     or    \reg_scratch, \reg_start+1
@@ -246,4 +281,25 @@
     or    \reg_scratch, \reg_start+2
     or    \reg_scratch, \reg_start+3
     tst   \reg_scratch
+.endm
+
+.macro  clr2  reg_start
+    clr   \reg_start
+    clr   \reg_start+1
+.endm
+.macro  clr4  reg_start
+    clr   \reg_start
+    clr   \reg_start+1
+    clr   \reg_start+2
+    clr   \reg_start+3
+.endm
+.macro  clr8  reg_start
+    clr   \reg_start
+    clr   \reg_start+1
+    clr   \reg_start+2
+    clr   \reg_start+3
+    clr   \reg_start+4
+    clr   \reg_start+5
+    clr   \reg_start+6
+    clr   \reg_start+7
 .endm

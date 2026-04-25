@@ -106,22 +106,6 @@
   .endr
 .endm
 
-.macro CLR_BLOCK start, count
-    .set _i, 0
-    .rept \count
-        clr \start + _i
-        .set _i, _i + 1
-    .endr
-.endm
-
-.macro MOV_BLOCK dest, src, count
-    .set _i, 0
-    .rept \count
-        movw \dest + 2*_i, \src + 2*_i
-        .set _i, _i + 1
-    .endr
-.endm
-
 .macro HAL_WRITE_PROTECTED memory, register
     ldi     r18, 0xD8                   ; CCP unlock key
     out     CPU_CCP, r18

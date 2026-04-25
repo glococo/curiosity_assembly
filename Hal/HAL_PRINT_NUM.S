@@ -31,7 +31,7 @@
     PUSH_MANY  \reg, \reg+1
     movw     r22, \reg
   .endif
-      CLR_MANY  r24, r25
+      clr2      r24
       ldi       r16, \pad
       rcall     HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
@@ -42,13 +42,13 @@
 .macro PRINT_REG_U32 reg=r22, pad=0
   PUSH r16
   .ifnc \reg, r22
-     PUSH  \reg
-     mov4     r22, \reg
+    PUSH_MANY  \reg, \reg+1, \reg+2, \reg+3
+    mov4     r22, \reg
   .endif
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
-     POP  \reg
+    POP_MANY  \reg+3, \reg+2, \reg+1, \reg
   .endif
   POP r16
 .endm
@@ -63,9 +63,8 @@
   POP r16
 .endm
 .macro PRINT_REG_S8 reg=r22, pad=0
-  PUSH_MANY r16, r23, r24, r25
+  PUSH_MANY r16, r22, r23, r24, r25
   .ifnc \reg, r22
-     PUSH  \reg
      mov      r22, \reg
   .endif
     mov       r25, r22
@@ -75,15 +74,11 @@
     mov       r23, r25
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT32
-  .ifnc \reg, r22
-     POP  \reg
-  .endif
-  POP_MANY r25, r24, r23, r16
+  POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S16 reg=r22, pad=0
-  PUSH_MANY r16, r24, r25
+  PUSH_MANY r16, r22, r23, r24, r25
   .ifnc \reg, r22
-     PUSH  \reg
      movw     r22, \reg
   .endif
     mov       r25, r23
@@ -92,33 +87,26 @@
     mov       r24, r25
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT32
-  .ifnc \reg, r22
-     POP  \reg
-  .endif
-  POP_MANY r25, r24, r16
+  POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S32 reg=r22, pad=0
-  PUSH r16
+  PUSH_MANY r16, r22, r23, r24, r25
   .ifnc \reg, r22
-     PUSH  \reg
-     mov4     r22, \reg
+    mov4     r22, \reg
   .endif
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT32
-  .ifnc \reg, r22
-     POP  \reg
-  .endif
-  POP r16
+  POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S64 reg=r18, pad=0
-  PUSH r16
+  PUSH_MANY r16, r18, r19, r20, r21, r22, r23, r24, r25
   .ifnc \reg, r18
     .error "PRINT_REG_U64: wrong reg, must be r18"
         .exitm
   .endif
     ldi       r16, \pad
     rcall     HAL_PRINT_STR_REG_PAD_INT64
-  POP r16
+  POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r16
 .endm
 
 ; Function: HAL_PRINT_STR_REG_PAD_UINT32

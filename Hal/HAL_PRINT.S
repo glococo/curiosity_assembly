@@ -55,7 +55,7 @@
 .macro PRINT_STR_X ascii_str
   PUSH_MANY XL, XH
     ldi2    XL, MAPPED_PROGMEM_START + \ascii_str
-    rcall   HAL_PRINT_STR               ; Call string print function
+    call    HAL_PRINT_STR               ; Call string print function
   POP_MANY XH, XL
 .endm
 
