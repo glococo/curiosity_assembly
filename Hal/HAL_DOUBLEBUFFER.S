@@ -29,7 +29,7 @@
     ldi     r21, \size-1
     ldi2    r22, \name\()_A
     ldi2    r24, \name\()_B
-    rcall   HAL_DOUBLEBUFFER_INIT
+    call   HAL_DOUBLEBUFFER_INIT
   POP_MANY r25, r24, r23, r22, r21
 .endm
 
@@ -69,11 +69,11 @@ FUNC HAL_DOUBLEBUFFER_PUSH
     cp      r26, r27                    ; Compare counter with limit
     breq    .L_flip
     std     Z+7, r27                    ; Store back
-    rjmp    0f
+    jmp    0f
   .L_flip:
     std     Z+7, __zero_reg__           ; Bytes Written Active = 0
     std     Z+8, r26                    ; Set Bytes Ready in Spare
-    rcall   HAL_DOUBLEBUFFER_FLIP       ; Buffer full: Perform the Flip
+    call   HAL_DOUBLEBUFFER_FLIP       ; Buffer full: Perform the Flip
     sec
   0:
   POP_MANY XH, XL, r23
@@ -111,7 +111,7 @@ FUNC HAL_DOUBLEBUFFER_PULL
     brne    1f                          ; If 0, exit
   0:
     sec                                 ; "Set" Carry = Empty
-    rjmp   2f
+    jmp   2f
   1:
   PUSH_MANY r23, XL, XH
     ldd     XL, Z+4                     ; Load Spare Base Address

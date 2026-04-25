@@ -31,14 +31,14 @@
 .macro HAL_ADC_READ ain=0
     ldi     r22, \ain
     ldi     r23, ADC_STCONV_bm
-    rcall   HAL_ADC_READ_POLLING
+    call   HAL_ADC_READ_POLLING
 .endm
 .macro HAL_ADC_BURST ain, sampnum
     ldi     r22, \sampnum
     sts     ADC0_CTRLB, r22
     ldi     r22, \ain
     ldi     r23, ADC_STCONV_bm
-    rcall   HAL_ADC_READ_POLLING
+    call   HAL_ADC_READ_POLLING
 .endm
 
 ; Function: HAL_ADC_READ_POLLING
@@ -52,7 +52,7 @@ FUNC HAL_ADC_READ_POLLING
   0:
     lds     r22, ADC0_INTFLAGS
     sbrs    r22, ADC_RESRDY_bp                  ; Wait for SAMPCIF/RESRDY (bit 0)
-    rjmp    0b
+    jmp    0b
     sts     ADC0_INTFLAGS, r22                  ; Clear flag
     lds2    r22, ADC0_RES                       ; Read Result
 ENDF HAL_ADC_READ_POLLING
@@ -69,7 +69,7 @@ FUNC HAL_ADC_GET_TEMPERATURE
     sbc     r23, r25                                ; r19:r18 = Offset - ADC_RES (signed 16-bit)
 
     ; 3. (Offset - ADC_RES) * Slope
-    rcall   MATH_MUL_16_32                          ; r25:r22 = (Offset - ADC_RES) * Slope (signed 32-bit)
+    call   MATH_MUL_16_32                          ; r25:r22 = (Offset - ADC_RES) * Slope (signed 32-bit)
 
     ; 4. Rounding: Add 2048 (4096/2) before dividing by 4096
     ldi4    r18, 2048
@@ -77,7 +77,7 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
     ; 5. Divide by 4096 (Shift Right 12)
     ldi     r18, 12
-    rcall   MATH_ASR_32                             ; r25:r22 /= 4096
+    call   MATH_ASR_32                             ; r25:r22 /= 4096
 
     ; 6. Convert Kelvin to Celsius (K - 273)
     subi    r22, lo8(273)

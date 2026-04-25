@@ -15,7 +15,7 @@
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
-  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+  call   HAL_BOARD_SETUP                         ; Basic board initialization
 
   loop:
     _DELAY_MS(500)                                ; Wait half a second
@@ -26,6 +26,6 @@ FUNC main
     ; old way   sts   _(BOARD_LED_PORT,_OUTTGL), r22
     ; or plain  sts   PORTF_OUTTGL, r22
 
-    rjmp    loop                              ; Repeat indefinitely
+    jmp    loop                              ; Repeat indefinitely
 
 ENDF main

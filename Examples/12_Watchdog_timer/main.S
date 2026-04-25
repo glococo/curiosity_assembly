@@ -20,7 +20,7 @@
 ;              - Stops resetting WDT and enters a busy loop to trigger reset.
 ; -----------------------------------------------------------------------------
 FUNC main
-  rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+  call   HAL_BOARD_SETUP                     ; Basic board initialization
   _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)   ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ WDT: Toggles LED and resets WDT in a loop for a second\r\n")$ _STR_FLUSH()
@@ -49,6 +49,6 @@ FUNC main
   ; The WDT will trigger a reset after 250 milliseconds.
   ; After reset, the "Fast blink" sequence at the start of main will repeat.
   loop_forever:
-    rjmp    loop_forever
+    jmp    loop_forever
 
 ENDF main

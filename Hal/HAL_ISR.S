@@ -9,7 +9,7 @@
     push    r22             ; Push the work register (e.g., r22)
     in      r22, SREG
     push    r22             ; Push SREG
-    rcall   \function
+    call   \function
     pop     r22
     out     SREG, r22
     pop     r22

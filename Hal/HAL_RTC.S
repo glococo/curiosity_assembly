@@ -19,7 +19,7 @@
     ldi     r23, hi8( \ticks )          ; Load ticks high byte
     ldi     r18, RTC_RUNSTDBY_bm | (\prescaler_bm) | RTC_RTCEN_bm
     ldi     r19, RTC_OVF_bm             ; Enable Overflow interrupt
-    rcall   HAL_RTC_CONFIG
+    call   HAL_RTC_CONFIG
 .endm
 
 ; Macro: HAL_RTC_INIT_MS
@@ -33,13 +33,13 @@
 .macro HAL_RTC_PIT_ENABLE period_bm
     ldi     r18, \period_bm | RTC_PITEN_bm
     ldi     r19, RTC_PI_bm              ; Enable Periodic Interrupt
-    rcall   HAL_RTC_PIT_CONFIG
+    call   HAL_RTC_PIT_CONFIG
 .endm
 
 ; Macro: HAL_RTC_PIT_DISABLE
 ; Description: Disables the Periodic Interrupt Timer.
 .macro HAL_RTC_PIT_DISABLE
-    rcall   HAL_RTC_PIT_OFF
+    call   HAL_RTC_PIT_OFF
 .endm
 
 ; -----------------------------------------------------------------------------
@@ -54,11 +54,11 @@ FUNC HAL_RTC_WRITE_CTRLA
   PUSH  r20
   0:  lds   r20, RTC_STATUS             ; Read status
       sbrc  r20, RTC_CTRLBUSY_bp        ; Check if CTRLA is busy
-      rjmp  0b                          ; Wait for sync window
+      jmp  0b                          ; Wait for sync window
       sts   RTC_CTRLA, r18              ; Write new value
   1:  lds   r20, RTC_STATUS             ; Wait for write to complete
       sbrc  r20, RTC_CTRLBUSY_bp
-      rjmp  1b
+      jmp  1b
   POP  r20
 ENDF HAL_RTC_WRITE_CTRLA
 
@@ -70,7 +70,7 @@ FUNC HAL_RTC_SET_PERIOD
   PUSH  r20
   0:  lds   r20, RTC_STATUS             ; Check PER sync status
       sbrc  r20, RTC_PERBUSY_bp
-      rjmp  0b                          ; Wait if busy
+      jmp  0b                          ; Wait if busy
       sts   RTC_PERL, r22               ; Write Period Low
       sts   RTC_PERH, r23               ; Write Period High
   POP  r20
@@ -84,7 +84,7 @@ FUNC HAL_RTC_SET_COUNT
   PUSH  r20
   0:  lds   r20, RTC_STATUS             ; Check CNT sync status
       sbrc  r20, RTC_CNTBUSY_bp
-      rjmp  0b                          ; Wait if busy
+      jmp  0b                          ; Wait if busy
       sts   RTC_CNTL, r22               ; Write Count Low
       sts   RTC_CNTH, r23               ; Write Count High
   POP  r20
@@ -98,7 +98,7 @@ FUNC HAL_RTC_GET_COUNT
   PUSH  r20
   0:  lds   r20, RTC_STATUS             ; Check CNT sync status
       sbrc  r20, RTC_CNTBUSY_bp
-      rjmp  0b                          ; Wait if busy
+      jmp  0b                          ; Wait if busy
       lds   r22, RTC_CNTL               ; Read Count Low
       lds   r23, RTC_CNTH               ; Read Count High
   POP  r20
@@ -112,7 +112,7 @@ FUNC HAL_RTC_SET_COMPARE
   PUSH  r20
   0:  lds   r20, RTC_STATUS             ; Check CMP sync status
       sbrc  r20, RTC_CMPBUSY_bp
-      rjmp  0b                          ; Wait if busy
+      jmp  0b                          ; Wait if busy
       sts   RTC_CMPL, r22               ; Write Compare Low
       sts   RTC_CMPH, r23               ; Write Compare High
   POP  r20
@@ -136,13 +136,13 @@ FUNC HAL_RTC_CONFIG
       lds   r21, RTC_CTRLA              ; Read current CTRLA
       andi  r21, ~RTC_RTCEN_bm          ; Clear enable bit
       mov   r18, r21
-      rcall HAL_RTC_WRITE_CTRLA         ; Apply disable
+      call HAL_RTC_WRITE_CTRLA         ; Apply disable
 
     ; Program PER and reset CNT
-      rcall HAL_RTC_SET_PERIOD          ; Set Period
+      call HAL_RTC_SET_PERIOD          ; Set Period
       clr   r22                         ; Reset Count to 0
       clr   r23
-      rcall HAL_RTC_SET_COUNT
+      call HAL_RTC_SET_COUNT
 
     ; Configure Interrupts and clear Flags
       sts   RTC_INTCTRL, r19            ; Set Interrupt Control
@@ -153,7 +153,7 @@ FUNC HAL_RTC_CONFIG
 
     ; Re-enable with requested settings
       pop   r18                         ; Restore CTRLA bits
-      rcall HAL_RTC_WRITE_CTRLA         ; Apply new config and Enable
+      call HAL_RTC_WRITE_CTRLA         ; Apply new config and Enable
   POP_MANY r21, r20
 ENDF HAL_RTC_CONFIG
 
@@ -165,11 +165,11 @@ FUNC HAL_RTC_STOP
   PUSH  r19
   0:  lds   r19, RTC_STATUS
       sbrc  r19, RTC_CTRLBUSY_bp
-      rjmp  0b
+      jmp  0b
       lds   r19, RTC_CTRLA              ; Read current CTRLA
       andi  r19, ~RTC_RTCEN_bm          ; Clear enable bit
       mov   r18, r19
-      rcall HAL_RTC_WRITE_CTRLA         ; Write back
+      call HAL_RTC_WRITE_CTRLA         ; Write back
   POP  r19
 ENDF HAL_RTC_STOP
 
@@ -181,11 +181,11 @@ FUNC HAL_RTC_START
   PUSH  r19
   0:  lds   r19, RTC_STATUS
       sbrc  r19, RTC_CTRLBUSY_bp
-      rjmp  0b
+      jmp  0b
       lds   r19, RTC_CTRLA              ; Read current CTRLA
       ori   r19, RTC_RTCEN_bm           ; Set enable bit
       mov   r18, r19
-      rcall HAL_RTC_WRITE_CTRLA         ; Write back
+      call HAL_RTC_WRITE_CTRLA         ; Write back
   POP  r19
 ENDF HAL_RTC_START
 

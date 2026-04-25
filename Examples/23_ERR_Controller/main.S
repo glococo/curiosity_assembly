@@ -6,7 +6,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                         ; Basic board and USART initialization
+    call   HAL_BOARD_SETUP                         ; Basic board and USART initialization
     _DEVBUFFER( DEVBUFFER, 128, USART_ADDR)         ; Initialize device USART ring buffer
 
     _DELAY_MS(1000)
@@ -46,7 +46,7 @@ FUNC main
     ; Sleep _SLEEP_STANDBY() without proper handling will trigger ERROR CAUSE 8 and therfore
     ; will rise a reset to the RSTCTRL (Note 1)
     _SLEEP_STANDBY()
-    rjmp    loop                                    ; Repeat indefinitely
+    jmp    loop                                    ; Repeat indefinitely
 
 ENDF main
 

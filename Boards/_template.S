@@ -44,7 +44,7 @@ FUNC HAL_BOARD_SETUP
     ; MAKE SURE OSCHF default speed ___________________________
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
     ldi     r22, CLKCTRL_FRQSEL_24M_gc
-    rcall   HAL_CLKCTRL_OSCHF_SET
+    call   HAL_CLKCTRL_OSCHF_SET
     ; IF DEVICE > 32K FLASH, make sure 1st page is MAPPED _____
     ; NVMCTRL Unified Memory Map to first page in Devices>32KB flash
     ; (For lds access to .progmem.rodata text)

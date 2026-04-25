@@ -19,32 +19,32 @@
 #endif
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    call   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     _DEVBUFFER(RX_DEVBUFFER, 64, USART_ADDR)  ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ Source clock from PLL\r\n")$ _STR_FLUSH()
 
     ldi     r22, 3                            ; Slowdown CPU before switching to 160mhz
-    rcall   HAL_CLKCTRL_PRESCALER             ; to avoid CPU going beyond 20mhz
-    rcall   HAL_USART_BAUDRATE_UPD
+    call   HAL_CLKCTRL_PRESCALER             ; to avoid CPU going beyond 20mhz
+    call   HAL_USART_BAUDRATE_UPD
 
     ldi     r22, (CLKCTRL_SOURCEDIV_DIV1_gc | CLKCTRL_MULFAC_8X_gc)
-    rcall   HAL_CLKCTRL_PLL_SET               ; Setting PLL to 160 Mhz
+    call   HAL_CLKCTRL_PLL_SET               ; Setting PLL to 160 Mhz
 
     ldi     r22, CLKCTRL_CLKSEL_PLL_gc        ; Setting PLL as Main Source Clock
-    rcall   HAL_CLKCTRL_MAIN_SELECT
+    call   HAL_CLKCTRL_MAIN_SELECT
 
     ldi4    r22, CORE_CLOCK_PLL_KHZ
     sts4    HAL_CLK_MAIN_KHZ, r22
 
     ldi     r22, 3
-    rcall   HAL_CLKCTRL_PRESCALER             ; Rerun function CPU/DIV to 20mhz to update ONE_MS
-    rcall   HAL_USART_BAUDRATE_UPD            ; and update baudrate
+    call   HAL_CLKCTRL_PRESCALER             ; Rerun function CPU/DIV to 20mhz to update ONE_MS
+    call   HAL_USART_BAUDRATE_UPD            ; and update baudrate
 
   loop:
     _PIN_TGL(BOARD_LED_PORT, BOARD_LED_PIN)
     _STR("Hello World, PLL @ 160mhz !\r\n")$ _STR_FLUSH()
     _DELAY_MS(2000)                           ; Wait 1 second (overwrites r22, r23)
-    rjmp    loop                              ; Repeat indefinitely
+    jmp    loop                              ; Repeat indefinitely
 
 ENDF main

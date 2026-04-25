@@ -6,7 +6,7 @@
 ;   ldi     r22, lo8(0x1234)
 ;   ldi     r23, hi8(0x1234)
 ;   ldi     r18, 4
-;   rcall   MATH_LSL_16                 ; 0x1234 << 4 = 0x2340
+;   call   MATH_LSL_16                 ; 0x1234 << 4 = 0x2340
 
 ; Miscellaneous Helpers
 #define MATH_FFS_16       __ffshi2       ; Find First Set Bit in r25:r24

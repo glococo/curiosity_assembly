@@ -6,7 +6,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+    call   HAL_BOARD_SETUP                     ; Basic board initialization
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR)   ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ SIGROW reading example\r\n")$ _STR_FLUSH()
@@ -31,11 +31,11 @@ FUNC main
     cpi     r21, 15
     brcc    1f
     inc     r21
-    rjmp    0b
+    jmp    0b
   1:
     _STR("\r\n")$ _STR_FLUSH()
 
   loop:
-    rjmp    loop
+    jmp    loop
 
 ENDF main

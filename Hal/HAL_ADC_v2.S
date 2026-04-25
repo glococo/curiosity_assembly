@@ -22,14 +22,14 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
   #else
     .error  "ADC_READ not defined"
   #endif
-    rcall   HAL_ADC_READ_POLLING
+    call   HAL_ADC_READ_POLLING
 .endm
 .macro HAL_ADC_BURST ain, sampnum
     ldi     r22, \sampnum
     sts     ADC0_CTRLF, r22
     ldi     r22, \ain
     ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_BURST_gc)
-    rcall   HAL_ADC_READ_POLLING
+    call   HAL_ADC_READ_POLLING
 .endm
 
 .macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0, t_sampdur=5
@@ -38,7 +38,7 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
     ldi     r23, \prescaler
     ldi     r22, ADC_ENABLE_bm
     sts     ADC0_CTRLF, __zero_reg__    ; CTRLF Sampnum reset
-    rcall   HAL_ADC_SETUP
+    call   HAL_ADC_SETUP
 .endm
 ; Function: HAL_ADC_SETUP (EA/EB series)
 ; Description: Initializes the ADC and calculate SAMPDUR.
@@ -75,7 +75,7 @@ FUNC HAL_ADC_SETUP
     adc     r23, __zero_reg__
 
     clr     r19                 ; r19:r18 = Divisor (16-bit)
-    rcall   MATH_UDIV_16        ; r23:r22 = Quotient (Total cycles / Prescaler)
+    call   MATH_UDIV_16        ; r23:r22 = Quotient (Total cycles / Prescaler)
 
     ; SAMPDUR = (ADC Clock Cycles) - 2
     subi    r22, 2
@@ -84,7 +84,7 @@ FUNC HAL_ADC_SETUP
     ; Clamp to 0 (minimum possible value)
     brpl    1f
     clr     r22
-    rjmp    2f
+    jmp    2f
   1:
     ; Clamp to 255 (maximum possible 8-bit value)
     tst     r23
@@ -96,7 +96,7 @@ FUNC HAL_ADC_SETUP
   wait_busy:
     lds     r22, ADC0_STATUS
     sbrc    r22, ADC_ADCBUSY_bp                 ; Wait for ADCBUSY (bit 0)
-    rjmp    wait_busy
+    jmp    wait_busy
   POP_MANY XH, XL, r21, r20, r19, r18
 ENDF HAL_ADC_SETUP
 
@@ -110,7 +110,7 @@ FUNC HAL_ADC_READ_POLLING
   0:
     lds     r22, ADC0_INTFLAGS
     sbrs    r22, ADC_RESRDY_bp                  ; Wait for SAMPCIF/RESRDY (bit 0)
-    rjmp    0b
+    jmp    0b
     sts     ADC0_INTFLAGS, r22                  ; Clear flag
   #ifdef ADC0_RESULT3
     lds4    r22, ADC0_RESULT                    ; 32-bit Read Result
@@ -131,7 +131,7 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
     ; 3. (ADC_RES + Offset) * Slope
     movw    r18, r20                                ; r19:r18 = Slope
-    rcall   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
+    call   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
 
     ; 4. Rounding: Add 2048 (4096/2) before dividing by 4096
     ldi4    r18, 2048
@@ -139,7 +139,7 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
     ; 5. Divide by 4096 (Shift Right 12)
     ldi     r18, 12
-    rcall   MATH_ASR_32                             ; r25:r22 /= 4096
+    call   MATH_ASR_32                             ; r25:r22 /= 4096
 
     ; 6. Convert Kelvin to Celsius (K - 273)
     subi    r22, lo8(273)

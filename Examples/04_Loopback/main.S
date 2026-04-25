@@ -17,7 +17,7 @@
 ;              then enters a loop to flush received data back to USART.
 ; -----------------------------------------------------------------------------
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    call   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ USART Loopback test: Start typing!\r\n")$ _STR_FLUSH()
@@ -34,7 +34,7 @@ FUNC main
     _STR_FLUSH()                              ; Send all data in buffer back to TX
     sei
     _SLEEP()                                  ; Wait for new data (RX interrupt)
-    rjmp    loop                              ; Repeat indefinitely
+    jmp    loop                              ; Repeat indefinitely
 
 ENDF main
 
@@ -43,5 +43,5 @@ ENDF main
 ; Description: Receives incoming data and pushes it into the ring buffer.
 ; -----------------------------------------------------------------------------
 ISR_START _(USART,_RXC_vect), r18
-    rcall   HAL_USART_RECEIVE_DEVICEBUFFER    ; Pull from hardware, push to buffer Z
+    call   HAL_USART_RECEIVE_DEVICEBUFFER    ; Pull from hardware, push to buffer Z
 ISR_END _(USART,_RXC_vect), r18

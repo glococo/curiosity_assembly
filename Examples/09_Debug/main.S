@@ -4,7 +4,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                       ; Basic board initialization
+    call   HAL_BOARD_SETUP                       ; Basic board initialization
     _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ DEBUG: Basic debuging outputs\r\n")
@@ -22,6 +22,6 @@ FUNC main
     _DEBUG_LDS4( SIGROW_SERNUM0, "DEBUG LDS4: ")
 
   loop:
-    rjmp    loop
+    jmp    loop
 
 ENDF main

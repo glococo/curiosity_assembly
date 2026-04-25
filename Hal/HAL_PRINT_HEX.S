@@ -11,14 +11,14 @@
 .endm
 .macro PRINT_HEX regs:vararg
   .ifb \regs
-    rcall HAL_PRINT_HEX_REG
+    call HAL_PRINT_HEX_REG
   .else
     .irp reg, \regs
       .ifnc \reg, r22
         PUSH  r22
         mov      r22, \reg
       .endif
-        rcall     HAL_PRINT_HEX_REG
+        call     HAL_PRINT_HEX_REG
       .ifnc \reg, r22
         POP  r22
       .endif
@@ -36,10 +36,10 @@ FUNC HAL_PRINT_HEX_REG
     mov   r21, r22                      ; Save value in r14 (callee-saved)
 
     swap  r22                           ; High nibble: Swap nibbles
-    rcall 1f                            ; Convert and push nibble
+    call 1f                            ; Convert and push nibble
 
     mov   r22, r21                      ; Low nibble: Restore value
-    rcall 1f                            ; Convert and push nibble
+    call 1f                            ; Convert and push nibble
 
     POP_MANY r22, r21
     ret
@@ -51,6 +51,6 @@ FUNC HAL_PRINT_HEX_REG
     brcs  2f                            ; If <= '9', skip
     subi  r22, -('A' - '9' - 1)         ; Adjust for 'A'-'F'
   2:
-    rcall HAL_DEVICEBUFFER_PUSH         ; Carry set if success
+    call HAL_DEVICEBUFFER_PUSH         ; Carry set if success
     ret
 ENDF HAL_PRINT_HEX_REG

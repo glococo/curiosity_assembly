@@ -36,9 +36,9 @@ HAL_CLK_MAIN_DIV:           .byte 0       ;  8-bit Current CPU clock divisor
     ldi4    r22, BOARD_CLOCK_MAIN
     sts4    HAL_CLK_MAIN_KHZ, r22
     ldi     r22, \div
-    rcall   HAL_CLKCTRL_PRESCALER
+    call   HAL_CLKCTRL_PRESCALER
 #ifdef USART_CONFIGURED
-    rcall   HAL_USART_BAUDRATE_UPD
+    call   HAL_USART_BAUDRATE_UPD
 #endif
 .endm
 
@@ -53,7 +53,7 @@ FUNC HAL_CLKCTRL_OSCHF_SET
   0:
     lds     r18, CLKCTRL_MCLKSTATUS
     sbrs    r18, 1                      ; Wait for OSCHFS (bit 1) to be 1 (stable)
-    rjmp    0b
+    jmp    0b
 ENDF HAL_CLKCTRL_OSCHF_SET
 
 ; Function: HAL_CLKCTRL_MAIN_SELECT
@@ -67,7 +67,7 @@ FUNC HAL_CLKCTRL_MAIN_SELECT
   0:
     lds     r18, CLKCTRL_MCLKSTATUS
     sbrc    r18, 0                      ; SOSC is bit 5 in MCLKSTATUS
-    rjmp    0b
+    jmp    0b
 ENDF HAL_CLKCTRL_MAIN_SELECT
 
 ; Function: HAL_CLKCTRL_PLL_SET
@@ -105,16 +105,16 @@ FUNC HAL_CLKCTRL_PRESCALER
     lds     r18, HAL_CLK_MAIN_DIV   ; Load divisor index
     lds4    r22, HAL_CLK_MAIN_KHZ
 
-    rcall   MATH_LSR_32                 ; r25:r22 = r25:r22 >> r18
+    call   MATH_LSR_32                 ; r25:r22 = r25:r22 >> r18
     sts2    HAL_ONE_MS, r22             ; Store One MS
   update_one_ms_for_delay:
     ldi     r18, 2
-    rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
+    call   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
     sts2    HAL_ONE_MS_DELAY, r22
   update_one_us:
     ldi2    r18, 1000
     lds2    r22, HAL_ONE_MS
-    rcall   MATH_UDIV_16                ; r23:r22 /= r19:r18
+    call   MATH_UDIV_16                ; r23:r22 /= r19:r18
     ldi2    r24, 500                    ; Check remainder for rounding
     cp2      r18, r24
     brcs    _update_one_us_done

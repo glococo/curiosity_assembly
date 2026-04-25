@@ -6,7 +6,7 @@
 ; Example Usage:
 ;   #define TOGGLE_REG r10
 ;   #include "toggle.S"
-;   rcall a_toggle_function                   ; Call to select string and toggle LED
+;   call a_toggle_function                   ; Call to select string and toggle LED
 ; -----------------------------------------------------------------------------
 
 _ASCIZ(HELLO, "Hello World!\r\n")
@@ -27,12 +27,12 @@ FUNC a_toggle_function
     breq    0f                                ; If 0, use HELLO
     ldi2    ZL, MAPPED_PROGMEM_START + HOLA   ; Load HOLA address
     ldi     r22, LENGTH( HOLA )               ; Load string length
-    rjmp    1f                                ; Jump to 1f(orward)
+    jmp    1f                                ; Jump to 1f(orward)
   0:
     ldi2    ZL, MAPPED_PROGMEM_START + HELLO  ; Load HELLO address
     ldi     r22, LENGTH( HELLO )              ; Load string length
   1:
-    rcall   HAL_USART_SEND_LENGTH             ; Send string: r22=len, Z=data, Y=uart
+    call   HAL_USART_SEND_LENGTH             ; Send string: r22=len, Z=data, Y=uart
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
 
   POP_MANY ZH, ZL, r22

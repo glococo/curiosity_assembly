@@ -8,7 +8,7 @@
 .macro HAL_WDT_ENABLE opt
   PUSH r22
     ldi     r22, \opt
-    rcall   HAL_WDT_ENABLE
+    call   HAL_WDT_ENABLE
   POP r22
 .endm
 
@@ -22,7 +22,7 @@ FUNC HAL_WDT_ENABLE
   0:
     lds     r18, WDT_STATUS
     sbrc    r18, WDT_SYNCBUSY_bp        ; Wait for sync
-    rjmp    0b
+    jmp    0b
 
     ldi     r18, 0xD8                   ; CCP IOREG signature
     out     CPU_CCP, r18
@@ -39,7 +39,7 @@ FUNC HAL_WDT_DISABLE
   0:
     lds     r18, WDT_STATUS
     sbrc    r18, WDT_SYNCBUSY_bp
-    rjmp    0b
+    jmp    0b
 
     ldi     r18, 0xD8
     out     CPU_CCP, r18

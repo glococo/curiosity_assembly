@@ -21,8 +21,8 @@
 .endm
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                           ; Basic board initialization
-    rcall   HAL_SPI_MASTER
+    call   HAL_BOARD_SETUP                           ; Basic board initialization
+    call   HAL_SPI_MASTER
     _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)            ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ LAN9252: Initialize\r\n")$ _STR_FLUSH()
@@ -34,7 +34,7 @@ FUNC main
     _STR(".")$ _STR_FLUSH()
     _SPI_READ(LAN9252_RESET_CTL, 4)                   ; Wait for Reset before continue
     cpse    r22, __zero_reg__
-    rjmp    wait_for_reset
+    jmp    wait_for_reset
     _STR(" done.")$ _STRNR()$ _STR_FLUSH()
 
     _STR("Byte Test : 0x")$ _SPI_READ(LAN9252_BYTE_TEST, 4)$ _STR_HEX32()$ _STRNR()$ _STR_FLUSH()
@@ -64,7 +64,7 @@ FUNC main
 
   loop:
     _SLEEP()
-    rjmp loop
+    jmp loop
 
 ENDF main
 
@@ -77,16 +77,16 @@ ISR_START _(SPI_PORT,_PORT_vect), r22
     in      r22, VPORTF_INTFLAGS
     _STR("INT_FLG: 0x")$ _STR_HEX(r18)$ _STRNR()$ _STR_FLUSH()
     sbrc    r22, 0
-    rjmp    ISR_LAN9252
+    jmp    ISR_LAN9252
     sbrc    r22, 6
-    rjmp    ISR_BUTTON
+    jmp    ISR_BUTTON
     _STR("_______ ISR WEIRD")$ _STRNR()$ _STR_FLUSH()
-    rjmp    exit
+    jmp    exit
 
   ISR_BUTTON:
     _STR("_ ISR_BUTTON pressed")$ _STRNR()$ _STR_FLUSH()
     _PIN_FLG(BOARD_BUTTON_PORT, BOARD_BUTTON_PIN)     ; Clear the button int flag
-    rjmp    exit
+    jmp    exit
 
   ISR_LAN9252:
     _STR("_ ISR_LAN9252: INT_STS: 0x")$ _SPI_READ(LAN9252_INT_STS, 4)$ _STR_HEX32()$ _STRNR()$ _STR_FLUSH()
@@ -94,7 +94,7 @@ ISR_START _(SPI_PORT,_PORT_vect), r22
     mov4    r18, r22
   ISR_LAN9252_SM0:
     sbrs    r18, 0
-    rjmp    ISR_LAN9252_GPT
+    jmp    ISR_LAN9252_GPT
     _STR("___ ISR_LAN9252_SM0, AL_EV: 0x")$ _SPI_READ(ESC_AL_EVENT_REQUEST, 4)$ _STR_HEX32()$ _STRNR()$ _STR_FLUSH()
     ldi4    r22, INT_STS_ECAT_INT | INT_STS_SW_INT                     ; Reset ECAT INT FLAG
     _SPI_WRITE(LAN9252_INT_STS,  4)
@@ -102,7 +102,7 @@ ISR_START _(SPI_PORT,_PORT_vect), r22
     _SPI_WRITE(LAN9252_GPT_CFG,  4)
   ISR_LAN9252_GPT:
     sbrs    r20, 3
-    rjmp    exit
+    jmp    exit
     _STR("___ ISR_LAN9252_GPT")$ _STRNR()$ _STR_FLUSH()
     ldi4    r22, INT_STS_GPT_INT                     ; Reset GPT INT FLAG
     _SPI_WRITE(LAN9252_INT_STS,  4)

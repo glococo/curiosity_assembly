@@ -38,7 +38,7 @@ if [ -z "$MCU" ]; then
 fi
 
 # Compile and link
-avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM" || exit 1
+avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wl,--relax -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM" || exit 1
 
 # Create HEX file
 avr-objcopy -O ihex main.elf main.hex || exit 1

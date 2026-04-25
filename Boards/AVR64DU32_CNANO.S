@@ -42,15 +42,15 @@ FUNC HAL_BOARD_SETUP
     clr     __zero_reg__
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
     ldi     r22, CLKCTRL_FRQSEL_24M_gc
-    rcall   HAL_CLKCTRL_OSCHF_SET
+    call   HAL_CLKCTRL_OSCHF_SET
 
     ; HAL SPEED AWARENESS
     ldi4    r22, BOARD_CLOCK_MAIN
     sts4    HAL_CLK_MAIN_KHZ, r22
 
     ldi     r22, 0
-    rcall   HAL_CLKCTRL_PRESCALER
-    rcall   HAL_USART_BAUDRATE_UPD
+    call   HAL_CLKCTRL_PRESCALER
+    call   HAL_USART_BAUDRATE_UPD
 
     #ifdef TWI_CONFIGURED                                 /* TWI CONFIG */
     _PORTMUX_ROUTEA( TWI, 0, DEFAULT )                    ; Ensure TWI0 is in PA2/PA3

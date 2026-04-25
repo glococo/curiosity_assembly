@@ -14,14 +14,14 @@
 ;              clock prescaler settings.
 ; -----------------------------------------------------------------------------
 FUNC main
-    rcall   HAL_BOARD_SETUP                       ; Basic board initialization
+    call   HAL_BOARD_SETUP                       ; Basic board initialization
     _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ CLK: Dynamic CPU clock scaling\r\n")
     sei                                           ; Enable global interrupts
 
   loop:
-    rcall   print_and_toggle                  ; Print current state to USART
+    call   print_and_toggle                  ; Print current state to USART
     _DELAY_MS(2000)                           ; Wait for 2sec (Timing is frequency-aware)
 
     ; 3. Load current clock divisor
@@ -34,8 +34,8 @@ FUNC main
     ldi     r22, 0                            ; If not, reset to /1
 
   clk_apply:
-    rcall   HAL_CLKCTRL_PRESCALER             ; Apply clock change and update timing
-    rcall   HAL_USART_BAUDRATE_UPD            ; Recalculate USART baud for new frequency
-    rjmp    loop
+    call   HAL_CLKCTRL_PRESCALER             ; Apply clock change and update timing
+    call   HAL_USART_BAUDRATE_UPD            ; Recalculate USART baud for new frequency
+    jmp    loop
 
 ENDF main

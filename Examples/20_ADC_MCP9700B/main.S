@@ -5,7 +5,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+  call   HAL_BOARD_SETUP                         ; Basic board initialization
   _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)          ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ MCP9700B ADC: Reads an analog value from AIN0\r\n")$ _STR_FLUSH()
@@ -22,17 +22,17 @@ FUNC main
     _ADC_READ(ADC_MUXPOS_AIN0_gc)              ; Do one time instant ADC Read
 
     _STR("Raw value: ")$ _STR_U16()$ _STR(" - ")
-    rcall   GET_MCP9700B_TEMP
+    call   GET_MCP9700B_TEMP
     _STR("Temperature: ")$ _STR_S16()$ _STR(".")
     movw    r22, r18
     ldi2    r18, 25
-    rcall   MATH_MUL_16_16
+    call   MATH_MUL_16_16
     _STR_S16(r22, 3)$ _STR(" C\r\n")$ _STR_FLUSH()
     _DELAY_MS(4000)
 
   toggle_led:
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
-    rjmp    loop
+    jmp    loop
 
 ENDF main
 
@@ -49,5 +49,5 @@ FUNC GET_MCP9700B_TEMP
     ; 2. (ADC_RES - 2000) / 40
     ldi     r18, 40
     ldi     r19, 0                      ; Divisor = 40 (signed 16-bit)
-    rcall   MATH_SDIV_16                ; r23:r22 = Quotient
+    call   MATH_SDIV_16                ; r23:r22 = Quotient
 ENDF GET_MCP9700B_TEMP

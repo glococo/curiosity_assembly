@@ -44,7 +44,7 @@ FUNC HAL_SPI_TX_RX
   1:
     lds     r16, SPI0_INTFLAGS
     sbrs    r16, SPI_IF_bp
-    rjmp    1b
+    jmp    1b
     lds     r16, SPI0_DATA
 ENDF HAL_SPI_TX_RX
 
@@ -52,7 +52,7 @@ ENDF HAL_SPI_TX_RX
   PUSH r16
     ldi     r17, \bytes
     ldi2    r18, \address
-    rcall   HAL_SPI_WRITE_16ADDR_32DATA
+    call   HAL_SPI_WRITE_16ADDR_32DATA
   POP r16
 .endm
 ; Function: HAL_SPI_WRITE_16ADDR_32DATA
@@ -63,23 +63,23 @@ ENDF HAL_SPI_TX_RX
 FUNC HAL_SPI_WRITE_16ADDR_32DATA
     _PIN_OUT_CLR(SPI_PORT, SPI_SS)          ; SS Low
     ldi     r16, 0x02                       ; CMD Write
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r19                        ; Address MSB
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r18                        ; Address LSB
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r22                        ; Byte 0 LSB
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     dec     r17
     breq    0f
     mov     r16, r23                        ; Byte 1
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     dec     r17
     breq    0f
     mov     r16, r24                        ; Byte 2
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r25                        ; Byte 3 MSB
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
   0:
     _PIN_OUT_SET(SPI_PORT, SPI_SS)          ; SS High
 ENDF HAL_SPI_WRITE_16ADDR_32DATA
@@ -88,7 +88,7 @@ ENDF HAL_SPI_WRITE_16ADDR_32DATA
   PUSH r17
     ldi     r17, \bytes
     ldi2    r22, \address
-    rcall   HAL_SPI_READ_16ADDR_32DATA
+    call   HAL_SPI_READ_16ADDR_32DATA
   POP r17
 .endm
 ; Function: HAL_SPI_READ_16ADDR_32DATA
@@ -99,22 +99,22 @@ ENDF HAL_SPI_WRITE_16ADDR_32DATA
 FUNC HAL_SPI_READ_16ADDR_32DATA
     _PIN_OUT_CLR(SPI_PORT, SPI_SS)     ; SS Low
     ldi     r16, 0x03
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r23                        ; SPI address are usually MSB sent
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r22
-    rcall   HAL_SPI_TX_RX
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r22, r16
     dec     r17
     breq    0f
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r23, r16
     dec     r17
     breq    0f
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r24, r16
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r25, r16
   0:
     _PIN_OUT_SET(SPI_PORT, SPI_SS)     ; SS High
@@ -124,7 +124,7 @@ ENDF HAL_SPI_READ_16ADDR_32DATA
   PUSH r17
     ldi     r17, \bytes
     ldi2    r22, \address
-    rcall   HAL_SPI_READ_8ADDR_32DATA
+    call   HAL_SPI_READ_8ADDR_32DATA
   POP r17
 .endm
 ; Function: HAL_SPI_READ_8ADDR_32DATA
@@ -135,20 +135,20 @@ ENDF HAL_SPI_READ_16ADDR_32DATA
 FUNC HAL_SPI_READ_8ADDR_32DATA
     _PIN_OUT_CLR(SPI_PORT, SPI_SS)     ; SS Low
     ldi     r16, 0x03
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r16, r22
-    rcall   HAL_SPI_TX_RX
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r22, r16
     dec     r17
     breq    0f
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r23, r16
     dec     r17
     breq    0f
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r24, r16
-    rcall   HAL_SPI_TX_RX
+    call   HAL_SPI_TX_RX
     mov     r25, r16
   0:
     _PIN_OUT_SET(SPI_PORT, SPI_SS)     ; SS High

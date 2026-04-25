@@ -5,11 +5,11 @@
 ; Example Usage:
 ;   ldi     r18, 10
 ;   ldi     r22, 20
-;   rcall   MATH_MUL_16_16              ; r23:r22 = 10 * 20 = 200
+;   call   MATH_MUL_16_16              ; r23:r22 = 10 * 20 = 200
 ;
 ;   ; 32x32 to 64-bit signed multiplication
 ;   ; r25:r22 (A) * r21:r18 (B) -> r25:r18 (Result)
-;   rcall   MATH_MUL_S_32_64
+;   call   MATH_MUL_S_32_64
 
 ; Macro: MATH_MADD
 ; Description: Multiply-Add with Carry Propagation.
@@ -155,7 +155,7 @@ ENDF MATH_MAC_32_64
 ;          r13:r10 - 32-bit Unsigned Multiplicand (B)
 ; Outputs: r25:r18 - Result
 FUNC MATH_MAC_SU_32_64
-    rcall   MATH_MAC_32_64
+    call   MATH_MAC_32_64
     MATH_SIGN_ADJUST r13, 22, 06, 4, 25
 ENDF MATH_MAC_SU_32_64
 
@@ -166,7 +166,7 @@ ENDF MATH_MAC_SU_32_64
 ;          r09:r06 - 32-bit Signed Multiplier (B)
 ; Outputs: r25:r18 - Result
 FUNC MATH_MAC_S_32_64
-    rcall   MATH_MAC_32_64
+    call   MATH_MAC_32_64
     MATH_SIGN_ADJUST r13, 22, 06, 4, 25
     MATH_SIGN_ADJUST r09, 22, 10, 4, 25
 ENDF MATH_MAC_S_32_64
@@ -181,7 +181,7 @@ FUNC MATH_MUL_32_64
     mov4    r6, r18               ; Copy B to r09:r06
     mov4    r10, r22              ; Copy A to r13:r10
     clr8    r18                   ; Clear result
-    rcall   MATH_MAC_32_64
+    call   MATH_MAC_32_64
   POP_MANY r13, r12, r11, r10, r09, r08, r07, r06
 ENDF MATH_MUL_32_64
 
@@ -192,7 +192,7 @@ FUNC MATH_MUL_SU_32_64
     mov4      r6, r18               ; B (Unsigned)
     mov4      r10, r22              ; A (Signed)
     clr8      r18
-    rcall     MATH_MAC_SU_32_64
+    call     MATH_MAC_SU_32_64
   POP_MANY r13, r12, r11, r10, r09, r08, r07, r06
 ENDF MATH_MUL_SU_32_64
 
@@ -203,7 +203,7 @@ FUNC MATH_MUL_S_32_64
     mov4      r6, r18               ; B (Signed)
     mov4      r10, r22              ; A (Signed)
     clr8      r18
-    rcall     MATH_MAC_S_32_64
+    call     MATH_MAC_S_32_64
   POP_MANY r13, r12, r11, r10, r09, r08, r07, r06
 ENDF MATH_MUL_S_32_64
 

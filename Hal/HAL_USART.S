@@ -32,14 +32,14 @@ FUNC HAL_USART_BAUDRATE_UPD
     ; This scaling factor (4 or 8) is part of the asynchronous BAUD calculation.
     ldi4    r18, ( 4000 << USART_DOUBLE_SPEED )
     lds4    r22, HAL_CLK_MAIN_KHZ
-    rcall   MATH_MUL_32_32
+    call   MATH_MUL_32_32
 
     lds     r18, HAL_CLK_MAIN_DIV       ; Load current CPU clock divisor index
-    rcall   MATH_LSR_32                 ; Apply CPU prescaler to dividend
+    call   MATH_LSR_32                 ; Apply CPU prescaler to dividend
 
     ; Load Divisor: BaudRate
     ldi4    r18, USART_BAUD_RATE
-    rcall   MATH_UDIV_32                ; r25:r22 = Dividend (r25:r22) / BaudRate (r21:r18)
+    call   MATH_UDIV_32                ; r25:r22 = Dividend (r25:r22) / BaudRate (r21:r18)
     sts2    _(USART,_BAUDL), r22        ; Store Baud Rate Low Byte
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18
 ENDF HAL_USART_BAUDRATE_UPD
@@ -57,7 +57,7 @@ FUNC HAL_USART_SEND_LENGTH
   1:
     ldd     r25, Y+4                    ; Read USART_STATUS (Base + 4)
     sbrs    r25, USART_DREIF_bp         ; Check Data Register Empty Flag
-    rjmp    1b                          ; Wait until ready
+    jmp    1b                          ; Wait until ready
     std     Y+2, r24                    ; Write to USART_TXDATAL (Base + 2)
     dec     r22                         ; Decrement length
     brne    0b                          ; Loop until all bytes sent
@@ -74,7 +74,7 @@ FUNC HAL_USART_SEND_BYTE
   1:
     ldd     r23, Y+4                    ; Read USART_STATUS
     sbrs    r23, USART_DREIF_bp         ; Check DREIF
-    rjmp    1b                          ; Wait until ready
+    jmp    1b                          ; Wait until ready
     std     Y+2, r22                    ; Write to USART_TXDATAL
   POP  r23
 ENDF HAL_USART_SEND_BYTE
@@ -86,15 +86,15 @@ ENDF HAL_USART_SEND_BYTE
 FUNC HAL_USART_FLUSH_DEVICEBUFFER
   PUSH_MANY  r18, r22, YL, YH
   0:
-    rcall   HAL_DEVICEBUFFER_PULL       ; Pull byte from ring buffer
+    call   HAL_DEVICEBUFFER_PULL       ; Pull byte from ring buffer
     brcc    2f                          ; Exit if carry is clear
     ldd2    YL, Z, 3                    ; Load USART Base Address L from descriptor
   1:
     ldd     r18, Y+4                    ; Read USART_STATUS
     sbrs    r18, USART_DREIF_bp         ; Check DREIF
-    rjmp    1b                          ; Wait until ready
+    jmp    1b                          ; Wait until ready
     std     Y+2, r22                    ; Write to USART_TXDATAL
-    rjmp    0b                          ; Continue pulling
+    jmp    0b                          ; Continue pulling
   2:
   POP_MANY YH, YL, r22, r18
 ENDF HAL_USART_FLUSH_DEVICEBUFFER
@@ -108,12 +108,12 @@ FUNC HAL_USART_RECEIVE_DEVICEBUFFER
     ldd2    YL, Z, 3                    ; Load USART Base Address L
   0:
     ld      r22, Y                      ; Read byte from USART_RXDATAL (Base + 0)
-    rcall   HAL_DEVICEBUFFER_PUSH       ; Push into ring buffer
+    call   HAL_DEVICEBUFFER_PUSH       ; Push into ring buffer
     brcc    1f                          ; Exit if full
 
     ldd     r22, Y+4                    ; Read USART_STATUS
     sbrc    r22, USART_RXCIF_bp         ; Check Receive Complete Interrupt Flag
-    rjmp    0b                          ; If more data, keep reading
+    jmp    0b                          ; If more data, keep reading
   1:
   POP_MANY YH, YL, r22
 ENDF HAL_USART_RECEIVE_DEVICEBUFFER

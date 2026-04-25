@@ -8,7 +8,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+  call   HAL_BOARD_SETUP                         ; Basic board initialization
   _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)          ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ ADC: Burst reading of Int temperature sensor\r\n")$ _STR_FLUSH()
@@ -26,12 +26,12 @@ FUNC main
     _DEBUG_REG2(r22, "ADC RAW RESULT 16-bit value: ")
 
     ldi     r18, 6                                  ; Shift right 4pos (RESULT/16)
-    rcall   MATH_LSR_32
+    call   MATH_LSR_32
 
-    rcall   HAL_ADC_GET_TEMPERATURE
+    call   HAL_ADC_GET_TEMPERATURE
     _STR("Int Temperature: ")$ _STR_U16()$ _STR("ºC")$ _STR_FLUSH()
 
   loop:
-    rjmp    loop
+    jmp    loop
 
 ENDF main

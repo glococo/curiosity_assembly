@@ -22,16 +22,16 @@
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    call   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     sei                                       ; Enable global interrupts
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")$ _STR_FLUSH()
 
   loop:
-    rcall   a_toggle_function                 ; Select string, send to buffer, toggle LED
+    call   a_toggle_function                 ; Select string, send to buffer, toggle LED
     _STR_FLUSH()                              ; Drain buffer to USART hardware
     _DELAY_MS(1000)                           ; Wait 1 second
-    rjmp    loop                              ; Repeat indefinitely
+    jmp    loop                              ; Repeat indefinitely
 
 ENDF main
 

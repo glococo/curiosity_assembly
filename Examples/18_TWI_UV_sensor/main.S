@@ -8,12 +8,12 @@
 #include "../../Drivers/VEML6075/driver.S"
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+    call   HAL_BOARD_SETUP                         ; Basic board initialization
     _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ VEML6075 UV Sensor Example __\r\n")$ _STR_FLUSH()
 
-    rcall   HAL_TWI_INIT                            ; Initialize TWI
+    call   HAL_TWI_INIT                            ; Initialize TWI
 
     VEML6075_READ_REG    VEML6075_REG_ID
     brcc    read_ok
@@ -22,7 +22,7 @@ FUNC main
 
   read_ok:
     _DEBUG_REG(r22, "Device ID: ")                  ; r22 contains ID (Expected 0x26)
-    rcall   VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
+    call   VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
     brcc    start_reading
     _STR("Error: Enable failed!\r\n")
     jmp     flush_end
@@ -32,10 +32,10 @@ FUNC main
     _DELAY_MS(150)                                  ; Wait for first conversion (100ms IT + margin)
 
   main_loop:
-    rcall   VEML6075_READ
+    call   VEML6075_READ
     brcc    read_print
     _STR("Error: Sensor read failed!\r\n")
-    rjmp    flush_end
+    jmp    flush_end
   read_print:
     lds2    r22, VEML6075_UVI
     _STR("UVI: ")$ _STR_U16()
@@ -52,11 +52,11 @@ FUNC main
     lds2    r22, VEML6075_UVCOMP2
     _STR("  COMP2: ")$ _STR_U16()$ _STRNR()$ _STR_FLUSH()
     _DELAY_MS(2000)
-    rjmp    main_loop
+    jmp    main_loop
 
   flush_end:
     _STR_FLUSH()
   loop:
-    rjmp    loop
+    jmp    loop
 
 ENDF main

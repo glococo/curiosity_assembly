@@ -19,7 +19,7 @@ STR_HLINE:      .asciz "\r\n----------------------------------------\r\n"
 ;              and prints the results to USART.
 ; -----------------------------------------------------------------------------
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board initialization
+    call   HAL_BOARD_SETUP                   ; Basic board initialization
     _DEVBUFFER(TX_DEVBUFFER, 256, USART_ADDR) ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ AVR-DEV Math Library Test Suite!\r\n")
@@ -67,8 +67,15 @@ FUNC main
     _ASSERT64x( -1234567890,  1234567890,  -1234567890* 1234567890 )
 
     _STR("----------------------------------------\r\n")
-    _STR("Tests Completed.\r\n")$ _STR_FLUSH()
+    _STR("MUL tests Completed.\r\n\r\n")$ _STR_FLUSH()
+
+    ; --- 8-bit DIV Tests ---
+    _STR("\r\nTesting div 8-bit Operation:\r\n")$ _STR_FLUSH()
+    _ASSERT_D8U( 246, 51,  246/51)
+    _ASSERT_D8S(-116, 51, -116/51)
+;    _ASSERTd8s(-102,   89, -102*89 )
+;    _ASSERTd8x(-102,  189, -102*189)
 
   loop:
-    rjmp    loop                              ; End of tests
+    jmp    loop                              ; End of tests
 ENDF main

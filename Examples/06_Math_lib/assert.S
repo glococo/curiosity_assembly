@@ -10,7 +10,7 @@
     cpi2    r22, \c
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -25,12 +25,12 @@
     clr2    r24
     ldi2    r22, \a                           ; Load A
     ldi2    r18, \b                           ; Load B
-    rcall   \i                                ; Software multiply 16x16 -> 32-bit
+    call   \i                                ; Software multiply 16x16 -> 32-bit
     _STR("  \i 16x16: \a * \b = ")$ \ptype
     cpi4    r22, \c
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -43,12 +43,12 @@
     ldi4    r22, \a                           ; Load A
     ldi2    r20, \b                           ; Load B
     ldi2    r18, \c                           ; Load C
-    rcall   \i                                ; Software multiply and accumulate 16x16
+    call   \i                                ; Software multiply and accumulate 16x16
     _STR("  \i 16x16: \a + (\b * \c) = ")$ \ptype
     cpi4    r22, \d
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -59,12 +59,12 @@
 .macro _ASSERT32 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
-    rcall   \i                                ; Software multiply 32x32 -> 32-bit
+    call   \i                                ; Software multiply 32x32 -> 32-bit
     _STR("  \i 32x32: \a * \b = ")$ \ptype
     cpi4    r22, \c
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -76,12 +76,12 @@
     ldi4    r18, \b                           ; Load B
     mov4    r14, r18
     ldi4    r18, \a                           ; Load A
-    rcall   \i                                ; Software multiply 32x32 -> 32-bit
+    call   \i                                ; Software multiply 32x32 -> 32-bit
     _STR("  \i 32x32: \c + (\a * \b) = ")$ \ptype
     cpi4    r22, \d
     brne    0f
     _STR(" _OK\r\n")
-    rjmp    1f
+    jmp    1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -94,12 +94,12 @@
 .macro _ASSERT3264 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
-    rcall   \i                                ; Software multiply 32x32 -> 64-bit
+    call   \i                                ; Software multiply 32x32 -> 64-bit
     _STR("  \i 32x32: \a * \b = ")$ \ptype
     cpi8    r18, \c
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:
@@ -113,12 +113,29 @@
     ldi8    r18, \b                           ; Load B
     mov8    r10, r18
     ldi8    r18, \a                           ; Load A
-    rcall   \i                                ; Software multiply 64x64 -> 64-bit
+    call   \i                                ; Software multiply 64x64 -> 64-bit
     _STR("  \i 64x64: \a * \b = ")$ \ptype
     cpi8    r18, \c
     brne    0f
     _STR(" _OK\r\n")
-    rjmp   1f
+    jmp   1f
+  0:
+    _STR(" _WRONG!\r\n")
+  1:
+  _STR_FLUSH()
+.endm
+
+#define _ASSERT_D8U(a, b, c)     _ASSERTD8 MATH_UDIV_08, a, b, c, _STR_U8()
+#define _ASSERT_D8S(a, b, c)     _ASSERTD8 MATH_SDIV_08, a, b, c, _STR_S8()
+.macro _ASSERTD8 i, a, b, c, ptype
+    ldi     r22, \a                           ; Load A Dividend
+    ldi     r18, \b                           ; Load B divisor
+    call   \i                                ; Software divide 8/8 -> 8-bit
+    _STR("  \i 8/8: \a / \b = ")$ \ptype
+    cpi     r22, \c
+    brne    0f
+    _STR(" _OK\r\n")
+    jmp   1f
   0:
     _STR(" _WRONG!\r\n")
   1:

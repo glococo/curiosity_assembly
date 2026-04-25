@@ -19,7 +19,7 @@
   .endif
     CLR_MANY  r23, r24, r25
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_UINT32
+    call      HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
      POP      \reg
   .endif
@@ -33,7 +33,7 @@
   .endif
       clr2      r24
       ldi       r16, \pad
-      rcall     HAL_PRINT_STR_REG_PAD_UINT32
+      call     HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
     POP_MANY  \reg+1, \reg
   .endif
@@ -46,7 +46,7 @@
     mov4     r22, \reg
   .endif
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_UINT32
+    call      HAL_PRINT_STR_REG_PAD_UINT32
   .ifnc \reg, r22
     POP_MANY  \reg+3, \reg+2, \reg+1, \reg
   .endif
@@ -59,7 +59,7 @@
         .exitm
   .endif
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_UINT64
+    call      HAL_PRINT_STR_REG_PAD_UINT64
   POP r16
 .endm
 .macro PRINT_REG_S8 reg=r22, pad=0
@@ -73,7 +73,7 @@
     mov       r24, r25
     mov       r23, r25
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_INT32
+    call      HAL_PRINT_STR_REG_PAD_INT32
   POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S16 reg=r22, pad=0
@@ -86,7 +86,7 @@
     sbc       r25, r25
     mov       r24, r25
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_INT32
+    call      HAL_PRINT_STR_REG_PAD_INT32
   POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S32 reg=r22, pad=0
@@ -95,7 +95,7 @@
     mov4     r22, \reg
   .endif
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_INT32
+    call      HAL_PRINT_STR_REG_PAD_INT32
   POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_S64 reg=r18, pad=0
@@ -105,7 +105,7 @@
         .exitm
   .endif
     ldi       r16, \pad
-    rcall     HAL_PRINT_STR_REG_PAD_INT64
+    call      HAL_PRINT_STR_REG_PAD_INT64
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r16
 .endm
 
@@ -121,7 +121,7 @@ FUNC HAL_PRINT_STR_REG_PAD_UINT32
   1:
     ldi       r18, 10                       ; Divisor = 10
     CLR_MANY  r19, r20, r21                 ; clear r21:r19
-    rcall     MATH_UDIV_32                  ; r25:r22 /= 10, remainder in r18
+    call     MATH_UDIV_32                  ; r25:r22 /= 10, remainder in r18
     subi      r18, -'0'                     ; ASCII convert
     push      r18
     inc       r17
@@ -136,12 +136,12 @@ FUNC HAL_PRINT_STR_REG_PAD_UINT32
     sub       r16, r17                      ; r20 = number of zeros to add
   2:
     ldi       r22, '0'
-    rcall     HAL_DEVICEBUFFER_PUSH
+    call     HAL_DEVICEBUFFER_PUSH
     dec       r16
     brne      2b
   3:
     pop       r22                           ; Print digits
-    rcall     HAL_DEVICEBUFFER_PUSH         ;
+    call     HAL_DEVICEBUFFER_PUSH         ;
     dec       r17                           ;
     brne      3b                            ;
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r17
@@ -155,10 +155,10 @@ ENDF HAL_PRINT_STR_REG_PAD_UINT32
 ; Outputs: None
 FUNC HAL_PRINT_STR_REG_PAD_INT32
     sbrs  r25, 7
-    rjmp  HAL_PRINT_STR_REG_PAD_UINT32
+    jmp  HAL_PRINT_STR_REG_PAD_UINT32
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_DEVICEBUFFER_PUSH
+    call HAL_DEVICEBUFFER_PUSH
     POP   r22
     com   r25
     com   r24
@@ -167,7 +167,7 @@ FUNC HAL_PRINT_STR_REG_PAD_INT32
     sbci  r23, -1
     sbci  r24, -1
     sbci  r25, -1
-    rjmp  HAL_PRINT_STR_REG_PAD_UINT32
+    jmp  HAL_PRINT_STR_REG_PAD_UINT32
 ENDF HAL_PRINT_STR_REG_PAD_INT32
 
 ; Function: HAL_PRINT_STR_REG_PAD_UINT64
@@ -220,12 +220,12 @@ FUNC HAL_PRINT_STR_REG_PAD_UINT64
     sub       r15, r14                      ; r15 = number of zeros to add
   4:
     ldi       r22, '0'
-    rcall     HAL_DEVICEBUFFER_PUSH
+    call     HAL_DEVICEBUFFER_PUSH
     dec       r15
     brne      4b
   5:
     pop   r22
-    rcall HAL_DEVICEBUFFER_PUSH
+    call HAL_DEVICEBUFFER_PUSH
     dec   r14
     brne  5b
   POP_MANY r25, r24, r23, r22, r21, r20, r19, r18, r17, r15, r14
@@ -238,10 +238,10 @@ ENDF HAL_PRINT_STR_REG_PAD_UINT64
 ; Outputs: None
 FUNC HAL_PRINT_STR_REG_PAD_INT64
     sbrs  r25, 7
-    rjmp  HAL_PRINT_STR_REG_PAD_UINT64
+    jmp  HAL_PRINT_STR_REG_PAD_UINT64
     PUSH  r22
     ldi   r22, '-'
-    rcall HAL_DEVICEBUFFER_PUSH
+    call HAL_DEVICEBUFFER_PUSH
     POP   r22
     com   r25
     com   r24
@@ -258,5 +258,5 @@ FUNC HAL_PRINT_STR_REG_PAD_INT64
     sbci  r23, -1
     sbci  r24, -1
     sbci  r25, -1
-    rjmp  HAL_PRINT_STR_REG_PAD_UINT64
+    jmp  HAL_PRINT_STR_REG_PAD_UINT64
 ENDF HAL_PRINT_STR_REG_PAD_INT64

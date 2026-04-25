@@ -11,7 +11,7 @@
 .macro HAL_DELAY_MS milliseconds
   PUSH_MANY r22, r23
     ldi2  r22, \milliseconds            ; Load milliseconds
-    rcall HAL_SOFT_DELAY_MS             ; Call the software delay function
+    call HAL_SOFT_DELAY_MS             ; Call the software delay function
   POP_MANY  r23, r22
 .endm
 

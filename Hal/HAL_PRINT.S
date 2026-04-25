@@ -9,7 +9,7 @@
 #define _STR_FLUSH(ms)            HAL_FLUSH ms
 
 .macro HAL_FLUSH ms=0
-  rcall HAL_USART_FLUSH_DEVICEBUFFER
+  call HAL_USART_FLUSH_DEVICEBUFFER
   .if \ms > 0
     _DELAY_MS(\ms)
   .endif
@@ -24,9 +24,9 @@
 .macro PRINT_STR_NEWLINE
   PUSH r22
     ldi    r22, '\r'
-    rcall   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
+    call   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
     ldi    r22, '\n'
-    rcall   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
+    call   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
   POP r22
 .endm
 .macro PRINT_STR_CHAR reg=r22
@@ -34,7 +34,7 @@
      PUSH  \reg
      mov      r22, \reg
   .endif
-    rcall   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
+    call   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
   .ifnc \reg, r22
      POP  \reg
   .endif
@@ -69,7 +69,7 @@ FUNC HAL_PRINT_STR
     ld      r22, X+                     ; Load byte and increment X
     tst     r22                         ; Check for null terminator
     breq    1f                          ; Exit if end of string
-    rcall   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
+    call   HAL_DEVICEBUFFER_PUSH       ; Push byte to buffer
     brcs    0b                          ; Continue if success
   1:
   POP r22

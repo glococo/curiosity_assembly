@@ -11,7 +11,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-  rcall   HAL_BOARD_SETUP                     ; Basic board initialization
+  call   HAL_BOARD_SETUP                     ; Basic board initialization
   _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ BOD: Toggle fast LED on a Voltage Level drop\r\n")$ _STR_FLUSH()
@@ -26,21 +26,21 @@ FUNC main
     ldi     r22, BOD_ACTIVE_ENABLED_gc
   #endif
   ldi     r23, BOD_LVL_BODLEVEL2_gc
-  rcall   HAL_BOD_CONFIG
+  call   HAL_BOD_CONFIG
 
   ; 2. Configure VLM
   ; Threshold: 5% above BOD level
   ; Interrupt: Enabled
   ldi     r22, BOD_VLMLVL_5ABOVE_gc
   ldi     r23, 0x01                           ; VLMIE = 1 (VLM Interrupt Enable)
-  rcall   HAL_BOD_VLM_CONFIG
+  call   HAL_BOD_VLM_CONFIG
 
   sei                                         ; Enable global interrupts
 
   loop:
     _DELAY_MS(1000)                         ; Slow blink
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
-    rjmp    loop
+    jmp    loop
 
 ENDF main
 

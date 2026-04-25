@@ -6,7 +6,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    call   HAL_BOARD_SETUP                   ; Basic board and USART initialization
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")
     _STR("__ Real-Time Counter (RTC) for periodic events\r\n")$ _STR_FLUSH()
@@ -18,7 +18,7 @@ FUNC main
   loop:
     _STR_FLUSH()                              ; Drain buffer to USART hardware
     _SLEEP()                                  ; Wait for interrupts
-    rjmp    loop                              ; Repeat indefinitely
+    jmp    loop                              ; Repeat indefinitely
 
 ENDF main
 

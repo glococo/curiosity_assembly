@@ -48,7 +48,7 @@ FUNC HAL_BOARD_SETUP
 
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 20MHZ
     ldi     r22, CLKCTRL_FRQSEL_20M_gc
-    rcall   HAL_CLKCTRL_OSCHF_SET
+    call   HAL_CLKCTRL_OSCHF_SET
 
     _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
 

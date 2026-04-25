@@ -30,7 +30,7 @@ FUNC MCP9804_READ_TEMPERATURE
   PUSH_MANY r19, r20, r21
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_T_AMB
-    rcall   HAL_TWI_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
+    call   HAL_TWI_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
     brcs    .L_exit
 
     sts2    MCP9804_LAST, r22           ; Save raw register (LSB in r22, MSB in r23)
@@ -39,7 +39,7 @@ FUNC MCP9804_READ_TEMPERATURE
 
     clr     r21                         ; r21 will hold our sign
     sbrs    r25, 4                      ; Check sign bit (bit 12 of register)
-    rjmp    .L_positive
+    jmp    .L_positive
 
     ; Handle Negative (Two's Complement Negation)
     ldi     r21, 1                      ; Sign = Negative
@@ -69,7 +69,7 @@ FUNC MCP9804_READ_TEMPERATURE
 
     ; Calculate Decimal: Fraction * 625
     ldi2    r22, 625
-    rcall   MATH_MUL_16_32              ; r25:r22 = r23:r22 * r19:r18
+    call   MATH_MUL_16_32              ; r25:r22 = r23:r22 * r19:r18
     movw    r24, r22                    ; Decimal in r25:r24
 
     mov     r22, r20                    ; Return integer in r22
@@ -89,7 +89,7 @@ ENDF MCP9804_READ_TEMPERATURE
 .macro MCP9804_READ_REG reg
     ldi     r22, MCP9804_ADDR
     ldi     r23, \reg
-    rcall   HAL_TWI_READ_REGW_BE
+    call   HAL_TWI_READ_REGW_BE
 .endm
 
 ; -----------------------------------------------------------------------------
@@ -101,11 +101,11 @@ FUNC MCP9804_ENABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
-    rcall   HAL_TWI_READ_REGW_BE
+    call   HAL_TWI_READ_REGW_BE
     brcs    1f
 
     andi2   r24, ~MCP9804_CONF_SLEEP_bm
-    rcall   HAL_TWI_WRITE_REGW_BE
+    call   HAL_TWI_WRITE_REGW_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_ENABLE
@@ -119,11 +119,11 @@ FUNC MCP9804_DISABLE
   PUSH_MANY r22, r23, r24, r25
     ldi     r22, MCP9804_ADDR
     ldi     r23, MCP9804_REG_CONF
-    rcall   HAL_TWI_READ_REGW_BE
+    call   HAL_TWI_READ_REGW_BE
     brcs    1f
 
     ori2    r24, MCP9804_CONF_SLEEP_bm
-    rcall   HAL_TWI_WRITE_REGW_BE
+    call   HAL_TWI_WRITE_REGW_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_DISABLE

@@ -6,7 +6,7 @@
 ; Example Usage:
 ;   #define TOGGLE_REG r10
 ;   #include "toggle.S"
-;   rcall a_toggle_function                   ; Call to select string and toggle LED
+;   call a_toggle_function                   ; Call to select string and toggle LED
 ; -----------------------------------------------------------------------------
 
 ; -----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ FUNC a_toggle_function
     tst     TOGGLE_REG                        ; Check the toggle state bit
     breq    0f                                ; If 0, use HELLO
     _STR("Hello World!\r\n")
-    rjmp    1f                                ; Jump to 1f(orward)
+    jmp    1f                                ; Jump to 1f(orward)
   0:
     _STR("Hola Mundo!\r\n")
   1:

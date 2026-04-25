@@ -11,7 +11,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-  rcall   HAL_BOARD_SETUP                         ; Basic board initialization
+  call   HAL_BOARD_SETUP                         ; Basic board initialization
   _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)       ; Initialize the USART ring buffer
   _STR("__ CURIOSITY ASSEMBLY __\r\n")
   _STR("__ ADC: Reads an analog value from AIN1\r\n")$ _STR_FLUSH()
@@ -32,13 +32,13 @@ FUNC main
 
   slow_blink:
     _DELAY_MS(1000)
-    rjmp    toggle_led
+    jmp    toggle_led
 
   fast_blink:
     _DELAY_MS(100)
 
   toggle_led:
     _PIN_TGL(BOARD_LED_PORT,BOARD_LED_PIN)
-    rjmp    loop
+    jmp    loop
 
 ENDF main

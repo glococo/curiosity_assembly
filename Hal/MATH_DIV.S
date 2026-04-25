@@ -7,7 +7,7 @@
 ; Example Usage:
 ;   ldi     r22, 100
 ;   ldi     r18, 7
-;   rcall   MATH_UDIV_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
+;   call   MATH_UDIV_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
 
 ; Function: MATH_SDIV_32
 ; Description: Signed 32-bit / 32-bit division and modulo.
@@ -49,11 +49,11 @@ FUNC MATH_SDIV_32
     sbci    r21, lo8(-1)
 
   _do_unsigned_div:
-    rcall   MATH_UDIV_32                ; Perform core unsigned division
+    call   MATH_UDIV_32                ; Perform core unsigned division
 
     ; 2. Correct Quotient Sign
     sbrs    r16, 0                      ; Check if result should be negative
-    rjmp    _correct_remainder
+    jmp    _correct_remainder
 
     ; Negate Quotient
     com     r25
@@ -67,7 +67,7 @@ FUNC MATH_SDIV_32
   _correct_remainder:
     ; 3. Correct Remainder Sign (Matches Dividend)
     sbrs    r16, 1
-    rjmp    _sdiv32_done
+    jmp    _sdiv32_done
 
     ; Negate Remainder
     com     r21
@@ -145,14 +145,14 @@ FUNC MATH_SDIV_16
     mov     r21, r23                    ; Sign Storage
     eor     r21, r19                    ; Quotient Sign
     sbrs    r23, 7                      ; Absolute Dividend
-    rjmp    d16_16s_1
+    jmp    d16_16s_1
     com     r23
     com     r22
     subi    r22, lo8(-1)
     sbci    r23, hi8(-1)
   d16_16s_1:
     sbrs    r19, 7                      ; Absolute Divisor
-    rjmp    d16_16s_2
+    jmp    d16_16s_2
     com     r19
     com     r18
     subi    r18, lo8(-1)
@@ -167,7 +167,7 @@ FUNC MATH_SDIV_16
     dec     r20
     brne    d16_16s_5                   ; Loop until done
     sbrs    r21, 7                      ; Correct Quotient Sign
-    rjmp    d16_16s_4
+    jmp    d16_16s_4
     com     r23
     com     r22
     subi    r22, lo8(-1)
@@ -185,10 +185,10 @@ FUNC MATH_SDIV_16
     add     r24, r18                    ; Else restore
     adc     r25, r19
     clc                                 ; Shift 0 into quotient
-    rjmp    d16_16s_3
+    jmp    d16_16s_3
   d16_16s_6:
     sec                                 ; Shift 1 into quotient
-    rjmp    d16_16s_3
+    jmp    d16_16s_3
 ENDF MATH_SDIV_16
 
 ; Function: MATH_UDIV_16
@@ -219,10 +219,10 @@ FUNC MATH_UDIV_16
     add     r24, r18
     adc     r25, r19
     clc
-    rjmp    d16_16u_1
+    jmp    d16_16u_1
   d16_16u_3:
     sec
-    rjmp    d16_16u_1
+    jmp    d16_16u_1
 ENDF MATH_UDIV_16
 
 ; Function: MATH_UDIV_08
@@ -248,10 +248,10 @@ FUNC MATH_UDIV_08
     brcc    d8_8_3
     add     r23, r18
     clc
-    rjmp    d8_8_1
+    jmp    d8_8_1
   d8_8_3:
     sec
-    rjmp    d8_8_1
+    jmp    d8_8_1
 ENDF MATH_UDIV_08
 
 ; Function: MATH_SDIV_08
@@ -285,8 +285,8 @@ FUNC MATH_SDIV_08
     brcc    d8_8s_3
     add     r23, r18
     clc
-    rjmp    d8_8s_1
+    jmp    d8_8s_1
   d8_8s_3:
     sec
-    rjmp    d8_8s_1
+    jmp    d8_8s_1
 ENDF MATH_SDIV_08

@@ -25,7 +25,7 @@
 #define _TCE0_CMP_SET()                 _TCE0_CMPBUF( DUTY_CYCLE_20_PERCENT, DUTY_CYCLE_40_PERCENT, DUTY_CYCLE_60_PERCENT, DUTY_CYCLE_80_PERCENT )
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                         ; Basic board and clock initialization (20MHz)
+    call   HAL_BOARD_SETUP                         ; Basic board and clock initialization (20MHz)
     _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)       ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ TCE: Generate 4 PWM signals at 10 kHz with 20%, 40%, 60%, and 80% duty cycles\r\n")$ _STR_FLUSH()
@@ -82,6 +82,6 @@ FUNC main
     sts2    TCE0_AMP, r22
     _TCE0_CMP_SET()
     _DELAY_MS(5)
-    rjmp    loop
+    jmp    loop
 
 ENDF main

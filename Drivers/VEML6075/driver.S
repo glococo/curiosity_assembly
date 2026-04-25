@@ -50,7 +50,7 @@ VEML6075_struct:
 .macro VEML6075_READ_REG reg
     ldi     r22, VEML6075_ADDR
     ldi     r23, \reg
-    rcall   HAL_TWI_READ_REGW
+    call   HAL_TWI_READ_REGW
 .endm
 
 ; -----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ FUNC VEML6075_READ_ID
   PUSH r23
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_ID
-    rcall   HAL_TWI_READ_REGW
+    call   HAL_TWI_READ_REGW
   POP r23
 ENDF VEML6075_READ_ID
 ; -----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ FUNC VEML6075_ENABLE
     ldi     r23, VEML6075_REG_CONF
     ldi     r24, (VEML6075_CONF_IT_100MS | VEML6075_CONF_HD_NORMAL | VEML6075_CONF_POWER_ON)
     ldi     r25, 0
-    rcall   HAL_TWI_WRITE_REGW
+    call   HAL_TWI_WRITE_REGW
   POP_MANY r25, r24, r23, r22
 ENDF VEML6075_ENABLE
 ; -----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ FUNC VEML6075_DISABLE
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_CONF
     ldi     r24, VEML6075_CONF_POWER_OFF
-    rcall   HAL_TWI_WRITE_REG
+    call   HAL_TWI_WRITE_REG
   POP_MANY r24, r23, r22
 ENDF VEML6075_DISABLE
 ; -----------------------------------------------------------------------------
@@ -103,29 +103,29 @@ FUNC VEML6075_READ
   PUSH_MANY r22, r23
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVA
-    rcall   HAL_TWI_READ_REGW           ; Read UVA data
+    call   HAL_TWI_READ_REGW           ; Read UVA data
     brcs    0f
     sts2    VEML6075_UVA, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVB
-    rcall   HAL_TWI_READ_REGW           ; Read UVB data
+    call   HAL_TWI_READ_REGW           ; Read UVB data
     brcs    0f
     sts2    VEML6075_UVB, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVCOMP1
-    rcall   HAL_TWI_READ_REGW           ; Read UVCOMP1 data
+    call   HAL_TWI_READ_REGW           ; Read UVCOMP1 data
     brcs    0f
     sts2    VEML6075_UVCOMP1, r22
 
     ldi     r22, VEML6075_ADDR
     ldi     r23, VEML6075_REG_UVCOMP2
-    rcall   HAL_TWI_READ_REGW           ; Read UVCOMP2 data
+    call   HAL_TWI_READ_REGW           ; Read UVCOMP2 data
     brcs    0f
     sts2    VEML6075_UVCOMP2, r22
 
-    rcall   VEML6075_CORRECT            ; do the math
+    call   VEML6075_CORRECT            ; do the math
   0:
   POP_MANY r23, r22
 ENDF VEML6075_READ
@@ -140,16 +140,16 @@ FUNC VEML6075_CORRECT
   ; --- uvaComp = rawA - ((UVA_A_FP * comp1) >> 8) - ((UVA_B_FP * comp2) >> 8) ---
     lds2    r18, VEML6075_UVCOMP1
     ldi2    r22, VEML6075_UVA_A_FP
-    rcall   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
+    call   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
     ldi     r18, 8
-    rcall   MATH_LSR_32           ; >> 8 (/256)
+    call   MATH_LSR_32           ; >> 8 (/256)
     movw    r16, r22              ; mov result to temp (r17:r16)
 
     lds2    r18, VEML6075_UVCOMP2
     ldi2    r22, VEML6075_UVA_B_FP
-    rcall   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
+    call   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
     ldi     r18, 8
-    rcall   MATH_LSR_32           ; >> 8 (/256)
+    call   MATH_LSR_32           ; >> 8 (/256)
 
     add2s   r22, r16              ; math1 + math2
     lds2    r18, VEML6075_UVA
@@ -164,16 +164,16 @@ FUNC VEML6075_CORRECT
   ; --- uvbComp = rawB - ((UVB_C_FP * comp1) >> 8) - ((UVB_D_FP * comp2) >> 8) ---
     lds2    r18, VEML6075_UVCOMP1
     ldi2    r22, VEML6075_UVB_C_FP
-    rcall   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
+    call   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
     ldi     r18, 8
-    rcall   MATH_LSR_32           ; >> 8 (/256)
+    call   MATH_LSR_32           ; >> 8 (/256)
     movw    r16, r22              ; mov result to temp (r17:r16)
 
     lds2    r18, VEML6075_UVCOMP2
     ldi2    r22, VEML6075_UVB_D_FP
-    rcall   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
+    call   MATH_MUL_16_32        ; result in r25:r22 (32-bit)
     ldi     r18, 8
-    rcall   MATH_LSR_32           ; >> 8 (/256)
+    call   MATH_LSR_32           ; >> 8 (/256)
 
     add2s   r22, r16              ; math1 + math2 (saturated add)
     lds2    r18, VEML6075_UVB
@@ -189,17 +189,17 @@ FUNC VEML6075_CORRECT
   ; --- UVI = (UVAc*RespFP + UVBc+RespFP) >> 1 ---
     ; --- UVB = UVBc * UVB_RESP_FP >> 8 ---
     ldi2    r18, VEML6075_UVB_RESP_FP
-    rcall   MATH_MUL_16_32
+    call   MATH_MUL_16_32
     ldi     r18, 8
-    rcall   MATH_LSR_32
+    call   MATH_LSR_32
     movw    r16, r22              ; uvb = r17:r16
 
     ; --- UVA = UVAc * UVA_RESP_FP >> 8 ---
     lds2    r18, VEML6075_UVAc
     ldi2    r22, VEML6075_UVA_RESP_FP
-    rcall   MATH_MUL_16_32
+    call   MATH_MUL_16_32
     ldi     r18, 8
-    rcall   MATH_LSR_32           ; uva = r23:r22
+    call   MATH_LSR_32           ; uva = r23:r22
 
     add2s   r22, r16              ; UVAc + UVBc
     lsr     r23                   ; >> 1 (divide by 2)

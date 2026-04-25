@@ -28,10 +28,10 @@ FUNC HAL_TWI_BAUDRATE_UPD
     ; HAL_CLK_MAIN_KHZ is in kHz
     lds     r18, HAL_CLK_MAIN_DIV       ; Load divisor index
     lds4    r22, HAL_CLK_MAIN_KHZ
-    rcall   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
+    call   MATH_LSR_16                 ; r23:r22 = r23:r22 >> r18
 
     ldi2    r18, (2 * TWI_BAUD_RATE_KHZ)
-    rcall   MATH_UDIV_16                ; r23:r22 = fCLK_PER / (2 * TWI_BAUD_RATE)
+    call   MATH_UDIV_16                ; r23:r22 = fCLK_PER / (2 * TWI_BAUD_RATE)
 
     subi    r22, 5                      ; Subtract 5
     sbci    r23, 0
@@ -48,7 +48,7 @@ ENDF HAL_TWI_BAUDRATE_UPD
 ; Outputs: None
 FUNC HAL_TWI_INIT
   PUSH r18
-    rcall   HAL_TWI_BAUDRATE_UPD        ; Initialize baudrate
+    call   HAL_TWI_BAUDRATE_UPD        ; Initialize baudrate
 
     ldi     r18, TWI_ENABLE_bm          ; Enable TWI Master
     sts     TWI0_MCTRLA, r18
@@ -68,10 +68,10 @@ FUNC HAL_TWI_START
   1:
     lds     r18, TWI0_MSTATUS
     sbrc    r18, TWI_WIF_bp             ; Wait for Write Interrupt Flag (Address sent)
-    rjmp    2f
+    jmp    2f
     sbrc    r18, TWI_RIF_bp             ; Or Read Interrupt Flag
-    rjmp    2f
-    rjmp    1b
+    jmp    2f
+    jmp    1b
   2:
     ; Check for errors: RXACK (bit 4), BUSERR (bit 2), ARBLOST (bit 3)
     andi    r18, (1<<TWI_RXACK_bp) | (1<<TWI_BUSERR_bp) | (1<<TWI_ARBLOST_bp)
@@ -88,7 +88,7 @@ FUNC HAL_TWI_START_WRITE
   PUSH r22
     lsl     r22
     andi    r22, 0xFE
-    rcall   HAL_TWI_START
+    call   HAL_TWI_START
   POP r22
 ENDF HAL_TWI_START_WRITE
 
@@ -100,7 +100,7 @@ FUNC HAL_TWI_START_READ
   PUSH r22
     lsl     r22
     ori     r22, 0x01
-    rcall   HAL_TWI_START
+    call   HAL_TWI_START
   POP r22
 ENDF HAL_TWI_START_READ
 
@@ -124,7 +124,7 @@ FUNC HAL_TWI_WRITE
   1:
     lds     r18, TWI0_MSTATUS
     sbrs    r18, TWI_WIF_bp             ; Wait for WIF
-    rjmp    1b
+    jmp    1b
 
     ; Check for NACK (RXACK bit) or Errors
     andi    r18, (1<<TWI_RXACK_bp) | (1<<TWI_BUSERR_bp) | (1<<TWI_ARBLOST_bp)
@@ -141,7 +141,7 @@ FUNC HAL_TWI_READ_ACK
   1:
     lds     r18, TWI0_MSTATUS
     sbrs    r18, TWI_RIF_bp             ; Wait for RIF
-    rjmp    1b
+    jmp    1b
 
     lds     r22, TWI0_MDATA             ; Read data (clears RIF)
     ldi     r18, TWI_MCMD_RECVTRANS_gc  ; Ack and prepare for next byte
@@ -156,7 +156,7 @@ FUNC HAL_TWI_READ_NACK
   0:
     lds     r18, TWI0_MSTATUS
     sbrs    r18, TWI_RIF_bp             ; Wait for RIF
-    rjmp   0b
+    jmp   0b
 
     lds     r22, TWI0_MDATA             ; Read data (clears RIF)
     ldi     r18, TWI_ACKACT_NACK_gc | TWI_MCMD_STOP_gc ; NACK and STOP
@@ -174,21 +174,21 @@ ENDF HAL_TWI_READ_NACK
 FUNC HAL_TWI_READ_REG
   PUSH  r20
     mov     r20, r22                    ; Store register address
-    rcall   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
+    call   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
     brcs    0f
 
     mov     r22, r23                    ; Phase 1: Write register address
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r20                    ; Phase 2: Switch to Read
-    rcall   HAL_TWI_START_READ
+    call   HAL_TWI_START_READ
     brcs    0f
 
-    rcall   HAL_TWI_READ_NACK           ; Read byte
-    rjmp    1f
+    call   HAL_TWI_READ_NACK           ; Read byte
+    jmp    1f
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   1:
   POP r20
 ENDF HAL_TWI_READ_REG
@@ -204,25 +204,25 @@ FUNC HAL_TWI_READ_REGW
   PUSH  r20
     mov     r20, r22                    ; Store register address
 
-    rcall   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
+    call   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
     brcs    0f
 
     mov     r22, r23                    ; Phase 1: Write register address
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r20                    ; Phase 2: Switch to Read
-    rcall   HAL_TWI_START_READ
+    call   HAL_TWI_START_READ
     brcs    0f
 
-    rcall   HAL_TWI_READ_ACK            ; Read LSB
+    call   HAL_TWI_READ_ACK            ; Read LSB
     mov     r20, r22
-    rcall   HAL_TWI_READ_NACK           ; Read MSB (last byte)
+    call   HAL_TWI_READ_NACK           ; Read MSB (last byte)
     mov     r23, r22
     mov     r22, r20
-    rjmp    1f
+    jmp    1f
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   1:
   POP r20
 ENDF HAL_TWI_READ_REGW
@@ -238,23 +238,23 @@ FUNC HAL_TWI_READ_REGW_BE
   PUSH  r20
     mov     r20, r22                    ; Store register address
 
-    rcall   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
+    call   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
     brcs    0f
 
     mov     r22, r23                    ; Phase 1: Write register address
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r20                    ; Phase 2: Switch to Read
-    rcall   HAL_TWI_START_READ
+    call   HAL_TWI_START_READ
     brcs    0f
 
-    rcall   HAL_TWI_READ_ACK            ; Read MSB
+    call   HAL_TWI_READ_ACK            ; Read MSB
     mov     r23, r22
-    rcall   HAL_TWI_READ_NACK           ; Read LSB (last byte)
-    rjmp    1f
+    call   HAL_TWI_READ_NACK           ; Read LSB (last byte)
+    jmp    1f
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   1:
   POP r20
 ENDF HAL_TWI_READ_REGW_BE
@@ -272,30 +272,30 @@ FUNC HAL_TWI_READ_MANY
     tst     r24
     breq    1f
     mov     r20, r22                    ; Store register address
-    rcall   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
+    call   HAL_TWI_START_WRITE         ; Phase 0: Write DEV Address
     brcs    0f
 
     mov     r22, r23                    ; Phase 1: Write register address
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r20                    ; Phase 2: Switch to Read
-    rcall   HAL_TWI_START_READ
+    call   HAL_TWI_START_READ
     brcs    0f
 
   .L_read_byte:
     dec     r24
     breq    .L_last_byte
-    rcall   HAL_TWI_READ_ACK            ; Read byte, keep reading
+    call   HAL_TWI_READ_ACK            ; Read byte, keep reading
     brcs    0f
     st      X+, r22
-    rjmp    .L_read_byte
+    jmp    .L_read_byte
   .L_last_byte:
-    rcall   HAL_TWI_READ_NACK           ; Read last byte
+    call   HAL_TWI_READ_NACK           ; Read last byte
     st      X, r22
-    rjmp    1f
+    jmp    1f
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   1:
   POP_MANY XH, XL, r20
 ENDF HAL_TWI_READ_MANY
@@ -310,17 +310,17 @@ ENDF HAL_TWI_READ_MANY
 ; -----------------------------------------------------------------------------
 FUNC HAL_TWI_WRITE_REG
   PUSH r22
-    rcall   HAL_TWI_START_WRITE
+    call   HAL_TWI_START_WRITE
     brcs    0f
 
     mov     r22, r23
-    rcall   HAL_TWI_WRITE               ; Send register address
+    call   HAL_TWI_WRITE               ; Send register address
     brcs    0f
 
     mov     r22, r24                    ; Data LSB
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   POP r22
 ENDF HAL_TWI_WRITE_REG
 
@@ -334,21 +334,21 @@ ENDF HAL_TWI_WRITE_REG
 ; -----------------------------------------------------------------------------
 FUNC HAL_TWI_WRITE_REGW
   PUSH r22
-    rcall   HAL_TWI_START_WRITE
+    call   HAL_TWI_START_WRITE
     brcs    0f
 
     mov     r22, r23
-    rcall   HAL_TWI_WRITE               ; Send register address
+    call   HAL_TWI_WRITE               ; Send register address
     brcs    0f
 
     mov     r22, r24                    ; Data LSB
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r25                    ; Data MSB
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   POP r22
 ENDF HAL_TWI_WRITE_REGW
 ; -----------------------------------------------------------------------------
@@ -361,20 +361,20 @@ ENDF HAL_TWI_WRITE_REGW
 ; -----------------------------------------------------------------------------
 FUNC HAL_TWI_WRITE_REGW_BE
   PUSH r22
-    rcall   HAL_TWI_START_WRITE
+    call   HAL_TWI_START_WRITE
     brcs    0f
 
     mov     r22, r23
-    rcall   HAL_TWI_WRITE               ; Send register address
+    call   HAL_TWI_WRITE               ; Send register address
     brcs    0f
 
     mov     r22, r25                    ; Data MSB
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
     brcs    0f
 
     mov     r22, r24                    ; Data LSB
-    rcall   HAL_TWI_WRITE
+    call   HAL_TWI_WRITE
   0:
-    rcall   HAL_TWI_STOP
+    call   HAL_TWI_STOP
   POP r22
 ENDF HAL_TWI_WRITE_REGW_BE

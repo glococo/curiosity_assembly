@@ -31,7 +31,7 @@
     ldi2     ZL, \name
     ldi2    r22, \dev
     ldi     r21, \size-1
-    rcall   HAL_DEVICEBUFFER_INIT
+    call   HAL_DEVICEBUFFER_INIT
   POP_MANY r23, r22, r21
 .endm
 

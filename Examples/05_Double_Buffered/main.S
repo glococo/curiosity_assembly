@@ -11,7 +11,7 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    rcall   HAL_BOARD_SETUP                   ; Basic board initialization
+    call   HAL_BOARD_SETUP                   ; Basic board initialization
     _DOUBLEBUFFER( DOUBLE_BUFFER, 10 )        ; Initialize high-speed double buffer (Z point to DoubleBuffer)
     _DEVBUFFER(DEV_BUFFER, 128, USART_ADDR)   ; Initialize the USART devBuffer (but now, Z point to DevBuffer)
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")     ; Output to devBuffer
@@ -33,7 +33,7 @@ FUNC main
 
   loop:
     _SLEEP()                                  ; Wait for interrupts
-    rjmp    loop                              ; Repeat
+    jmp    loop                              ; Repeat
 
 ENDF main
 
@@ -44,7 +44,7 @@ ENDF main
 ; -----------------------------------------------------------------------------
 ISR_START _(USART,_RXC_vect), r22
     lds     r22, USART_ADDR                   ; Read received byte (RXDATAL)
-    rcall   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns CS if full
+    call   HAL_DOUBLEBUFFER_PUSH             ; Push to active buffer, returns CS if full
     brcc    0f
 
     ; Buffer flipped: Trigger draining/echoing by enabling Data Register Empty ISR
@@ -60,13 +60,13 @@ ISR_END _(USART,_RXC_vect), r22
 ;              Disables itself once the buffer is empty.
 ; -----------------------------------------------------------------------------
 ISR_START _(USART,_DRE_vect), r22
-    rcall   HAL_DOUBLEBUFFER_PULL             ; Pop byte from spare buffer to r22, CS if empty
+    call   HAL_DOUBLEBUFFER_PULL             ; Pop byte from spare buffer to r22, CS if empty
     brcc    0f                                ; If Carry-Clear = data in r22 -> Send it back
                                               ; If Carry-Set = Buffer_empty -> Disable DRE ISR
     lds     r22, _(USART,_CTRLA)              ; Read current CTRLA
     cbr     r22, USART_DREIE_bm               ; Clear DREIE bit
     sts     _(USART,_CTRLA), r22              ; Write back
-    rjmp    1f
+    jmp    1f
   0:
     st      Y, r22                      ; Write byte to Target (e.g., USART TX)
   1:
