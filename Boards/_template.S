@@ -48,11 +48,11 @@ FUNC HAL_BOARD_SETUP
     ; IF DEVICE > 32K FLASH, make sure 1st page is MAPPED _____
     ; NVMCTRL Unified Memory Map to first page in Devices>32KB flash
     ; (For lds access to .progmem.rodata text)
-    sts     NVMCTRL_CTRLB, __zero_reg__
+    _WRITE_PROTECTED(NVMCTRL_CTRLB, __zero_reg__)
     ; _________________________________________________________
 
-    ;_CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
-    _CLOCK_HARDCODED_INIT()
+    _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
+    ;_CLOCK_HARDCODED_INIT()
     _USART_CONFIG()
     _SPI_CONFIG()
     _TWI_CONFIG()

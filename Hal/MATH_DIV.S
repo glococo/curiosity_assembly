@@ -9,6 +9,13 @@
 ;   ldi     r18, 7
 ;   call   MATH_UDIV_08             ; r22 = 14 (Quotient), r18 = 2 (Remainder)
 
+#define _DIV8     MATH_UDIV_08
+#define _DIV8S    MATH_SDIV_08
+#define _DIV16    MATH_UDIV_16
+#define _DIV16S   MATH_SDIV_16
+#define _DIV32    MATH_UDIV_32
+#define _DIV32S   MATH_SDIV_32
+
 ; Function: MATH_SDIV_32
 ; Description: Signed 32-bit / 32-bit division and modulo.
 ; Inputs:  r25:r22 - Dividend (A)

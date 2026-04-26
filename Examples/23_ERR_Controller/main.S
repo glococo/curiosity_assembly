@@ -36,10 +36,10 @@ FUNC main
     _WRITE_PROTECTED(SLPCTRL_VREGCTRL,__zero_reg__) ; Disable vreg mon in deep sleep
     _SLEEP_INT_ALL()                                ; Enable all Sleep interruptions
 
-    _ISR( BOARD_BUTTON_PORT, Toggle_led )           ; These _ISR wrappers are pay the overhead
+    _ISR( BOARD_BUTTON_PORT, Toggle_led )           ; These _ISR wrappers pay an overhead
     _ISR( ERRCTRL_INT_vect, ERR_isr )               ; of pushing SREG and calling a function.
     _ISR( SLPCTRL_INT_vect, SLP_isr )               ; Inneficient but visually attractive. Use
-                                                    ; in production ISR_START / ISR_END
+                                                    ; ISR_START / ISR_END in production.
     sei                                             ; Enable global interrupts
 
   loop:

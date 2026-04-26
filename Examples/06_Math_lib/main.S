@@ -66,8 +66,7 @@ FUNC main
     _ASSERT64s(  1234567890, -1234567890,   1234567890*-1234567890 )
     _ASSERT64x( -1234567890,  1234567890,  -1234567890* 1234567890 )
 
-    _STR("----------------------------------------\r\n")
-    _STR("MUL tests Completed.\r\n\r\n")$ _STR_FLUSH()
+    _STR("\r\n----------------------------------------\r\n")$ _STR_FLUSH()
 
     ; --- 8-bit DIV Tests ---
     _STR("\r\nTesting div 8-bit Operation:\r\n")$ _STR_FLUSH()

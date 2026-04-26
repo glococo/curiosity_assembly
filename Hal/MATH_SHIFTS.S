@@ -7,12 +7,16 @@
 ;   ldi     r23, hi8(0x1234)
 ;   ldi     r18, 4
 ;   call   MATH_LSL_16                 ; 0x1234 << 4 = 0x2340
-
-; Miscellaneous Helpers
-#define MATH_FFS_16       __ffshi2       ; Find First Set Bit in r25:r24
-#define MATH_CLZ_16       __clzhi2       ; Count Leading Zeros in r25:r24
-#define MATH_CTZ_16       __ctzhi2       ; Count Trailing Zeros in r25:r24
-#define MATH_POPCOUNT_16  __popcounthi2  ; Population Count (bit count) in r25:r24
+#define _LSL8        MATH_LSL_08
+#define _LSL16       MATH_LSL_16
+#define _LSL24       MATH_LSL_24
+#define _LSL32       MATH_LSL_32
+#define _LSR16       MATH_LSR_16
+#define _LSR24       MATH_LSR_24
+#define _LSR32       MATH_LSR_32
+#define _ASR16       MATH_ASR_16
+#define _ASR24       MATH_ASR_24
+#define _ASR32       MATH_ASR_32
 
 ; Function: MATH_LSL_08
 ; Description: Logical Shift Left (08-bit).

@@ -11,6 +11,22 @@
 ;   ; r25:r22 (A) * r21:r18 (B) -> r25:r18 (Result)
 ;   call   MATH_MUL_S_32_64
 
+#define _MUL16_16       MATH_MUL_16_16
+#define _MUL16_32       MATH_MUL_16_32
+#define _MUL16S_32      MATH_MUL_S_16_32
+#define _MUL16SU_32     MATH_MUL_SU_16_32
+#define _MUL32_32       MATH_MUL_32_32
+#define _MUL32_64       MATH_MUL_32_64
+#define _MUL32S_64      MATH_MUL_S_32_64
+#define _MUL32SU_64     MATH_MUL_SU_32_64
+#define _MUL64_64       MATH_MUL_64_64
+#define _MUL64S_64      MATH_MUL_S_64_64
+#define _MUL64SU_64     MATH_MUL_SU_64_64
+
+#define _MAC16_16       MATH_MAC_16_16
+#define _MAC16_32       MATH_MAC_16_32
+#define _MAC32_32       MATH_MAC_32_32
+
 ; Macro: MATH_MADD
 ; Description: Multiply-Add with Carry Propagation.
 ;              Multiplies two registers and adds the result to a register pair,

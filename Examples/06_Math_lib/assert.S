@@ -17,10 +17,10 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT16_(a, b, c)     _ASSERT16 MATH_MUL_16_16   , a, b, c, _STR_U16()
-#define _ASSERT16u(a, b, c)     _ASSERT16 MATH_MUL_16_32   , a, b, c, _STR_U32()
-#define _ASSERT16s(a, b, c)     _ASSERT16 MATH_MUL_S_16_32 , a, b, c, _STR_S32()
-#define _ASSERT16x(a, b, c)     _ASSERT16 MATH_MUL_SU_16_32, a, b, c, _STR_S32()
+#define _ASSERT16_(a, b, c)     _ASSERT16 _MUL16_16  , a, b, c, _STR_U16()
+#define _ASSERT16u(a, b, c)     _ASSERT16 _MUL16_32  , a, b, c, _STR_U32()
+#define _ASSERT16s(a, b, c)     _ASSERT16 _MUL16S_32 , a, b, c, _STR_S32()
+#define _ASSERT16x(a, b, c)     _ASSERT16 _MUL16SU_32, a, b, c, _STR_S32()
 .macro _ASSERT16 i, a, b, c, ptype
     clr2    r24
     ldi2    r22, \a                           ; Load A
@@ -37,8 +37,8 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT16mac16(a, b, c, d)     _ASSERT16mac MATH_MAC_16_16, a, b, c, d, _STR_U16()
-#define _ASSERT16mac32(a, b, c, d)     _ASSERT16mac MATH_MAC_16_32, a, b, c, d, _STR_U32()
+#define _ASSERT16mac16(a, b, c, d)     _ASSERT16mac _MAC16_16, a, b, c, d, _STR_U16()
+#define _ASSERT16mac32(a, b, c, d)     _ASSERT16mac _MAC16_32, a, b, c, d, _STR_U32()
 .macro _ASSERT16mac i, a, b, c, d, ptype
     ldi4    r22, \a                           ; Load A
     ldi2    r20, \b                           ; Load B
@@ -55,7 +55,7 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT32_(a, b, c)       _ASSERT32 MATH_MUL_32_32, a, b, c, _STR_U32()
+#define _ASSERT32_(a, b, c)       _ASSERT32 _MUL32_32, a, b, c, _STR_U32()
 .macro _ASSERT32 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
@@ -70,7 +70,7 @@
   1:
   _STR_FLUSH()
 .endm
-#define _ASSERT32mac(a, b, c, d)  _ASSERT32m MATH_MAC_32_32, a, b, c, d, _STR_U32()
+#define _ASSERT32mac(a, b, c, d)  _ASSERT32m _MAC32_32, a, b, c, d, _STR_U32()
 .macro _ASSERT32m i, a, b, c, d, ptype
     ldi4    r22, \c                           ; Load C
     ldi4    r18, \b                           ; Load B
@@ -88,9 +88,9 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT32u(a, b, c)     _ASSERT3264 MATH_MUL_32_64   , a, b, c, _STR_U64()
-#define _ASSERT32s(a, b, c)     _ASSERT3264 MATH_MUL_S_32_64 , a, b, c, _STR_S64()
-#define _ASSERT32x(a, b, c)     _ASSERT3264 MATH_MUL_SU_32_64, a, b, c, _STR_S64()
+#define _ASSERT32u(a, b, c)     _ASSERT3264 _MUL32_64  , a, b, c, _STR_U64()
+#define _ASSERT32s(a, b, c)     _ASSERT3264 _MUL32S_64 , a, b, c, _STR_S64()
+#define _ASSERT32x(a, b, c)     _ASSERT3264 _MUL32SU_64, a, b, c, _STR_S64()
 .macro _ASSERT3264 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A
     ldi4    r18, \b                           ; Load B
@@ -106,9 +106,9 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT64u(a, b, c)     _ASSERT64 MATH_MUL_64_64   , a, b, c, _STR_U64()
-#define _ASSERT64s(a, b, c)     _ASSERT64 MATH_MUL_S_64_64 , a, b, c, _STR_S64()
-#define _ASSERT64x(a, b, c)     _ASSERT64 MATH_MUL_SU_64_64, a, b, c, _STR_S64()
+#define _ASSERT64u(a, b, c)     _ASSERT64 _MUL64_64  , a, b, c, _STR_U64()
+#define _ASSERT64s(a, b, c)     _ASSERT64 _MUL64S_64 , a, b, c, _STR_S64()
+#define _ASSERT64x(a, b, c)     _ASSERT64 _MUL64SU_64, a, b, c, _STR_S64()
 .macro _ASSERT64 i, a, b, c, ptype
     ldi8    r18, \b                           ; Load B
     mov8    r10, r18
@@ -125,8 +125,8 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT_D8U(a, b, c)     _ASSERTD8 MATH_UDIV_08, a, b, c, _STR_U8()
-#define _ASSERT_D8S(a, b, c)     _ASSERTD8 MATH_SDIV_08, a, b, c, _STR_S8()
+#define _ASSERT_D8U(a, b, c)     _ASSERTD8 _DIV8 , a, b, c, _STR_U8()
+#define _ASSERT_D8S(a, b, c)     _ASSERTD8 _DIV8S, a, b, c, _STR_S8()
 .macro _ASSERTD8 i, a, b, c, ptype
     ldi     r22, \a                           ; Load A Dividend
     ldi     r18, \b                           ; Load B divisor
@@ -142,8 +142,8 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT_D16U(a, b, c)     _ASSERTD16 MATH_UDIV_16, a, b, c, _STR_U16()
-#define _ASSERT_D16S(a, b, c)     _ASSERTD16 MATH_SDIV_16, a, b, c, _STR_S16()
+#define _ASSERT_D16U(a, b, c)     _ASSERTD16 _DIV16 , a, b, c, _STR_U16()
+#define _ASSERT_D16S(a, b, c)     _ASSERTD16 _DIV16S, a, b, c, _STR_S16()
 .macro _ASSERTD16 i, a, b, c, ptype
     ldi2    r22, \a                           ; Load A Dividend
     ldi2    r18, \b                           ; Load B divisor
@@ -159,8 +159,8 @@
   _STR_FLUSH()
 .endm
 
-#define _ASSERT_D32U(a, b, c)     _ASSERTD32 MATH_UDIV_32, a, b, c, _STR_U32()
-#define _ASSERT_D32S(a, b, c)     _ASSERTD32 MATH_SDIV_32, a, b, c, _STR_S32()
+#define _ASSERT_D32U(a, b, c)     _ASSERTD32 _DIV32 , a, b, c, _STR_U32()
+#define _ASSERT_D32S(a, b, c)     _ASSERTD32 _DIV32S, a, b, c, _STR_S32()
 .macro _ASSERTD32 i, a, b, c, ptype
     ldi4    r22, \a                           ; Load A Dividend
     ldi4    r18, \b                           ; Load B divisor

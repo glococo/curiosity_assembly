@@ -1,7 +1,7 @@
 #define _ISR( vector, function )   HAL_ISR vector, function
 
 .macro HAL_ISR_EXE name, function
-  .warning "__ISR__ name: \name, function: \function"
+  ; .warning "__ISR__ name: \name, function: \function"
   .pushsection .text.\name, "ax", @progbits
   .global \name
   .type \name, @function

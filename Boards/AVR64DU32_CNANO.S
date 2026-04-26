@@ -1,7 +1,7 @@
 ; Core: avr64du32
-; Datasheet: DS40002548
-; Target: AVR64DU32 CURIOSITY NANO
-; Target datasheet: DS50003671
+; Datasheet: DS40002548A
+; Target: AVR64DU32_CURIOSITY NANO board
+; Target datasheet: DS50003671A
 #include <avr/io.h>
 
 ; Core Config
@@ -25,6 +25,7 @@
 #define USART_ADDR            USART1_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
+#define USART_ALT             ALT2
 ; TWI Config (default)
 #define TWI_CONFIGURED
 ; SPI Config
@@ -34,47 +35,31 @@
 #define SPI_MISO              PIN5_bp
 #define SPI_SCK               PIN6_bp
 #define SPI_SS                PIN7_bp
+;#define SPI_IRQ_PIN           PINx_bp
+;#define SPI_IRQ_PORT          PORTx
 
 #include "../Hal/ALL.S"
 
 FUNC HAL_BOARD_SETUP
-  HAL_BOARD_SETUP:
-    clr     __zero_reg__
-    ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
-    ldi     r22, CLKCTRL_FRQSEL_24M_gc
+    _ZERO_FULL_INIT()
+    ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ and SOF Autotune
+    ldi     r22, CLKCTRL_FRQSEL_24M_gc | CLKCTRL_AUTOTUNE_SOF_gc
     call   HAL_CLKCTRL_OSCHF_SET
+    ; IF DEVICE > 32K FLASH, make sure 1st page is MAPPED _____
+    ; NVMCTRL Unified Memory Map to first page in Devices>32KB flash
+    ; (For lds access to .progmem.rodata text)
+    _WRITE_PROTECTED(NVMCTRL_CTRLB, __zero_reg__)
 
-    ; HAL SPEED AWARENESS
-    ldi4    r22, BOARD_CLOCK_MAIN
-    sts4    HAL_CLK_MAIN_KHZ, r22
-
-    ldi     r22, 0
-    call   HAL_CLKCTRL_PRESCALER
-    call   HAL_USART_BAUDRATE_UPD
-
-    #ifdef TWI_CONFIGURED                                 /* TWI CONFIG */
-    _PORTMUX_ROUTEA( TWI, 0, DEFAULT )                    ; Ensure TWI0 is in PA2/PA3
-    #endif
-
-    #ifdef SPI_CONFIGURED                                 /* SPI CONFIG */
-    ldi     r22, ( PIN4_bm | PIN6_bm | PIN7_bm )          ; MOSI, SCK, SS
-    out     _(_(V,SPI_PORT),_DIR), r22
-    _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
-    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; PORTF PIN0 as IRQ
-    sts     PORTF_PIN0CTRL, r18
-    #endif
-
-    #ifdef USART_CONFIGURED                               /* USART CONFIG */
-    _PORTMUX_ROUTEA( USART, 1, ALT2 )                     ; Ensure USART1 is in ALT2
-    _PIN_DIR_SET( USART_PORT, USART_TX )                  ; Set USART_TX PIN as OUTPUT
-    ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
-    sts     _(USART,_CTRLB), r18                          ;
-    #endif
+    _CLOCK_AWARENESS_INIT()                               ; HAL SPEED AWARENESS
+    ;_CLOCK_HARDCODED_INIT()
+    _USART_CONFIG()
+    _SPI_CONFIG()
+    _TWI_CONFIG()
 
     ; PIN LED CONFIG
-    _PIN_DIR_SET( BOARD_LED_PORT, BOARD_LED_PIN )         ; Set PIN as OUTPUT
+    _PIN_DIR_SET(BOARD_LED_PORT, BOARD_LED_PIN)           ; Set PIN as OUTPUT
 
     ; PIN BUTTON CONFIG
-    ldi     r18, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc) ; Config BOARD_BUTTON/SW0 Pin
-    sts     _(BOARD_BUTTON_PORT, _PIN6CTRL), r18
+    ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
+    sts     _PIN_CTRL( BOARD_BUTTON_PORT, BOARD_BUTTON_PIN ), r22  ; Config BOARD_BUTTON/SW0 Pin
 ENDF HAL_BOARD_SETUP
