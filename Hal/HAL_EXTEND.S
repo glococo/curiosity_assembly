@@ -288,18 +288,10 @@
     clr   \reg_start+1
 .endm
 .macro  clr4  reg_start
-    clr   \reg_start
-    clr   \reg_start+1
-    clr   \reg_start+2
-    clr   \reg_start+3
+    clr2  \reg_start
+    clr2  \reg_start+2
 .endm
 .macro  clr8  reg_start
-    clr   \reg_start
-    clr   \reg_start+1
-    clr   \reg_start+2
-    clr   \reg_start+3
-    clr   \reg_start+4
-    clr   \reg_start+5
-    clr   \reg_start+6
-    clr   \reg_start+7
+    clr4  \reg_start
+    clr4  \reg_start+4
 .endm

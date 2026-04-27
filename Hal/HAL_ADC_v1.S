@@ -17,7 +17,7 @@
 .endm
 
 .macro HAL_ADC_ENABLE prescaler=ADC_PRESC_DIV16_gc, vref=0
-  #ifdef ADC_REFSEL_VDDREF_gc
+  #if defined(ADC_REFSEL_VREFA_gc) || defined(ADC_REFSEL_VDDREF_gc)
     ldi     r16, \prescaler | \vref
   #else
     ldi     r16, \prescaler
@@ -26,6 +26,9 @@
     sts     ADC0_CTRLB, __zero_reg__    ; Sampnum reset
     ldi     r16, ADC_ENABLE_bm
     sts     ADC0_CTRLA, r16             ; CTRLA (Enable/FreeRun)
+    ldi     r16, ADC_INITDLY_DLY32_gc
+    sts     ADC0_CTRLD, r16             ; CTRLD Init delay
+
 .endm
 
 .macro HAL_ADC_READ ain=0
@@ -77,7 +80,7 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
     ; 5. Divide by 4096 (Shift Right 12)
     ldi     r18, 12
-    call   MATH_ASR_32                             ; r25:r22 /= 4096
+    call    _ASR32                             ; r25:r22 /= 4096
 
     ; 6. Convert Kelvin to Celsius (K - 273)
     subi    r22, lo8(273)
@@ -85,4 +88,34 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
   POP_MANY r21, r20, r25, r24, r19, r18
 ENDF HAL_ADC_GET_TEMPERATURE
+
+FUNC HAL_ADC_GET_TEMPERATURE_ALT
+  PUSH_MANY r18, r19, r24, r25, r20, r21
+    ; 1. Read calibration values (Slope and Offset are 8-bit)
+    lds     r20, SIGROW_TEMPSENSE1                  ; r20 = Offset (signed 8-bit)
+    lds     r18, SIGROW_TEMPSENSE0                  ; r18 = Slope (unsigned 8-bit, but treat as signed for multiplication)
+    clr     r19
+
+    ; 2. (ADC_RES - Offset)
+    _CAST8_16(r20)
+    sub     r22, r20
+    sbc     r23, r21
+
+    ; 3. (ADC_RES - Offset) * Slope
+    call    _MUL16S_32
+
+    ; 4. Rounding: Add 128 before dividing by 256
+    ldi4    r18, 128
+    add4    r22, r18                                ; r25:r22 += 128
+
+    ; 5. Divide by 256 (Shift Right 8)
+    ldi     r18, 8
+    call    _ASR32                             ; r25:r22 /= 256
+
+    ; 6. Convert Kelvin to Celsius (K - 273)
+    subi    r22, lo8(273)
+    sbci    r23, hi8(273)                           ; r23:r22 = Temperature in Celsius
+
+  POP_MANY r21, r20, r25, r24, r19, r18
+ENDF HAL_ADC_GET_TEMPERATURE_ALT
 

@@ -24,6 +24,7 @@
 #include "MATH_MUL.S"             // Multiplication routines
 #include "MATH_DIV.S"             // Division and Modulo routines
 #include "MATH_SHIFTS.S"          // Bitwise shift and compare routines
+#include "MATH_CAST.S"            // Casting macro functions
 
 ; Buffers
 #include "HAL_DEVICEBUFFER.S"     // Ring Buffer (Circular Buffer) library
@@ -44,6 +45,7 @@
 #include "HAL_VREF.S"             // VREF helper
 #include "HAL_DAC.S"              // Digital-to-Analog Converter (DAC) helper
 #include "HAL_AC.S"               // Analog Comparator (AC) Helper
+//#include "HAL_USB.S"              // USB Device Controller Helper
 #include "HAL_ERRCTRL.S"          // Error controller on SD Devices
 
 #ifdef CLKCTRL_MCLKTIMEBASE

@@ -125,21 +125,21 @@ FUNC HAL_ADC_GET_TEMPERATURE
     lds2    r18, SIGROW_TEMPSENSE1                  ; r19:r18 = Offset (signed 16-bit)
     lds2    r20, SIGROW_TEMPSENSE0                  ; r21:r20 = Slope (signed 16-bit)
 
-    ; 2. (ADC_RES + Offset)
-    add     r22, r18
-    adc     r23, r19                                ; r23:r22 = ADC_RES + Offset (signed 16-bit)
+    ; 2. (Offset - ADC_RES)
+    sub     r18, r22
+    sbc     r19, r23
 
-    ; 3. (ADC_RES + Offset) * Slope
-    movw    r18, r20                                ; r19:r18 = Slope
-    call   MATH_MUL_S_16_32                        ; r25:r22 = (ADC_RES + Offset) * Slope (signed 32-bit)
+    ; 3. (Offset - ADC_RES) * Slope
+    movw    r22, r20
+    call    _MUL16_32
 
-    ; 4. Rounding: Add 2048 (4096/2) before dividing by 4096
-    ldi4    r18, 2048
-    add4    r22, r18                                ; r25:r22 += 2048
+    ; 4. Rounding: Add 512 (1024/2) before dividing by 1024
+    ldi4    r18, 512
+    add4    r22, r18                                ; r25:r22 += 512
 
-    ; 5. Divide by 4096 (Shift Right 12)
-    ldi     r18, 12
-    call   MATH_ASR_32                             ; r25:r22 /= 4096
+    ; 5. Divide by 1024 (Shift Right 10)
+    ldi     r18, 10
+    call    _ASR32                                  ; r25:r22 /= 1024
 
     ; 6. Convert Kelvin to Celsius (K - 273)
     subi    r22, lo8(273)
@@ -147,3 +147,30 @@ FUNC HAL_ADC_GET_TEMPERATURE
 
   POP_MANY r21, r20, r25, r24, r19, r18
 ENDF HAL_ADC_GET_TEMPERATURE
+
+FUNC HAL_ADC_GET_TEMPERATURE_ALT
+  PUSH_MANY r18, r19, r24, r25, r20, r21
+    ; 1. Read calibration values (Slope and Offset are 16-bit)
+    lds2    r18, SIGROW_TEMPSENSE0                  ; r19:r18 = Slope (signed 16-bit)
+    lds2    r20, SIGROW_TEMPSENSE1                  ; r21:r20 = Offset (signed 16-bit)
+
+    ; 2. (ADC_RES + Offset)
+    add2    r22, r20
+
+    ; 3. (ADC_RES + Offset) * Slope
+    call    _MUL16S_32                              ; r25:r22 = r23:r22 * r19:r18
+
+    ; 4. Rounding: Add 2048 (4096/2) before dividing by 4096
+    ldi4    r18, 2048
+    add4    r22, r18                                ; r25:r22 += 2048
+
+    ; 5. Divide by 4096 (Shift Right 12)
+    ldi     r18, 12
+    call    _ASR32                                  ; r25:r22 /= 4096
+
+    ; 6. Convert Kelvin to Celsius (K - 273)
+    subi    r22, lo8(273)
+    sbci    r23, hi8(273)                           ; r23:r22 = Temperature in Celsius
+
+  POP_MANY r21, r20, r25, r24, r19, r18
+ENDF HAL_ADC_GET_TEMPERATURE_ALT

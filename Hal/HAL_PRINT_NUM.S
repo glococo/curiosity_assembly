@@ -12,7 +12,7 @@
 #define _STR_S64( reg, ...)   PRINT_REG_S64 reg, ##__VA_ARGS__
 
 .macro PRINT_REG_U8 reg=r22, pad=0
-  PUSH_MANY r16, r23, r24, r25
+  PUSH_MANY r16, r22, r23, r24, r25
   .ifnc \reg, r22
      PUSH     \reg
      mov      r22, \reg
@@ -23,7 +23,7 @@
   .ifnc \reg, r22
      POP      \reg
   .endif
-  POP_MANY r25, r24, r23, r16
+  POP_MANY r25, r24, r23, r22, r16
 .endm
 .macro PRINT_REG_U16 reg=r22, pad=0
   PUSH_MANY r16, r24, r25
