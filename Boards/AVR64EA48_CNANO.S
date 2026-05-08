@@ -1,7 +1,7 @@
-; Core: avr__xx__
-; Datasheet: DS________x
-; Target: AVR__xx__ CURIOSITY NANO board
-; Target datasheet: DS________x
+; Core: avr64ea48
+; Datasheet: DS40002443A
+; Target: AVR64EA48 CURIOSITY NANO board
+; Target datasheet: DS50003494A
 #include <avr/io.h>
 
 ; Core Config
@@ -11,21 +11,20 @@
 ; Board Config
 #define BOARD_CLOCK_MAIN      CORE_CLOCK_OSCHF
 #define BOARD_CLOCK_RTC       CORE_CLOCK_OSC32K
-#define BOARD_LED_PIN         PINx_bp
-#define BOARD_LED_PORT        PORTx
-#define BOARD_BUTTON_PIN      PINx_bp
-#define BOARD_BUTTON_PORT     PORTx
+#define BOARD_LED_PIN         PIN3_bp
+#define BOARD_LED_PORT        PORTB
+#define BOARD_BUTTON_PIN      PIN2_bp
+#define BOARD_BUTTON_PORT     PORTB
 
 ; USART Config
 #define USART_CONFIGURED
-#define USART                 USARTx
-#define USART_TX              PINx_bp
-#define USART_RX              PINx_bp
-#define USART_PORT            PORTx
-#define USART_ADDR            USARTx_RXDATAL
+#define USART                 USART1
+#define USART_TX              PIN0_bp
+#define USART_RX              PIN1_bp
+#define USART_PORT            PORTC
+#define USART_ADDR            USART1_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
-; #define USART_ALT            ALTx
 
 ; TWI Config (default)
 #define TWI_CONFIGURED
@@ -34,12 +33,11 @@
 
 ; SPI Config
 #define SPI_CONFIGURED
-#define SPI_PORT              PORTx
-#define SPI_MOSI              PINx_bp
-#define SPI_MISO              PINx_bp
-#define SPI_SCK               PINx_bp
-#define SPI_SS                PINx_bp
-;#define SPIx_ALT              ALTx
+#define SPI_PORT              PORTA
+#define SPI_MOSI              PIN4_bp
+#define SPI_MISO              PIN5_bp
+#define SPI_SCK               PIN6_bp
+#define SPI_SS                PIN7_bp
 ;#define SPI_IRQ_PIN           PINx_bp
 ;#define SPI_IRQ_PORT          PORTx
 
@@ -49,8 +47,8 @@ FUNC HAL_BOARD_SETUP
     _ZERO_FULL_INIT()
     ; MAKE SURE OSCHF default speed ___________________________
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 24MHZ
-    ldi     r22, CLKCTRL_FRQSEL_24M_gc
-    call   HAL_CLKCTRL_OSCHF_SET
+;     ldi     r22, CLKCTRL_FRQSEL_20M_gc
+;     call   HAL_CLKCTRL_OSCHF_SET
     ; IF DEVICE > 32K FLASH, make sure 1st page is MAPPED _____
     ; NVMCTRL Unified Memory Map to first page in Devices>32KB flash
     ; (For lds access to .progmem.rodata text)

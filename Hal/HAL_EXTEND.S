@@ -87,6 +87,9 @@
     sts \dest+3, \reg_start+3
 .endm
 
+.macro  ldi1  reg_start, val
+    ldi \reg_start  , lo8( \val )
+.endm
 .macro  ldi2  reg_start, val
     ldi \reg_start  , lo8( \val )
     ldi \reg_start+1, hi8( \val )

@@ -45,7 +45,7 @@
 #include "HAL_VREF.S"             // VREF helper
 #include "HAL_DAC.S"              // Digital-to-Analog Converter (DAC) helper
 #include "HAL_AC.S"               // Analog Comparator (AC) Helper
-//#include "HAL_USB.S"              // USB Device Controller Helper
+#include "HAL_USB.S"              // USB Device Controller Helper
 #include "HAL_ERRCTRL.S"          // Error controller on SD Devices
 
 #ifdef CLKCTRL_MCLKTIMEBASE

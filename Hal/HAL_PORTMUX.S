@@ -7,8 +7,9 @@
 ; Preprocessor Macro: HAL_PORTMUX
 ; Description: Directly sets a PORTMUX register with a given value.
 .macro HAL_PORTMUX val, reg
-    ldi r16, \val
-    sts \reg, r16
+    lds   r16, \reg
+    ori   r16, \val
+    sts   \reg, r16
 .endm
 
 /*

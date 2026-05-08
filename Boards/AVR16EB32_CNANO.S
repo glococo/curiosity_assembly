@@ -26,8 +26,12 @@
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
 #define USART_ALT             ALT4
-; TWI Config (default)
+
+; TWI Config (baud 50khz default)
 #define TWI_CONFIGURED
+#define TWI_ALT               ALT3
+;#define TWI_BAUD_RATE_KHZ     100
+
 ; SPI Config
 #define SPI_CONFIGURED
 #define SPI_PORT              PORTA
@@ -35,8 +39,8 @@
 #define SPI_MISO              PIN5_bp
 #define SPI_SCK               PIN6_bp
 #define SPI_SS                PIN7_bp
-#define SPI_IRQ_PIN           PIN2_bp
-#define SPI_IRQ_PORT          PORTF
+;#define SPI_IRQ_PIN           PIN2_bp
+;#define SPI_IRQ_PORT          PORTF
 
 #include "../Hal/ALL.S"
 

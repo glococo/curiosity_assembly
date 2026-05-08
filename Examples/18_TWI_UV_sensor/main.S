@@ -8,35 +8,34 @@
 #include "../../Drivers/VEML6075/driver.S"
 
 FUNC main
-    call   HAL_BOARD_SETUP                         ; Basic board initialization
-    _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+    _BOARD_SETUP()                                  ; Basic board initialization
+    _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)          ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ VEML6075 UV Sensor Example __\r\n")$ _STR_FLUSH()
 
-    call   HAL_TWI_INIT                            ; Initialize TWI
-
-    VEML6075_READ_REG    VEML6075_REG_ID
+    _TWI_MASTER()                                   ; Initialize TWI with default baudrate
+    call    VEML6075_READ_ID
     brcc    read_ok
     _STR("Error: Device ID read failed!\r\n")
-    jmp     flush_end
+    jmp     end
 
   read_ok:
-    _DEBUG_REG(r22, "Device ID: ")                  ; r22 contains ID (Expected 0x26)
-    call   VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
-    brcc    start_reading
+    call    VEML6075_ENABLE                         ; Configure Sensor (Power ON, 100ms integration time)
+    brcc    read_device
     _STR("Error: Enable failed!\r\n")
-    jmp     flush_end
+    jmp     end
 
-  start_reading:
+  read_device:
     _STR("Start reading ...\r\n")$ _STR_FLUSH()
     _DELAY_MS(150)                                  ; Wait for first conversion (100ms IT + margin)
 
   main_loop:
-    call   VEML6075_READ
-    brcc    read_print
+    call    VEML6075_READ
+    brcc    print_results
     _STR("Error: Sensor read failed!\r\n")
-    jmp    flush_end
-  read_print:
+    jmp     end
+
+  print_results:
     lds2    r22, VEML6075_UVI
     _STR("UVI: ")$ _STR_U16()
     lds2    r22, VEML6075_UVAc
@@ -52,11 +51,11 @@ FUNC main
     lds2    r22, VEML6075_UVCOMP2
     _STR("  COMP2: ")$ _STR_U16()$ _STRNR()$ _STR_FLUSH()
     _DELAY_MS(2000)
-    jmp    main_loop
+    jmp     main_loop
 
-  flush_end:
+  end:
     _STR_FLUSH()
   loop:
-    jmp    loop
+    jmp     loop
 
 ENDF main

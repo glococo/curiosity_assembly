@@ -8,29 +8,29 @@
 #include "../../Drivers/MCP9804/driver.S"
 
 FUNC main
-    call   HAL_BOARD_SETUP                         ; Basic board initialization
-    _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)     ; Initialize the USART ring buffer
+    _BOARD_SETUP()                                  ; Basic board initialization
+    _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)          ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ MCP9804 Temperature Sensor Example __\r\n")$ _STR_FLUSH()
 
-    call   HAL_TWI_INIT                            ; Initialize TWI
+    _TWI_MASTER()                                   ; Initialize TWI with default baudrate
 
-    MCP9804_READ_REG    MCP9804_REG_ID
+    MCP9804_READ( MCP9804_REG_ID )                  ; Read MCP9804_REG_ID
     brcc    read_ok
     _STR("Error: Sensor read failed!\r\n")
-    jmp     flush_end
+    jmp     end
 
   read_ok:
     _DEBUG_REG2( r22, "Device ID: ")
-    MCP9804_READ_REG    MCP9804_REG_MANUFACTURER
+    MCP9804_READ( MCP9804_REG_MANUFACTURER )
     _DEBUG_REG2( r22, "Manufacturer ID: ")
-    MCP9804_READ_REG    MCP9804_REG_CONF
+    MCP9804_READ( MCP9804_REG_CONF )
     _DEBUG_REG2( r22, "Configuration: ")
-    MCP9804_READ_REG    MCP9804_REG_RESOLUTION
+    MCP9804_READ( MCP9804_REG_RESOLUTION )
     _DEBUG_REG2( r22, "Resolution: ")
 
   main_loop:
-    call   MCP9804_READ_TEMPERATURE
+    call    MCP9804_READ_TEMPERATURE
     brcs    error_temp
     _STR("Temperature: ")$ _STR_U8(r22)$ _STR(".")$ _STR_U16(r24,4)$ _STR("º\n\r")$ _STR_FLUSH()
 
@@ -39,7 +39,7 @@ FUNC main
 
   error_temp:
     _STR("Error: Read temp failed!\r\n")
-  flush_end:
+  end:
     _STR_FLUSH()
   loop:
     jmp    loop

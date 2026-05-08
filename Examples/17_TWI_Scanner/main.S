@@ -7,28 +7,30 @@
 ; -----------------------------------------------------------------------------
 
 FUNC main
-    call   HAL_BOARD_SETUP                             ; Basic board initialization
-    _DEVBUFFER(TX_DEVBUFFER, 128, USART_ADDR)           ; Initialize the USART ring buffer
-    _DELAY_MS(1000)                                     ; Wait for termux to reconnect everytime the board is plugged
+    _BOARD_SETUP()                                      ; Basic board initialization
+    _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)              ; Initialize the USART ring buffer
+    _DELAY_MS(1000)                                     ; Wait for terminal to reconnect everytime the board is plugged in
 
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
     _STR("__ TWI: Scans the TWI bus for devices\r\n")$ _STR_FLUSH()
 
-    call   HAL_TWI_INIT
-    ldi     r20, 1                                      ; Start address
+    _TWI_MASTER()                                       ; Initialize TWI with default baudrate
+    ldi     r18, 1                                      ; Start address
 
   scan_loop:
-    mov     r22, r20
-    call   HAL_TWI_START_WRITE                         ; Try to address device
+    mov     r20, r18
+    clc
+    lsl     r20
+    call    HAL_TWI_MSTART                              ; Try to address device
     brcs    not_found
-    _DEBUG_REG(r20, "Found device at: ")$ _STR_FLUSH()  ; Device found!
+    _DEBUG_REG(r18, "Found device at: ")$ _STR_FLUSH()  ; Device found!
 
   not_found:
-    call   HAL_TWI_STOP                ; Even on NACK, send STOP to go back to IDLE
+    _TWI_STOP()                                         ; Even on NACK, send STOP to go back to IDLE
 
   next_addr:
-    inc     r20
-    cpi     r20, 127
+    inc     r18
+    cpi     r18, 127
     brcs    scan_loop
 
     _STR("Done.\r\n")$ _STR_FLUSH()

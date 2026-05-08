@@ -111,3 +111,8 @@
     out     CPU_CCP, r18
     sts     \memory, \register
 .endm
+
+#define _BOARD_SETUP()   HAL_BOARD_SETUP_CALL
+.macro HAL_BOARD_SETUP_CALL
+    call    HAL_BOARD_SETUP
+.endm

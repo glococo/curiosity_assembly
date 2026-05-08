@@ -20,7 +20,7 @@ ADC_DIV_TABLE:  .byte 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64
   #elif defined ADC_MODE_SINGLE_10BIT_gc
     ldi     r23, (ADC_START_IMMEDIATE_gc | ADC_MODE_SINGLE_10BIT_gc)
   #else
-    .error  "ADC_READ not defined"
+    .warning  "ADC_READ not defined"
   #endif
     call   HAL_ADC_READ_POLLING
 .endm

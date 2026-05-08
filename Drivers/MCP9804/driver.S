@@ -13,6 +13,8 @@
 ; Configuration bits
 #define MCP9804_CONF_SLEEP_bm     0x0100
 
+#define MCP9804_READ(reg)         MCP9804_READ_REG reg
+
 ; MCP9804 sram structure
 .section .data
 MCP9804_struct:
@@ -28,9 +30,7 @@ MCP9804_struct:
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_READ_TEMPERATURE
   PUSH_MANY r19, r20, r21
-    ldi     r22, MCP9804_ADDR
-    ldi     r23, MCP9804_REG_T_AMB
-    call   HAL_TWI_READ_REGW_BE        ; Result in r23:r22 (Big Endian)
+    _TWI_READ2BE( MCP9804_ADDR, MCP9804_REG_T_AMB )    ; Result in r23:r22 (Big Endian)
     brcs    .L_exit
 
     sts2    MCP9804_LAST, r22           ; Save raw register (LSB in r22, MSB in r23)
@@ -69,7 +69,7 @@ FUNC MCP9804_READ_TEMPERATURE
 
     ; Calculate Decimal: Fraction * 625
     ldi2    r22, 625
-    call   MATH_MUL_16_32              ; r25:r22 = r23:r22 * r19:r18
+    call    MATH_MUL_16_32              ; r25:r22 = r23:r22 * r19:r18
     movw    r24, r22                    ; Decimal in r25:r24
 
     mov     r22, r20                    ; Return integer in r22
@@ -81,15 +81,15 @@ FUNC MCP9804_READ_TEMPERATURE
 ENDF MCP9804_READ_TEMPERATURE
 
 ; -----------------------------------------------------------------------------
-; Macro: MCP9804_READ_REG reg
+; Macro: MCP9804_READ
 ; Description: Read an internal MCP9804 register
 ; Outputs:  r23:r22 - Data
 ;                Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 .macro MCP9804_READ_REG reg
-    ldi     r22, MCP9804_ADDR
-    ldi     r23, \reg
-    call   HAL_TWI_READ_REGW_BE
+  PUSH_MANY r20, r21
+    _TWI_READ2BE( MCP9804_ADDR, \reg )
+  POP_MANY  r21, r20
 .endm
 
 ; -----------------------------------------------------------------------------
@@ -98,14 +98,13 @@ ENDF MCP9804_READ_TEMPERATURE
 ; Outputs :   Cf - 0: Success, 1: Error
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_ENABLE
-  PUSH_MANY r22, r23, r24, r25
-    ldi     r22, MCP9804_ADDR
-    ldi     r23, MCP9804_REG_CONF
-    call   HAL_TWI_READ_REGW_BE
+  PUSH_MANY r20, r21, r22, r23
+    _TWI_READ2BE( MCP9804_ADDR, MCP9804_REG_CONF )
     brcs    1f
 
-    andi2   r24, ~MCP9804_CONF_SLEEP_bm
-    call   HAL_TWI_WRITE_REGW_BE
+    andi2   r22, ~MCP9804_CONF_SLEEP_bm
+    ldi     r16, 2
+    call    HAL_TWI_WRITE_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_ENABLE
@@ -117,13 +116,12 @@ ENDF MCP9804_ENABLE
 ; -----------------------------------------------------------------------------
 FUNC MCP9804_DISABLE
   PUSH_MANY r22, r23, r24, r25
-    ldi     r22, MCP9804_ADDR
-    ldi     r23, MCP9804_REG_CONF
-    call   HAL_TWI_READ_REGW_BE
+    _TWI_READ2BE( MCP9804_ADDR, MCP9804_REG_CONF )
     brcs    1f
 
-    ori2    r24, MCP9804_CONF_SLEEP_bm
-    call   HAL_TWI_WRITE_REGW_BE
+    ori2    r22, MCP9804_CONF_SLEEP_bm
+    ldi     r16, 2
+    call    HAL_TWI_WRITE_BE
   1:
   POP_MANY r25, r24, r23, r22
 ENDF MCP9804_DISABLE

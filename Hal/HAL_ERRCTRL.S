@@ -1,5 +1,5 @@
+#ifdef ERRCTRL
 ; ERROR CONTROLLER on SD FAMILY
-#ifdef IS_FAMILY_SD
 
 #define _ERRCTRL_INIT()               HAL_ERRCTRL_INIT
 #define _ERRCTRL_NORMAL()             HAL_ERRCTRL_NORMAL

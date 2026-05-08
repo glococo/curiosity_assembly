@@ -1,45 +1,43 @@
-; Core: avr__xx__
-; Datasheet: DS________x
-; Target: AVR__xx__ CURIOSITY NANO board
-; Target datasheet: DS________x
+; Core: avr128da48
+; Datasheet: DS40002183
+; Target: AVR128DA48 CURIOSITY NANO board
+; Target datasheet: DS50002971B
 #include <avr/io.h>
 
 ; Core Config
-#define CORE_CLOCK_OSCHF      20000
+#define CORE_CLOCK_OSCHF      24000
 #define CORE_CLOCK_OSC32K     32768
 
 ; Board Config
 #define BOARD_CLOCK_MAIN      CORE_CLOCK_OSCHF
 #define BOARD_CLOCK_RTC       CORE_CLOCK_OSC32K
-#define BOARD_LED_PIN         PINx_bp
-#define BOARD_LED_PORT        PORTx
-#define BOARD_BUTTON_PIN      PINx_bp
-#define BOARD_BUTTON_PORT     PORTx
+#define BOARD_LED_PIN         PIN6_bp
+#define BOARD_LED_PORT        PORTC
+#define BOARD_BUTTON_PIN      PIN7_bp
+#define BOARD_BUTTON_PORT     PORTC
 
 ; USART Config
 #define USART_CONFIGURED
-#define USART                 USARTx
-#define USART_TX              PINx_bp
-#define USART_RX              PINx_bp
-#define USART_PORT            PORTx
-#define USART_ADDR            USARTx_RXDATAL
+#define USART                 USART1
+#define USART_TX              PIN0_bp
+#define USART_RX              PIN1_bp
+#define USART_PORT            PORTC
+#define USART_ADDR            USART1_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
-; #define USART_ALT            ALTx
 
 ; TWI Config (default)
 #define TWI_CONFIGURED
-;#define TWI_ALT               ALTx
+#define TWI_ALT               ALT2
 ;#define TWI_BAUD_RATE_KHZ     50
 
 ; SPI Config
 #define SPI_CONFIGURED
-#define SPI_PORT              PORTx
-#define SPI_MOSI              PINx_bp
-#define SPI_MISO              PINx_bp
-#define SPI_SCK               PINx_bp
-#define SPI_SS                PINx_bp
-;#define SPIx_ALT              ALTx
+#define SPI_PORT              PORTA
+#define SPI_MOSI              PIN4_bp
+#define SPI_MISO              PIN5_bp
+#define SPI_SCK               PIN6_bp
+#define SPI_SS                PIN7_bp
 ;#define SPI_IRQ_PIN           PINx_bp
 ;#define SPI_IRQ_PORT          PORTx
 

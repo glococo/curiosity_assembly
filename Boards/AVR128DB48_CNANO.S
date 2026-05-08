@@ -25,8 +25,12 @@
 #define USART_ADDR            USART3_RXDATAL
 #define USART_BAUD_RATE       38400
 #define USART_DOUBLE_SPEED    1
+
 ; TWI Config (default)
 #define TWI_CONFIGURED
+;#define TWI_ALT               ALTx
+;#define TWI_BAUD_RATE_KHZ     50
+
 ; SPI Config
 #define SPI_CONFIGURED
 #define SPI_PORT              PORTA

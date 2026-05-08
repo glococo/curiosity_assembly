@@ -12,8 +12,11 @@
     ldi     r22, ( 1<<SPI_MOSI | 1<<SPI_SCK | 1<<SPI_SS ) ; MOSI, SCK, SS
     out     _(_(V,SPI_PORT),_DIR), r22
     _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
-   #ifdef SPI_ALT
-      _PORTMUX( SPI, SPI_ALT, PORTMUX_SPIROUTEA )
+   #ifdef SPI0_ALT
+      _PORTMUX( SPI0, SPI_ALT, PORTMUX_SPIROUTEA )
+   #endif
+   #ifdef SPI1_ALT
+      _PORTMUX( SPI1, SPI_ALT, PORTMUX_SPIROUTEA )
    #endif
    #ifdef SPI_IRQ_PORT
     ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
