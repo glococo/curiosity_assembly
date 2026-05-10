@@ -116,3 +116,19 @@
 .macro HAL_BOARD_SETUP_CALL
     call    HAL_BOARD_SETUP
 .endm
+
+#define _IO_WRITE(reg,value)      HAL_IO_WRITE reg, value
+#define _IO_WRITE2(reg,value)     HAL_IO_WRITE2 reg, value
+#define _IO_WRITE4(reg,value)     HAL_IO_WRITE4 reg, value
+.macro HAL_IO_WRITE reg, val
+    ldi     r16, \val
+    sts     \reg, r16
+.endm
+.macro HAL_IO_WRITE2 reg, val
+    ldi2    r16, \val
+    sts2    \reg, r16
+.endm
+.macro HAL_IO_WRITE4 reg, val
+    ldi4    r16, \val
+    sts4    \reg, r16
+.endm

@@ -9,6 +9,8 @@
 #endif
 
 #define _TWI_CONFIG()                 HAL_TWI_CONFIG
+#define _TWI0_SET()                   HAL_TWI_SET TWI0_CTRLA
+#define _TWI1_SET()                   HAL_TWI_SET TWI1_CTRLA
 #define _TWI_MASTER(khz)              HAL_TWI_MASTER TWI0_CTRLA, khz
 #define _TWI0_MASTER(khz)             HAL_TWI_MASTER TWI0_CTRLA, khz
 #define _TWI1_MASTER(khz)             HAL_TWI_MASTER TWI1_CTRLA, khz
@@ -66,7 +68,10 @@ FUNC HAL_TWI_BAUDRATE
   POP_MANY r23, r22, r19, r18
 ENDF HAL_TWI_BAUDRATE
 
-.macro  HAL_TWI_MASTER dev, khz=TWI_BAUD_RATE_KHZ
+.macro HAL_TWI_SET dev
+    ldi2    YL, \dev
+.endm
+.macro HAL_TWI_MASTER dev, khz=TWI_BAUD_RATE_KHZ
   PUSH_MANY r16, r17
     ldi2    YL, \dev
     ldi2    r16, (2 * \khz)

@@ -1,4 +1,4 @@
-#ifdef ERRCTRL
+#ifdef ERRCTRL_CTRLA
 ; ERROR CONTROLLER on SD FAMILY
 
 #define _ERRCTRL_INIT()               HAL_ERRCTRL_INIT

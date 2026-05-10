@@ -27,11 +27,32 @@ To ensure high performance and seamless integration between HAL modules and user
 - **Volatile (r0, r1, r16 - r17)**: These registers are typically used for loading constant and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
 - **Callee-Saved (r4 - r15, r18, r31)**: Any function using these registers **must** preserve them (PUSH/POP).
 
-### Pointer Registers
-AVR has three 16-bit pointer pairs:
-- **X (r27:r26)**: Primary pointer for **Streaming** and **Data Processing**. Used for printing strings (`HAL_PRINT_STR`), moving arrays, and temporary indexing.
-- **Y (r29:r28)**: Primary pointer for **Peripheral Base Addresses** and **Local Variables** (stack frame). Many HAL functions expect `Y` to point to a peripheral's base address (e.g., `HAL_USART_SEND_BYTE`).
 - **Z (r31:r30)**: Primary pointer for **Structures** (Ring Buffers, Double Buffers) and **Program Memory (LPM)**. Used to pass descriptors to buffer functions.
+### Pointer Registers & Context
+The framework uses a **Context-Based Model** to prevent pointer clashing:
+- **X (Streaming Pointer)**: Used for data movement (Flash strings, SRAM arrays).
+- **Y (Hardware Pointer)**: Used internally by HAL functions to store the peripheral's I/O base address. **Contract**: Functions using `Y` must preserve it for the caller.
+- **Z (Instance Handle)**: It always points to the active SRAM Descriptor (DevBuffer, Structures, etc.). Functions treat `Z` as the `self` or `this` pointer.
+
+## Tiered Peripheral Organization
+
+To balance performance and scalability, peripherals are organized into three tiers:
+
+### Tier A: Streaming Peripherals (USART, USB)
+- **Pattern**: Ring Buffers + Instance Handles.
+- **Usage**: Requires an SRAM descriptor (Handle).
+- **Reason**: Handles asynchronous, high-speed data that requires background buffering via ISRs.
+
+### Tier B: Control Peripherals (TWI, SPI, TCA/B, ADC)
+- **Pattern**: Instance Handles (No Buffers).
+- **Usage**: Requires a 2-byte handle in SRAM containing the peripheral base address.
+- **Reason**: You may have multiple instances (TWI0, TWI1), but data is transaction-oriented and synchronous.
+
+### Tier C: System Peripherals (WDT, CLKCTRL, SLPCTRL, VREF)
+- **Pattern**: Direct Macros / Static Dispatch.
+- **Usage**: No handles or descriptors.
+- **Reason**: These are singleton system resources.
+
 
 ### Function Arguments & Return Values
 Arguments are passed in registers starting from `r22` up to `r25`.
@@ -66,7 +87,7 @@ Use the standard macros for defining blocks:
 ### Extended Instruction Macros
 Since AVR is an 8-bit architecture, this HAL provides 16/32/64-bit extension macros:
 - **Load/Store**: `ldi2/4/8`, `lds2/4`, `sts2/4`, `ldd2`, `std2`.
-- **Arithmetic**: `add2/4`, `add2s/4s` (saturated), `inc4`, `dec4`.
+- **Arithmetic**: `add2/4`, `add2s/4s` (saturated), `inc4`, `sub2/4`.
 - **Logic/Compare**: `lsli2/4`, `cp2/4`, `cpi2/4`, `andi2`, `ori2`.
 
 ### Atomic Operations (Modern AVR Dx/Ex)

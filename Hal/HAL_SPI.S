@@ -6,23 +6,39 @@
 #define _SPI_READ(  address, bytes)     _SPI_READ_ADDRESS16  address, bytes
 #define _SPI_WRITE( address, bytes)     _SPI_WRITE_ADDRESS16 address, bytes
 #define _SPI_CONFIG()                   HAL_SPI_CONFIG
+#define _SPI0_SET()                     HAL_SPI_SET SPI0_CTRLA
+#define _SPI1_SET()                     HAL_SPI_SET SPI1_CTRLA
 
 .macro HAL_SPI_CONFIG
   #ifdef SPI_CONFIGURED
-    ldi     r22, ( 1<<SPI_MOSI | 1<<SPI_SCK | 1<<SPI_SS ) ; MOSI, SCK, SS
+    ldi     r22, ( 1<<SPI_MOSI | 1<<SPI_SCK | 1<<SPI_SS )     ; MOSI, SCK, SS
     out     _(_(V,SPI_PORT),_DIR), r22
-    _PIN_OUT_SET( SPI_PORT, SPI_SS )                      ; SS High
-   #ifdef SPI0_ALT
+    _PIN_OUT_SET( SPI_PORT, SPI_SS )                          ; SS High
+   #ifdef SPI_ALT
       _PORTMUX( SPI0, SPI_ALT, PORTMUX_SPIROUTEA )
-   #endif
-   #ifdef SPI1_ALT
-      _PORTMUX( SPI1, SPI_ALT, PORTMUX_SPIROUTEA )
    #endif
    #ifdef SPI_IRQ_PORT
     ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
-    sts     _PIN_CTRL(SPI_IRQ_PORT,SPI_IRQ_PIN), r22      ; SPI_IRQ_PORT PIN as SPI slave IRQ
+    sts     _PIN_CTRL(SPI_IRQ_PORT,SPI_IRQ_PIN), r22          ; SPI_IRQ_PORT PIN as SPI slave IRQ
    #endif
   #endif
+
+  #ifdef SPI1_CONFIGURED
+    ldi     r22, ( 1<<SPI1_MOSI | 1<<SPI1_SCK | 1<<SPI1_SS )  ; MOSI, SCK, SS
+    out     _(_(V,SPI1_PORT),_DIR), r22
+    _PIN_OUT_SET( SPI1_PORT, SPI1_SS )                        ; SS High
+   #ifdef SPI1_ALT
+      _PORTMUX( SPI1, SPI1_ALT, PORTMUX_SPIROUTEA )
+   #endif
+   #ifdef SPI1_IRQ_PORT
+    ldi     r22, (PORT_PULLUPEN_bm | PORT_ISC_FALLING_gc)
+    sts     _PIN_CTRL(SPI1_IRQ_PORT,SPI1_IRQ_PIN), r22        ; SPI1_IRQ_PORT PIN as SPI1 slave IRQ
+   #endif
+  #endif
+.endm
+
+.macro HAL_SPI_SET dev
+    ldi2    YL, \dev
 .endm
 
 ; Function: HAL_SPI_MASTER

@@ -47,8 +47,8 @@
 FUNC HAL_BOARD_SETUP
   HAL_BOARD_SETUP:
     _ZERO_FULL_INIT()
-    _ERRCTRL_INIT()
-    ; _ERRCTRL_NOTIFICATION_ONLY()                        ; ERRCTRL developing state
+    ;_ERRCTRL_INIT()
+    _ERRCTRL_NOTIFICATION_ONLY()                        ; ERRCTRL developing state
 
     ; OSCHF set Internal HighFreq Oscilator from 4mhz to 20MHZ
     ldi     r22, CLKCTRL_FRQSEL_20M_gc

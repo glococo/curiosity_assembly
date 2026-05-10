@@ -67,9 +67,15 @@
     adc     \reg_start+2, __zero_reg__
     adc     \reg_start+3, __zero_reg__
 .endm
-; Macro: dec4
+; Macro: sub2
+; Description: 16-bit subtraction of a register value from a 16-bit register pair.
+.macro sub2 reg_start, value_reg
+    sub     \reg_start,   \value_reg
+    sbc     \reg_start+1, __zero_reg__
+.endm
+; Macro: sub4
 ; Description: 32-bit subtraction of a register value from a 32-bit register pair.
-.macro dec4 reg_start, value_reg
+.macro sub4 reg_start, value_reg
     sub     \reg_start,   \value_reg
     sbc     \reg_start+1, __zero_reg__
     sbc     \reg_start+2, __zero_reg__
@@ -297,4 +303,25 @@
 .macro  clr8  reg_start
     clr4  \reg_start
     clr4  \reg_start+4
+.endm
+
+.macro  lsl2  reg_start
+    lsl   \reg_start
+    rol   \reg_start+1
+.endm
+.macro  lsl4  reg_start
+    lsl   \reg_start
+    rol   \reg_start+1
+    rol   \reg_start+2
+    rol   \reg_start+3
+.endm
+.macro  lsr2  reg_start
+    lsr   \reg_start
+    ror   \reg_start+1
+.endm
+.macro  lsr4  reg_start
+    lsr   \reg_start
+    ror   \reg_start+1
+    ror   \reg_start+2
+    ror   \reg_start+3
 .endm

@@ -41,6 +41,7 @@
 #include "HAL_USART.S"            // USART Serial communication
 #include "HAL_TWI.S"              // I2C (TWI) Master communication
 #include "HAL_SPI.S"              // SPI Master communication
+#include "HAL_TCA.S"              // Timer/Counter Type A (TCA) driver
 #include "HAL_TCE.S"              // Timer/Counter Type E (TCE) driver
 #include "HAL_VREF.S"             // VREF helper
 #include "HAL_DAC.S"              // Digital-to-Analog Converter (DAC) helper

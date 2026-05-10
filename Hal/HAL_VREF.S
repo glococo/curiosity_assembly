@@ -1,6 +1,6 @@
 
 #if defined VREF_REFSEL_VDD_gc
-  .print "____ VREF v2 detected"
+  // .print "____ VREF v2 detected"
   #define _VREF_DAC0_CONFIG(...)   HAL_VREF_CONFIG VREF_DAC0REF, ##__VA_ARGS__
   #define _VREF_ADC0_CONFIG(...)   HAL_VREF_CONFIG VREF_ADC0REF, ##__VA_ARGS__
   #define _VREF_ADC1_CONFIG(...)   HAL_VREF_CONFIG VREF_ADC1REF, ##__VA_ARGS__
@@ -12,7 +12,7 @@
   .endm
 
 #elif defined VREF_CTRLB
-  .print "____ VREF v1 detected"
+  // .print "____ VREF v1 detected"
   #define _VREF_DAC0_CONFIG(...)   HAL_VREF_CONFIG VREF_CTRLA, ##__VA_ARGS__
   #define _VREF_DAC1_CONFIG(...)   HAL_VREF_CONFIG VREF_CTRLC, ##__VA_ARGS__
   #define _VREF_DAC2_CONFIG(...)   HAL_VREF_CONFIG VREF_CTRLD, ##__VA_ARGS__
