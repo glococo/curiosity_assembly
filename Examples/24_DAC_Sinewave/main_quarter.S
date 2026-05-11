@@ -10,7 +10,7 @@ FUNC main
     _BOARD_SETUP()                                    ; Basic board initialization
     _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)            ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
-    _STR("__ DAC - 50Hz sine wave __ \r\n")
+    _STR("__ DAC - 50Hz sine wave - Quarter __ \r\n")
     _STR_FLUSH()
 
     _PRECOMPUTE_SINWAVE( sine )                      ; Load lookup table + helpers
@@ -24,11 +24,20 @@ FUNC main
 
     ; 50hz * (100 * 4) steps = 20000 updates/sec
     ; 20mhz/div4 5mhz/20000 updates = 250ticks
-    _TCA_BASIC(TCA0, TCA_SINGLE_CLKSEL_DIV4_gc, 250)  ; TCA basic operation
+    ; CORE_CLOCK_OSCHF /4 /20 = 250ticks for 20mhz
+    _TCA_BASIC(TCA0, TCA_SINGLE_CLKSEL_DIV4_gc, CORE_CLOCK_OSCHF/4/20 )  ; TCA basic operation
     _TCA_INT( TCA0, TCA_SINGLE_OVF_bm )               ; Overflow interrupt enabled
     sei
+    _SLEEP_MODE()
 
   loop:
+
+    _DAC0_OUTPUT_REG( r22 )                           ; Update DAC0 with precomputed value
+    call    SINEWAVE_Get                              ; Get next sin value
+    ldi     r18, 6                                    ; Shift left r23:r22 << 6
+    call    _LSL16                                    ; and leave in r22 for next int update
+
+    sleep
     jmp     loop                                      ; Repeat indefinitely
 
 ENDF main
@@ -36,11 +45,5 @@ ENDF main
 ISR_START TCA0_OVF_vect, r16
     ldi     r16, TCA_SINGLE_OVF_bm
     sts     TCA0_SINGLE_INTFLAGS, r16
-
-    _DAC0_OUTPUT_REG( r22 )                           ; Update DAC0 with precomputed value
-    call    SINEWAVE_Get                              ; Get next sin value
-    ldi     r18, 6                                    ; Shift left r23:r22 << 6
-    call    _LSL16                                    ; and leave in r22 for next int update
-
 ISR_END TCA0_OVF_vect, r16
 
