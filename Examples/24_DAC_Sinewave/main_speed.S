@@ -10,7 +10,7 @@ FUNC main
     _BOARD_SETUP()                                    ; Basic board initialization
     _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)            ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
-    _STR("__ DAC - 50Hz sine wave - Full table __ \r\n")
+    _STR("__ DAC - 50Hz sine wave - 8-bit high speed table __ \r\n")
     _STR_FLUSH()
 
     ldi     r16, PORT_ISC_INPUT_DISABLE_gc            ; Sinewave output pin
