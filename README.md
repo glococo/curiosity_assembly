@@ -1,97 +1,77 @@
 # AVR Assembly HAL Framework
 
-A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx and AVR-Ex series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
+A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx, AVR-Ex, AVR-DU, and AVR-EB series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
 
 ![Curiosity Assembly](notes/curiosity_assembly.jpg)
 
 ---
 
-## Key Features
+## 🎯 Key Features
 
 - **🎯 Zero-Overhead Abstraction**: Clean, linkable function definitions using `FUNC` and `ENDF` macros.
 - **🕒 Clock-Aware Timing**: Automatic frequency adjustment for cycle-accurate delays and peripheral baud rates.
-- **🧮 High-Performance Math**: Optimized 16-bit, 32-bit, and 64-bit routines for multiplication, division, and multi-byte shifts.
-- **🚀 Extended ISA**: Rich set of macros for 16, 32, and 64-bit operations (`ldi2/4/8`, `add2/4`, `cp2/4`, etc.) on an 8-bit core.
-- **📊 Efficient Data Structures**: 
-  - **Power-of-Two Ring Buffers**: Ultra-fast bitwise wrapping for low-latency I/O.
-  - **Zero-Copy Double-Buffering**: Ping-pong architecture for high-speed peripheral data transfer.
-- **📠 Professional Printing**: Robust string and numeric formatting (UINT8, UINT16, UINT32, UINT64) for diagnostic output.
-- **⚡ Modern AVR Support**: Unified Memory Mapping for strings, UPDI programming, and atomic hardware registers.
+- **🧮 High-Performance Math**: Optimized 16-bit, 32-bit, and 64-bit routines for signed/unsigned multiplication, division, and multi-byte shifts.
+- **🚀 Extended ISA**: Rich set of macros for 16, 32, and 64-bit operations (`ldi2/4/8`, `add2/4/s`, `cp2/4`, etc.) on an 8-bit core.
+- **🚀 Unified Memory Mapping**: Seamlessly access strings and tables in Flash as if they were in SRAM via `MAPPED_PROGMEM_START`.
+- **📊 Tiered Peripheral Organization**: Scalable, context-based architecture supporting instance-based handles for TWI/SPI/USART and direct static dispatch for system peripherals.
+- **📠 Professional Printing**: Robust string and numeric formatting (UINT8-UINT64, Hex) for diagnostic output.
+- **⚡ Modern AVR Support**: Full support for Dx/Ex/DU/EB series features, including UPDI programming, Event System (EVSYS), Configurable Custom Logic (CCL), and Crystal-less USB.
+- **📠 USB HID Support**: Comprehensive USB Device Controller helper for the AVR-DU family with HID Keyboard enumeration capabilities.
+- **🌊 Waveform Generation**: Integrated Sinewave generator with optimized quarter-wave lookup tables and 10-bit DAC support.
 
 ---
 
 ## 📂 Project Structure
 
 ### 🛠️ Core HAL (`Hal/`)
-- **`ALL.S`**: Master include file—your one-stop shop for the entire framework.
-- **`HAL_MACRO.S`**: Essential primitives for function definitions (`FUNC`/`ENDF`), ISR management, and the `ASCIZ` string macro.
-- **`HAL_EXTEND.S`**: 16, 32, and 64-bit instruction extensions (Load, Store, Add, Compare, Shift).
-- **`HAL_CLKCTRL.S`**: Full Clock Control (CLKCTRL) driver—source selection, OSCHF frequency, prescaling, and PLL configuration.
-- **`HAL_DELAY.S`**: Frequency-aware, cycle-accurate software delays.
-- **`HAL_PRINT.S`, `HAL_PRINT_HEX.S`, `HAL_PRINT_NUM.S`**: Formatted printing engine (Strings, Hex, Dec, Newline).
-- **`HAL_PIN.S`**: Atomic Port-Pin helper utilizing Virtual Ports (VPORT) for single-cycle access.
-- **`HAL_PORTMUX.S`**: Port Multiplexer configuration.
-- **`HAL_RTC.S`**: Real-Time Counter (RTC) and Periodic Interrupt Timer (PIT) helpers.
-- **`HAL_USART.S`**: High-level USART configuration and dynamic baud rate calculations.
-- **`HAL_ADC_v1.S`, `HAL_ADC_v2.S`**: 10/12-bit ADC driver variants with polling and interrupt-driven modes.
-- **`HAL_BOD.S`**: Brown-out Detector and Voltage Level Monitor (VLM) configuration.
-- **`HAL_WDT.S`**: Watchdog Timer management—period selection and reset routines.
-- **`HAL_GC.S`**: Constant helpers.
+- **`ALL.S`**: Master include file—integrates the entire framework.
+- **`HAL_MACRO.S`**: Primitives for function definitions, ISR management, and the `ASCIZ` string macro.
+- **`HAL_EXTEND.S`**: Instruction set extensions (16-64 bit ops).
+- **`HAL_CLKCTRL.S`**: Frequency-aware clock system configuration.
+- **`HAL_DELAY.S`**: Cycle-accurate software delays.
+- **`HAL_PRINT...S`**: Formatted printing engine (Strings, Hex, Dec).
+- **`HAL_PIN.S` / `HAL_PORTMUX.S`**: Atomic port manipulation and pin routing.
+- **`HAL_TWI.S`**: Multi-instance aware I2C Master driver (handle-based).
+- **`HAL_USB.S`**: USB Device Controller driver with descriptor-table support.
+- **`HAL_TCA.S` / `HAL_TCE.S`**: Advanced 16-bit Timer drivers with Single/Split mode and scaling support.
+- **`HAL_ADC_v1.S / v2.S`**: ADC drivers with automatic sample-duration calibration for different core architectures.
+- **Peripheral Drivers**: Drivers for `AC`, `DAC`, `BOD`, `SPI`, `USART`, `RTC`, `VREF`, `WDT`, `ERRCTRL`.
 
 ### 📦 Data Structures & Math
-- **`HAL_DEVICEBUFFER.S`**: High-performance Ring Buffer with device-address binding.
-- **`HAL_DOUBLEBUFFER.S`**: High-speed Ping-Pong buffer descriptor and management.
-- **`MATH_MUL.S`**: Optimized multiplication (8, 16, 32, 64-bit).
-- **`MATH_DIV.S`**: Fast integer division and modulo (8, 16, 32-bit).
-- **`MATH_SHIFTS.S`**: Multi-byte logical and arithmetic shifts.
+- **`HAL_DEVICEBUFFER.S`**: Handle-based Ring Buffer.
+- **`HAL_DOUBLEBUFFER.S`**: High-speed Ping-Pong buffer.
+- **`MATH_MUL.S` / `MATH_DIV.S` / `MATH_SHIFTS.S`**: Core mathematical routines.
 
 ### 📟 Board Support (`Boards/`)
-Configuration files for standard Curiosity Nano (CNANO) boards:
-- `AVR16EB32_CNANO.S`
-- `AVR128DB48_CNANO.S`
-- `AVR32SD32_CNANO.S`
-- `AVR64DU32_CNANO.S`
+Device-specific configurations for standard Curiosity Nano boards:
+- `ATTINY3217`, `AVR128DA48`, `AVR128DB48`, `AVR16EB32`, `AVR32SD32`, `AVR64DD32`, `AVR64DU32`, `AVR64EA48`.
 
 ---
 
 ## 🧪 Demonstration Examples
 
-Explore the `Examples/` directory for ready-to-flash implementations:
+Ready-to-flash implementations in the `Examples/` directory:
 
-- **`01_blink_led`**: The absolute basics—toggling the board LED using atomic registers.
-- **`02_Hello_world`**: LED toggling and formatted USART printing with button interrupts.
-- **`03_Print_buffer`**: Buffered USART communication using device ring buffers.
-- **`04_Loopback`**: Simple asynchronous USART loopback implementation.
-- **`05_Double_Buffered`**: High-speed zero-copy RX/TX echo using the ping-pong double-buffer.
-- **`06_Math_lib`**: Comprehensive validation suite for the 16, 32, and 64-bit mathematical library.
-- **`07_RTC`**: Periodic events and timed interrupts using the Real-Time Counter (RTC) and PIT.
-- **`08_Device_ID`**: Reading and printing the unique Device ID, Serial Number, and Calibration rows from SIGROW.
-- **`09_Debug`**: Demonstrates the `_DEBUG` macro suite for quick register and memory inspection.
-- **`10_Clock_PLL`**: Advanced clock configuration using the Phase-Locked Loop (PLL) for high-frequency operation.
-- **`11_Clock_scaling`**: Dynamic CPU frequency adjustment and automatic peripheral re-calibration.
-- **`12_Watchdog_timer`**: System safety—enabling the WDT and handling periodic resets to prevent hangs.
-- **`13_Brownout_detector`**: Power monitoring—configuring BOD and VLM for reliable low-voltage operation.
-- **`14_Analog_Digital_Converter`**: Basic ADC integration—reading analog signals from AIN0 with configurable references.
-- **`15_ADC_temperature`**: Reading the internal silicon temperature sensor using the ADC.
-- **`16_ADC_Burst`**: High-accuracy ADC sampling using Burst mode and accumulation (64x hardware averaging).
-- **`17_I2C_Scanner`**: Scans the I2C bus for connected devices and reports their 7-bit addresses.
-- **`18_I2C_UV_sensor`**: Advanced I2C example reading UV index data from a VEML6075 sensor.
-- **`19_I2C_Temperature_sensor`**: Reading high-precision temperature data from an MCP9804 sensor via I2C.
-- **`20_ADC_MCP9700B`**: Interfacing with an MCP9700B analog temperature sensor and performing fixed-point math.
-- **`21_SPI_EtherCAT`**: Basic operations interfacing with an LAN2952 EtherCAT Controller via SPI.
+- **01-05**: Basic I/O, buffered printing, and loopback/double-buffering.
+- **06_Math_lib**: Comprehensive validation suite for 16-64 bit math.
+- **07-16**: RTC, Device ID, Debugging, Clock Scaling, Watchdog, Brownout, and ADC features.
+- **17-20**: I2C (TWI) Bus Scanner, UV sensor, Temperature sensor, and MCP9700B integration.
+- **21-23**: SPI EtherCAT, TCE PWM Scaling, and Error Controller management.
+- **24_DAC_Sinewave**: High-resolution sine wave generation using DAC and symmetry-optimized lookup tables.
+- **25_OPAMP**: Configurable analog gain stages using internal resistor ladders.
+- **26_USB_HID / 27_USB_Hello_world**: Crystal-less USB HID Keyboard implementations for the AVR-DU family.
+
 ---
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
-Ensure you have the AVR toolchain installed:
 ```bash
 sudo apt install gcc-avr avrdude avr-libc
 ```
 
-### Building and Flashing
-Use the `curiosity.sh` automation script. It handles MCU detection, compilation, and UPDI flashing via Curiosity Nano boards.
-
+### Build & Flash
+Use the `curiosity.sh` script for MCU auto-detection, Linker Relaxation optimization, and flashing.
 ```bash
 ./curiosity.sh [-debug] <BOARD_NAME> <PROGRAM_FILE>
 ```
@@ -115,21 +95,22 @@ Manage device configuration using `avr_fuses.sh`:
 
 ## 📜 HAL ABI (The Social Contract)
 
-To ensure high performance and seamless integration, this framework follows a strict **Social Contract**. All functions (CALLEES) must preserve any registers they modify, except for those explicitly designated for return values.
+The framework follows a strict **Tiered Organization** and register usage policy to prevent clashing in multi-peripheral applications.
 
 | Register | Usage | Contract |
 | :--- | :--- | :--- |
-| **`r2`** | `__zero_reg__` | **Permanent Zero.** Never write to `r2`. |
-| **`r3`** | `__full_reg__` | **Permanent 0xFF.** Never write to `r3`. |
-| **`r0, r1`** | Volatile | Scratch registers. Modified by `mul`. |
-| **`r16-r17`** | Caller-Saved | Local Scratch registers, scratch LDI |
-| **`X (r27:r26)`** | Callee-Saved | Primary for **Streaming** (strings, arrays). |
-| **`Y (r29:r28)`** | Callee-Saved | Primary for **Peripheral Base Addresses**. |
-| **`Z (r31:r30)`** | Callee-Saved | Primary for **Structures** and **Program Memory**. |
-| **`r4-r15, r18-r31`** | Callee-Saved | Strictly preserved via PUSH/POP. |
+| **`Z (r31:r30)`** | **Instance Handle** | Points to the active SRAM Descriptor (Buffer, TWI Handle, etc.). Functions treat `Z` as `self`. |
+| **`Y (r29:r28)`** | **Hardware Pointer** | Used internally by HAL functions for I/O base addresses. **Callee-saved.** |
+| **`X (r27:r26)`** | **Streaming Pointer** | Primary for data movement (Flash strings, SRAM arrays). |
+| **`r25:r22`** | **Arguments / Return** | Standard 8/16/32-bit register bank for passing values. |
 
+### Peripheral Tiers
+1. **Tier A (Streaming)**: USART, USB. Requires Ring Buffers + Instance Handles.
+2. **Tier B (Control)**: TWI, SPI, TCA/B, ADC. Requires Instance Handles (No Buffers).
+3. **Tier C (System)**: WDT, CLKCTRL, SLPCTRL. Direct Macros / Static Dispatch (No Handles).
 
-**Success Signaling**: Functions typically use the **Carry Flag** (Set = Success/True, Clear = Failure/Empty).
+### Preservation Rule
+Any function that modifies `X`, `Y`, or `Z` for its own internal logic **must** preserve them (PUSH/POP), unless it is explicitly a "Context Selector" function intended to update the active handle.
 
 ## 📖 Usage Example
 
@@ -150,7 +131,6 @@ FUNC main
     rjmp    loop
 ENDF main
 ```
-
 ---
 
 ## ⚖️ License
