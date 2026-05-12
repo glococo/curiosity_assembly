@@ -1,9 +1,15 @@
 ; File: Drivers/SINEWAVE/driver.S
-; Description: Precomputed sine wave generator using a Quarter-wave table.
-;              Efficiently reconstructs full wave using a triangle-counter (0-200).
+; Description: Precomputed Quarter-wave and Full-wave sine wave using tables.
+;              Efficiently Quarter-wave reconstruct using a triangle-counter (0-200).
 ;
 ;
-; Javascript table generation code
+#define _FULL_SINEWAVE_INIT()       SINEWAVE_FULL_INIT
+#define _SPEED_SINEWAVE_INIT()      SINEWAVE_SPEED_INIT
+#define _QUARTER_SINEWAVE_INIT()    SINEWAVE_QUARTER_INIT
+#define _SPEED_SINEWAVE_Get()       _SPEED_SINEWAVE_Get
+
+; ___________ FULL SINE WAVE ___________________________________
+; Javascript 10bit<<6 table generation code
 ;   Formula: CenterOffset + (Amplitude * sin(2 * PI * currentStep / totalSteps))
 ;
 ;   const steps = 400, center = 512, amp = 511, values = [];
@@ -15,12 +21,9 @@
 ;      console.log('          .word ' + values.slice(i, i + 8).join(', '));
 ;   }
 
-#define _PRECOMPUTE_SINWAVE(name)   SINEWAVE_DEFINE name
-#define _FULL_SINWAVE()           SINEWAVE_FULL
-
-.macro SINEWAVE_FULL
+.macro SINEWAVE_FULL_INIT
   .pushsection .progmem.rodata
-    full_sinewave_table:
+    full_sinewave:
       .word 32768, 33280, 33792, 34304, 34816, 35328, 35840, 36352
       .word 36864, 37376, 37888, 38400, 38912, 39424, 39872, 40384
       .word 40896, 41408, 41920, 42368, 42880, 43392, 43840, 44352
@@ -73,22 +76,84 @@
       .word 28672, 29184, 29696, 30208, 30720, 31232, 31744, 32256
   .popsection
     ; Load sinewave table in X pointer
-    ldi2    XL, MAPPED_PROGMEM_START + full_sinewave_table  ; Load table base address
+    ldi2    XL, MAPPED_PROGMEM_START + full_sinewave  ; Load table base address
 .endm
 
-; Function: FULLSINEWAVE_Get
+; Function: _FULL_SINEWAVE_Get
 ; Description: Get the next 10-bit sine wave value (0-1023).
 ; Outputs:     r23:r22 - Next sine wave value
-FUNC FULLSINEWAVE_Get
+FUNC _FULL_SINEWAVE_Get
     ld      r22, X+
     ld      r23, X+
-    cpi2    XL, MAPPED_PROGMEM_START + full_sinewave_table + 800
+    cpi2    XL, MAPPED_PROGMEM_START + full_sinewave + 800
     brne    0f
-    ldi2    XL, MAPPED_PROGMEM_START + full_sinewave_table  ; Load table base address
+    ldi2    XL, MAPPED_PROGMEM_START + full_sinewave  ; Load table base address
   0:
-ENDF FULLSINEWAVE_Get
+ENDF _FULL_SINEWAVE_Get
 
-; Javascript table generation code
+; ___________ SPEED SINE WAVE ___________________________________
+; Javascript 10bit<<6 table generation code
+;   Formula: CenterOffset + (Amplitude * sin(2 * PI * currentStep / totalSteps))
+;
+;   const steps = 200, center = 127, amp = 127, values = [];
+;   for (let i = 0; i < steps; i++) {
+;     let val = Math.round(center + amp * Math.sin((2 * Math.PI) * (i / steps)));
+;     values.push(val);
+;   }
+;   for (let i = 0; i < values.length; i += 8) {
+;      console.log('          .word ' + values.slice(i, i + 8).join(', '));
+;   }
+
+.macro SINEWAVE_SPEED_INIT
+  .pushsection .progmem.rodata
+    speed_sinewave:
+      .byte 127, 131, 135, 139, 143, 147, 151, 155
+      .byte 159, 162, 166, 170, 174, 177, 181, 185
+      .byte 188, 192, 195, 198, 202, 205, 208, 211
+      .byte 214, 217, 220, 222, 225, 227, 230, 232
+      .byte 234, 236, 238, 240, 242, 244, 245, 246
+      .byte 248, 249, 250, 251, 252, 252, 253, 253
+      .byte 254, 254, 254, 254, 254, 253, 253, 252
+      .byte 252, 251, 250, 249, 248, 246, 245, 244
+      .byte 242, 240, 238, 236, 234, 232, 230, 227
+      .byte 225, 222, 220, 217, 214, 211, 208, 205
+      .byte 202, 198, 195, 192, 188, 185, 181, 177
+      .byte 174, 170, 166, 162, 159, 155, 151, 147
+      .byte 143, 139, 135, 131, 127, 123, 119, 115
+      .byte 111, 107, 103, 99, 95, 92, 88, 84
+      .byte 80, 77, 73, 69, 66, 62, 59, 56
+      .byte 52, 49, 46, 43, 40, 37, 34, 32
+      .byte 29, 27, 24, 22, 20, 18, 16, 14
+      .byte 12, 10, 9, 8, 6, 5, 4, 3
+      .byte 2, 2, 1, 1, 0, 0, 0, 0
+      .byte 0, 1, 1, 2, 2, 3, 4, 5
+      .byte 6, 8, 9, 10, 12, 14, 16, 18
+      .byte 20, 22, 24, 27, 29, 32, 34, 37
+      .byte 40, 43, 46, 49, 52, 56, 59, 62
+      .byte 66, 69, 73, 77, 80, 84, 88, 92
+      .byte 95, 99, 103, 107, 111, 115, 119, 123
+  .popsection
+    ; Load sinewave table in X pointer
+    ldi2    XL, MAPPED_PROGMEM_START + speed_sinewave  ; Load table base address
+    ldi     r19, 199
+.endm
+
+; Function: _SPEED_SINEWAVE_Get
+; Description: Get the next 8-bit sine wave value (0-255).
+;              r24 used as counter
+; Outputs:     r22 - Next sine wave value
+.macro _SPEED_SINEWAVE_Get
+    ld      r22, X+
+    dec     r19
+    brne    0f
+    ldi2    XL, MAPPED_PROGMEM_START + speed_sinewave  ; Load table base address
+    ldi     r19, 199
+  0:
+.endm
+
+
+; ___________ QUARTER SINE WAVE ___________________________________
+; Javascript 10bit quarter table generation code
 ;    const steps = 100, res = 511, values = [];
 ;    for (let i = 0; i <= steps; i++) {
 ;       values.push(Math.round(res * Math.sin((Math.PI / 2) * (i / steps))));
@@ -97,15 +162,15 @@ ENDF FULLSINEWAVE_Get
 ;       console.log('          .word ' + values.slice(i, i + 8).join(', '));
 ;    }
 
-.macro SINEWAVE_DEFINE name
+.macro SINEWAVE_QUARTER_INIT
   .pushsection .data
-    \name\()_pos:   .byte 0          ; Triangle counter (0..200)
-    \name\()_fall:  .byte 0          ; Direction flag (0: rising, 1: falling)
-    \name\()_ptr:   .word 0          ; Flash table pointer
+    quarter_sinewave_pos:   .byte 0          ; Triangle counter (0..200)
+    quarter_sinewave_fall:  .byte 0          ; Direction flag (0: rising, 1: falling)
+    quarter_sinewave_ptr:   .word 0          ; Flash table pointer
   .popsection
 
   .pushsection .progmem.rodata
-    \name\()_table:
+    quarter_sinewave:
           .word 0, 8, 16, 24, 32, 40, 48, 56
           .word 64, 72, 80, 88, 96, 104, 111, 119
           .word 127, 135, 143, 150, 158, 166, 173, 181
@@ -122,35 +187,34 @@ ENDF FULLSINEWAVE_Get
   .popsection
 
   PUSH_MANY r22, r23
-    ldi2    r22, MAPPED_PROGMEM_START + \name\()_table
-    sts2    \name\()_ptr, r22
+    ldi2    r22, MAPPED_PROGMEM_START + quarter_sinewave
+    sts2    quarter_sinewave_ptr, r22
   POP_MANY r23, r22
 .endm
 
-; Function: SINEWAVE_Get
+; Function: _QUARTER_SINEWAVE_Get
 ; Description: Calculates the next 10-bit sine wave value (0-1023).
-;              Uses the 'sine' instance state.
 ; Outputs: r23:r22 - Next sine wave value
-FUNC SINEWAVE_Get
+FUNC _QUARTER_SINEWAVE_Get
   PUSH_MANY r16, r17, r18, r19, XL, XH
-    lds2    XL, sine_ptr             ; Load table base address
-    lds     r18, sine_pos            ; Load current triangle position (0..200)
-    
+    lds2    XL, quarter_sinewave_ptr      ; Load table base address
+    lds     r18, quarter_sinewave_pos     ; Load current triangle position (0..200)
+
     mov     r16, r18
     cpi     r16, 100
-    brsh    .L_pos_half              ; If pos >= 100, upper half of wave
-    
+    brsh    .L_pos_half                   ; If pos >= 100, upper half of wave
+
   .L_neg_half:
     ; Index = 100 - pos (mirroring back from 90 to 0 degrees)
     ldi     r17, 100
     sub     r17, r16
     mov     r16, r17
-    lsl     r16                      ; *2 for word table
+    lsl     r16                           ; *2 for word table
     add     XL, r16
     adc     XH, __zero_reg__
     ld      r22, X+
-    ld      r23, X                   ; r23:r22 = table_val (0..511)
-    
+    ld      r23, X                        ; r23:r22 = table_val (0..511)
+
     ; Trough half: result = 512 - table_val
     ldi2    r18, 511
     sub     r18, r22
@@ -161,45 +225,45 @@ FUNC SINEWAVE_Get
   .L_pos_half:
     ; Index = pos - 100 (moving from 0 to 90 degrees)
     subi    r16, 100
-    lsl     r16                      ; *2 for word table
+    lsl     r16                           ; *2 for word table
     add     XL, r16
     adc     XH, __zero_reg__
     ld      r22, X+
-    ld      r23, X                   ; r23:r22 = table_val (0..511)
-    
+    ld      r23, X                        ; r23:r22 = table_val (0..511)
+
     ; Peak half: result = 512 + table_val
     ldi2    r18, 512
     add     r22, r18
     adc     r23, r19
 
   .L_update_state:
-    lds     r18, sine_pos
-    lds     r16, sine_fall           ; Direction flag
+    lds     r18, quarter_sinewave_pos
+    lds     r16, quarter_sinewave_fall    ; Direction flag
     tst     r16
     brne    .L_falling
-    
+
   .L_rising:
-    cpi     r18, 200                 ; At top?
+    cpi     r18, 200                      ; At top?
     breq    .L_set_fall
     inc     r18
     rjmp    .L_save_exit
   .L_set_fall:
     ldi     r16, 1
-    sts     sine_fall, r16
+    sts     quarter_sinewave_fall, r16
     dec     r18
     rjmp    .L_save_exit
-    
+
   .L_falling:
-    tst     r18                      ; At bottom?
+    tst     r18                           ; At bottom?
     breq    .L_set_rise
     dec     r18
     rjmp    .L_save_exit
   .L_set_rise:
-    sts     sine_fall, __zero_reg__
+    sts     quarter_sinewave_fall, __zero_reg__
     inc     r18
 
   .L_save_exit:
-    sts     sine_pos, r18
+    sts     quarter_sinewave_pos, r18
   POP_MANY XH, XL, r19, r18, r17, r16
   ret
-ENDF SINEWAVE_Get
+ENDF _QUARTER_SINEWAVE_Get

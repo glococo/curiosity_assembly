@@ -10,7 +10,7 @@ FUNC main
     _BOARD_SETUP()                                    ; Basic board initialization
     _DEVBUFFER(DEVBUFFER, 128, USART_ADDR)            ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __\r\n")
-    _STR("__ DAC - 50Hz sine wave full_speed __ \r\n")
+    _STR("__ DAC - 50Hz sine wave - Full table __ \r\n")
     _STR_FLUSH()
 
     ldi     r16, PORT_ISC_INPUT_DISABLE_gc            ; Sinewave output pin
@@ -26,14 +26,14 @@ FUNC main
     _TCA_BASIC(TCA0, TCA_SINGLE_CLKSEL_DIV4_gc, CORE_CLOCK_OSCHF/4/20 )  ; TCA basic operation
     _TCA_INT( TCA0, TCA_SINGLE_OVF_bm )               ; Overflow interrupt enabled
 
-    _FULL_SINWAVE()                                   ; Load 360º lookup table + helpers
+    _FULL_SINEWAVE_INIT()                             ; Load 360º lookup table + helpers
     _SLEEP_MODE()
     sei                                               ; Try disabling sei+sleep and verify max DAC speed on osciloscope
 
   loop:
 
     _DAC0_OUTPUT_REG( r22 )                           ; Update DAC0 with precomputed value
-    call    FULLSINEWAVE_Get                          ; Get next sin value
+    call    _FULL_SINEWAVE_Get                        ; Get next sin value
 
     sleep                                             ; sleep
     jmp     loop                                      ; Repeat indefinitely
