@@ -27,7 +27,6 @@ To ensure high performance and seamless integration between HAL modules and user
 - **Volatile (r0, r1, r16 - r17)**: These registers are typically used for loading constant and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
 - **Callee-Saved (r4 - r15, r18, r31)**: Any function using these registers **must** preserve them (PUSH/POP).
 
-- **Z (r31:r30)**: Primary pointer for **Structures** (Ring Buffers, Double Buffers) and **Program Memory (LPM)**. Used to pass descriptors to buffer functions.
 ### Pointer Registers & Context
 The framework uses a **Context-Based Model** to prevent pointer clashing:
 - **X (Streaming Pointer)**: Used for data movement (Flash strings, SRAM arrays).
