@@ -21,11 +21,12 @@
 #define USART                 USART0
 #define USART_TX              PIN4_bp
 #define USART_RX              PIN5_bp
+#define USART_ALT             ALT3
 #define USART_PORT            PORTD
 #define USART_ADDR            USART0_RXDATAL
 #define USART_BAUD_RATE       38400
+#define USART_RS485_MODE      0
 #define USART_DOUBLE_SPEED    1
-#define USART_ALT             ALT3
 
 ; TWI Config (default)
 #define TWI_CONFIGURED

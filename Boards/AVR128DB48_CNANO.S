@@ -24,6 +24,7 @@
 #define USART_PORT            PORTB
 #define USART_ADDR            USART3_RXDATAL
 #define USART_BAUD_RATE       38400
+#define USART_RS485_MODE      0
 #define USART_DOUBLE_SPEED    1
 
 ; TWI Config (default)
@@ -38,8 +39,8 @@
 #define SPI_MISO              PIN5_bp
 #define SPI_SCK               PIN6_bp
 #define SPI_SS                PIN7_bp
-#define SPI_IRQ_PIN           PIN0_bp
-#define SPI_IRQ_PORT          PORTF
+;#define SPI_IRQ_PIN           PIN0_bp
+;#define SPI_IRQ_PORT          PORTF
 
 #include "../Hal/ALL.S"
 

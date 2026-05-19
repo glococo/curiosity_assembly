@@ -37,8 +37,23 @@ if [ -z "$MCU" ]; then
     exit 1
 fi
 
-# Compile and link
-avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wl,--relax -Wa,-gstabs -Wall -o main.elf -include "$BOARD_FILE" "$PROGRAM" || exit 1
+# Identify all C source files in the same directory as the main program
+PROGRAM_DIR=$(dirname "$PROGRAM")
+C_SOURCES=$(ls "$PROGRAM_DIR"/*.c 2>/dev/null)
+
+# Compile C files to temporary objects
+OBJS=""
+for f in $C_SOURCES; do
+    obj="${f%.c}.o"
+    avr-gcc -mmcu=$MCU -Wall -Os -I"$PROGRAM_DIR" -c "$f" -o "$obj" || exit 1
+    OBJS="$OBJS $obj"
+done
+
+# Compile S files and Link
+avr-gcc -mmcu=$MCU -Wl,--gc-sections -Wl,--relax -Wa,-gstabs -Wall -I"$PROGRAM_DIR" -o main.elf -include "$BOARD_FILE" $PROGRAM $OBJS || exit 1
+
+# Cleanup temporary objects
+[ -n "$OBJS" ] && rm $OBJS
 
 # Create HEX file
 avr-objcopy -O ihex main.elf main.hex || exit 1

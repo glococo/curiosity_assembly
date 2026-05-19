@@ -8,12 +8,19 @@
 .macro HAL_USART_CONFIG
   #ifdef USART_CONFIGURED
     _PIN_DIR_SET( USART_PORT, USART_TX )                  ; Set USART_TX PIN as OUTPUT
-    ldi     r18, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
-    sts     _(USART,_CTRLB), r18                          ;
+    ldi     r16, USART_TXEN_bm | (USART_DOUBLE_SPEED<<1)  ; USART Enable
+    sts     _(USART,_CTRLB), r16                          ;
+   #if USART_RS485_MODE != 0
+    .print  "USART RS485 Enabled"
+    ldi     r16, USART_RS485_MODE
+    sts     _(USART,_CTRLA), r16                          ; Enable RS_485 Mode
+   #endif
    #ifdef USART_ALT
     #if USART == USART0 || USART == USART1 || USART == USART2 || USART == USART3
+      .print  "USART AltRoute A configured"
       _PORTMUX( USART, USART_ALT, PORTMUX_USARTROUTEA )
     #else
+      .print  "USART AltRoute B configured"
       _PORTMUX( USART, USART_ALT, PORTMUX_USARTROUTEB )
     #endif
    #endif
