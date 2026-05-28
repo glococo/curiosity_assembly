@@ -22,10 +22,12 @@
 ; Outputs:     None
 ; -----------------------------------------------------------------------------
 FUNC main
-    call   HAL_BOARD_SETUP                   ; Basic board and USART initialization
+    call    HAL_BOARD_SETUP                   ; Basic board and USART initialization
     sei                                       ; Enable global interrupts
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
-    _STR("__ CURIOSITY ASSEMBLY __ \r\n")$ _STR_FLUSH()
+    _STR("__ CURIOSITY ASSEMBLY __ \r\n")
+    _STR("__ Print Buffer __!\r\n")
+    _STR_FLUSH()
 
   loop:
     call   a_toggle_function                 ; Select string, send to buffer, toggle LED

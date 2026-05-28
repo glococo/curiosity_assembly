@@ -1,8 +1,8 @@
 # AVR Assembly HAL Framework
 
-A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx, AVR-Ex, AVR-DU, and AVR-EB series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
+A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mathematical Library** for modern AVR microcontrollers (AVR-Dx, AVR-Ex and AVR-SD series). Built entirely in optimized assembly, this framework provides a high-performance foundation for mission-critical embedded applications.
 
-![Curiosity Assembly](notes/curiosity_assembly.jpg)
+![Curiosity Assembly](notes/curiosity_assembly.png)
 
 ---
 
@@ -24,6 +24,7 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 ## 📂 Project Structure
 
 ### 🛠️ Core HAL (`Hal/`)
+
 - **`ALL.S`**: Master include file—integrates the entire framework.
 - **`HAL_MACRO.S`**: Primitives for function definitions, ISR management, and the `ASCIZ` string macro.
 - **`HAL_EXTEND.S`**: Instruction set extensions (16-64 bit ops).
@@ -38,12 +39,15 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 - **Peripheral Drivers**: Drivers for `AC`, `DAC`, `BOD`, `SPI`, `USART`, `RTC`, `VREF`, `WDT`, `ERRCTRL`.
 
 ### 📦 Data Structures & Math
+
 - **`HAL_DEVICEBUFFER.S`**: Handle-based Ring Buffer.
 - **`HAL_DOUBLEBUFFER.S`**: High-speed Ping-Pong buffer.
 - **`MATH_MUL.S` / `MATH_DIV.S` / `MATH_SHIFTS.S`**: Core mathematical routines.
 
 ### 📟 Board Support (`Boards/`)
+
 Device-specific configurations for standard Curiosity Nano boards:
+
 - `ATTINY3217`, `AVR128DA48`, `AVR128DB48`, `AVR16EB32`, `AVR32SD32`, `AVR64DD32`, `AVR64DU32`, `AVR64EA48`.
 
 ---
@@ -66,23 +70,29 @@ Ready-to-flash implementations in the `Examples/` directory:
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 ```bash
 sudo apt install gcc-avr avrdude avr-libc
 ```
 
 ### Build & Flash
+
 Use the `curiosity.sh` script for MCU auto-detection, Linker Relaxation optimization, and flashing.
+
 ```bash
 ./curiosity.sh [-debug] <BOARD_NAME> <PROGRAM_FILE>
 ```
 
 **Example:**
+
 ```bash
 ./curiosity.sh AVR16EB32_CNANO Examples/05_Double_Buffered/main.S
 ```
 
 ### Fuse Management
+
 Manage device configuration using `avr_fuses.sh`:
+
 ```bash
 # Read all fuses
 ./avr_fuses.sh avr16eb32 read
@@ -97,19 +107,21 @@ Manage device configuration using `avr_fuses.sh`:
 
 The framework follows a strict **Tiered Organization** and register usage policy to prevent clashing in multi-peripheral applications.
 
-| Register | Usage | Contract |
-| :--- | :--- | :--- |
-| **`Z (r31:r30)`** | **Instance Handle** | Points to the active SRAM Descriptor (Buffer, TWI Handle, etc.). Functions treat `Z` as `self`. |
-| **`Y (r29:r28)`** | **Hardware Pointer** | Used internally by HAL functions for I/O base addresses. **Callee-saved.** |
-| **`X (r27:r26)`** | **Streaming Pointer** | Primary for data movement (Flash strings, SRAM arrays). |
-| **`r25:r22`** | **Arguments / Return** | Standard 8/16/32-bit register bank for passing values. |
+| Register          | Usage                  | Contract                                                                                        |
+| :---------------- | :--------------------- | :---------------------------------------------------------------------------------------------- |
+| **`Z (r31:r30)`** | **Instance Handle**    | Points to the active SRAM Descriptor (Buffer, TWI Handle, etc.). Functions treat `Z` as `self`. |
+| **`Y (r29:r28)`** | **Hardware Pointer**   | Used internally by HAL functions for I/O base addresses. **Callee-saved.**                      |
+| **`X (r27:r26)`** | **Streaming Pointer**  | Primary for data movement (Flash strings, SRAM arrays).                                         |
+| **`r25:r22`**     | **Arguments / Return** | Standard 8/16/32-bit register bank for passing values.                                          |
 
 ### Peripheral Tiers
+
 1. **Tier A (Streaming)**: USART, USB. Requires Ring Buffers + Instance Handles.
 2. **Tier B (Control)**: TWI, SPI, TCA/B, ADC. Requires Instance Handles (No Buffers).
 3. **Tier C (System)**: WDT, CLKCTRL, SLPCTRL. Direct Macros / Static Dispatch (No Handles).
 
 ### Preservation Rule
+
 Any function that modifies `X`, `Y`, or `Z` for its own internal logic **must** preserve them (PUSH/POP), unless it is explicitly a "Context Selector" function intended to update the active handle.
 
 ## 📖 Usage Example
@@ -123,22 +135,25 @@ FUNC main
     rcall   HAL_BOARD_SETUP                   ; Board-specific I/O init
     _DEVBUFFER(RX_DEVBUFFER, 128, USART_ADDR) ; Initialize the USART ring buffer
     _STR("__ CURIOSITY ASSEMBLY __ \r\n")$ _STR_FLUSH()
-  
+
   loop:
     _PORT_TGL(BOARD_LED_PORT, BOARD_LED_PIN)      ; Toggle LED via hardware register
-    _DELAY_MS(500)                                ; Frequency-aware delay  
+    _DELAY_MS(500)                                ; Frequency-aware delay
     _STR("Heartbeat...\r\n")$ _STR_FLUSH()
     rjmp    loop
 ENDF main
 ```
+
 ---
 
 ## ⚖️ License
+
 Distributed under the **GNU General Public License v3.0**. See `LICENSE` for details.
 
 ---
 
 ## ❤️ Credits
+
 AVR was the family that started it all for me. Returning to it after years of development on other platforms has been a total joy.
 
 The modern AVR-Dx and AVR-Ex series introduce a powerhouse of features: a Unified Memory Map, UPDI, the Event System (EVSYS), and Configurable Custom Logic (CCL). Combined with Multi-Voltage I/O (MVIO), Atomic Port manipulation, crystal-less USB, and revamped peripherals (USART, ADC, and Timers), this architecture is a massive leap forward.

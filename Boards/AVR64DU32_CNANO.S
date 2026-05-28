@@ -43,6 +43,10 @@
 ;#define SPI_IRQ_PIN           PINx_bp
 ;#define SPI_IRQ_PORT          PORTx
 
+; USB Config
+#define USB_CONFIGURED
+
+
 #include "../Hal/ALL.S"
 
 FUNC HAL_BOARD_SETUP

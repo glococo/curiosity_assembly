@@ -5,6 +5,7 @@ To ensure high performance and seamless integration between HAL modules and user
 ## 1. Register Usage (The Social Contract)
 
 ### Specialized Registers
+
 - **(r0, r1) Scratch Registers**: Volatile scratch registers.
   - **Contract**: Can be modified by any function (and are modified by `mul`). Do not expect them to persist across calls.
 - **(r2) `__zero_reg__`**: Treated as a permanent zero. Used for efficient propagation of carries/borrows (e.g., `adc rd, r2`).
@@ -12,23 +13,26 @@ To ensure high performance and seamless integration between HAL modules and user
 - **(r3) `__full_reg__`**: Treated as a permanent 0xFF. Used for efficient programming and clearing interrupts (e.g., `and rd, r3`).
   - **Contract**: Initialized to 0xFF by the HAL startup. **Never** write to `r3`.
 
-| Register | Usage | Contract |
-| :--- | :--- | :--- |
-| **`r2`** | `__zero_reg__` | **Permanent Zero.** Never write to `r2`. |
-| **`r3`** | `__full_reg__` | **Permanent 0xFF.** Never write to `r3`. |
-| **`r0, r1`** | Volatile | Scratch registers. Modified by `mul`. |
-| **`r16-r17`** | Caller-Saved | Local Scratch registers, scratch LDI |
-| **`X (r27:r26)`** | Callee-Saved | Primary for **Streaming** (strings, arrays). |
-| **`Y (r29:r28)`** | Callee-Saved | Primary for **Peripheral Base Addresses**. |
-| **`Z (r31:r30)`** | Callee-Saved | Primary for **Structures** and **Program Memory**. |
-| **`r4-r15, r18-r31`** | Callee-Saved | Strictly preserved via PUSH/POP. |
+| Register              | Usage          | Contract                                           |
+| :-------------------- | :------------- | :------------------------------------------------- |
+| **`r2`**              | `__zero_reg__` | **Permanent Zero.** Never write to `r2`.           |
+| **`r3`**              | `__full_reg__` | **Permanent 0xFF.** Never write to `r3`.           |
+| **`r0, r1`**          | Volatile       | Scratch registers. Modified by `mul`.              |
+| **`r16-r17`**         | Caller-Saved   | Local Scratch registers, scratch LDI               |
+| **`X (r27:r26)`**     | Callee-Saved   | Primary for **Streaming** (strings, arrays).       |
+| **`Y (r29:r28)`**     | Callee-Saved   | Primary for **Peripheral Base Addresses**.         |
+| **`Z (r31:r30)`**     | Callee-Saved   | Primary for **Structures** and **Program Memory**. |
+| **`r4-r15, r18-r31`** | Callee-Saved   | Strictly preserved via PUSH/POP.                   |
 
 ### Volatile vs. Callee-Saved
+
 - **Volatile (r0, r1, r16 - r17)**: These registers are typically used for loading constant and temporary calculations. While some functions preserve them, you should generally assume they are volatile unless documented otherwise.
 - **Callee-Saved (r4 - r15, r18, r31)**: Any function using these registers **must** preserve them (PUSH/POP).
 
 ### Pointer Registers & Context
+
 The framework uses a **Context-Based Model** to prevent pointer clashing:
+
 - **X (Streaming Pointer)**: Used for data movement (Flash strings, SRAM arrays).
 - **Y (Hardware Pointer)**: Used internally by HAL functions to store the peripheral's I/O base address. **Contract**: Functions using `Y` must preserve it for the caller.
 - **Z (Instance Handle)**: It always points to the active SRAM Descriptor (DevBuffer, Structures, etc.). Functions treat `Z` as the `self` or `this` pointer.
@@ -38,23 +42,27 @@ The framework uses a **Context-Based Model** to prevent pointer clashing:
 To balance performance and scalability, peripherals are organized into three tiers:
 
 ### Tier A: Streaming Peripherals (USART, USB)
+
 - **Pattern**: Ring Buffers + Instance Handles.
 - **Usage**: Requires an SRAM descriptor (Handle).
 - **Reason**: Handles asynchronous, high-speed data that requires background buffering via ISRs.
 
 ### Tier B: Control Peripherals (TWI, SPI, TCA/B, ADC)
+
 - **Pattern**: Instance Handles (No Buffers).
 - **Usage**: Requires a 2-byte handle in SRAM containing the peripheral base address.
 - **Reason**: You may have multiple instances (TWI0, TWI1), but data is transaction-oriented and synchronous.
 
 ### Tier C: System Peripherals (WDT, CLKCTRL, SLPCTRL, VREF)
+
 - **Pattern**: Direct Macros / Static Dispatch.
 - **Usage**: No handles or descriptors.
 - **Reason**: These are singleton system resources.
 
-
 ### Function Arguments & Return Values
+
 Arguments are passed in registers starting from `r22` up to `r25`.
+
 - **8-bit**: Use `r22`.
 - **16-bit**: Use `r23:r22`.
 - **32-bit**: Use `r25:r22`.
@@ -63,34 +71,45 @@ Arguments are passed in registers starting from `r22` up to `r25`.
 ## 2. Macro Naming & Discipline
 
 ### Namespace Discipline
+
 Every HAL function starts with a prefix to prevent "Namespace Pollution":
+
 - `HAL_` for Hardware Abstraction Layer functions.
 - `MATH_` for arithmetic routines.
 
 ### Shorthand Macros
+
 Shorthand macros often start with an underscore (`_`) and provide safer or more concise access to HAL functionality:
+
 - `_DELAY_MS(ms)`, `_PORT_TGL(port, pin)`, `_STR("text")`, `_DEBUG_`.
 - `_()` macro is used for name glueing: `_(USART, _BAUDL)` becomes `USART_BAUDL`.
 
 ### Function & ISR Definition
+
 Use the standard macros for defining blocks:
+
 - `FUNC name` / `ENDF name`: Automatically handles sectioning, globals, and `ret`.
 - `ISR_START name, reg` / `ISR_END name, reg`: Handles SREG preservation and `reti`.
 
 ### Local Labels
+
 1. **Numeric Labels (0-9f/b)**: The preferred way for small loops and branches.
 2. **Unique Macro Labels (\@)**: Inside macros, use `\@` to prevent duplicate label errors.
 
 ## 3. Extended ISA & Atomic Operations
 
 ### Extended Instruction Macros
+
 Since AVR is an 8-bit architecture, this HAL provides 16/32/64-bit extension macros:
+
 - **Load/Store**: `ldi2/4/8`, `lds2/4`, `sts2/4`, `ldd2`, `std2`.
 - **Arithmetic**: `add2/4`, `add2s/4s` (saturated), `inc4`, `sub2/4`.
 - **Logic/Compare**: `lsli2/4`, `cp2/4`, `cpi2/4`, `andi2`, `ori2`.
 
 ### Atomic Operations (Modern AVR Dx/Ex)
+
 Utilize hardware features to avoid Read-Modify-Write cycles:
+
 - **Virtual Ports**: Use the `V` prefix (e.g., `VPORTA`) for single-cycle `sbi`/`cbi` access.
 - **Direct Toggles**: Use `_PORT_TGL` which writes to the `IN` register (triggering a toggle on Dx/Ex).
 - **Set/Clear Registers**: Use `_DIRSET`, `_DIRCLR`, `_OUTSET`, `_OUTCLR` for atomic bit manipulation.
@@ -103,5 +122,6 @@ Utilize hardware features to avoid Read-Modify-Write cycles:
 - **`ASCIZ name, "text"`**: Preferred macro for defining strings; it automatically calculates a `name_len` constant.
 
 ## 5. Buffer Strategies
+
 - **HAL_DEVICEBUFFER**: Power-of-two circular buffer. Memory efficient (1x size + 5 bytes). Best for byte streams.
 - **HAL_DOUBLEBUFFER**: Ping-pong buffer. Performance oriented (2x size + 9 bytes). Best for high-speed block processing.
