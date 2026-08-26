@@ -23,9 +23,13 @@ PROGRAM=$2
 
 # Extract MCU from the first line of the board file
 # Expects: ; Core: <MCU>
-BOARD_FILE="Boards/$BOARD.S"
-if [ ! -f "$BOARD_FILE" ]; then
-    echo "Error: Board file $BOARD_FILE not found."
+BOARD_LOWER=$(echo "$BOARD" | tr "[:upper:]" "[:lower:]")
+if [ -f "boards/$BOARD.S" ]; then
+    BOARD_FILE="boards/$BOARD.S"
+elif [ -f "boards/$BOARD_LOWER.S" ]; then
+    BOARD_FILE="boards/$BOARD_LOWER.S"
+else
+    echo "Error: Board file boards/$BOARD.S or boards/$BOARD_LOWER.S not found."
     exit 1
 fi
 

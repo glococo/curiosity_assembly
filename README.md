@@ -23,47 +23,46 @@ A professional-grade, lightweight **Hardware Abstraction Layer (HAL)** and **Mat
 
 ## 📂 Project Structure
 
-### 🛠️ Core HAL (`Hal/`)
+### 🛠️ Modular HAL (`hal/`)
 
-- **`ALL.S`**: Master include file—integrates the entire framework.
-- **`HAL_MACRO.S`**: Primitives for function definitions, ISR management, and the `ASCIZ` string macro.
-- **`HAL_EXTEND.S`**: Instruction set extensions (16-64 bit ops).
-- **`HAL_CLKCTRL.S`**: Frequency-aware clock system configuration.
-- **`HAL_DELAY.S`**: Cycle-accurate software delays.
-- **`HAL_PRINT...S`**: Formatted printing engine (Strings, Hex, Dec).
-- **`HAL_PIN.S` / `HAL_PORTMUX.S`**: Atomic port manipulation and pin routing.
-- **`HAL_TWI.S`**: Multi-instance aware I2C Master driver (handle-based).
-- **`HAL_USB.S`**: USB Device Controller driver with descriptor-table support.
-- **`HAL_TCA.S` / `HAL_TCE.S`**: Advanced 16-bit Timer drivers with Single/Split mode and scaling support.
-- **`HAL_ADC_v1.S / v2.S`**: ADC drivers with automatic sample-duration calibration for different core architectures.
-- **Peripheral Drivers**: Drivers for `AC`, `DAC`, `BOD`, `SPI`, `USART`, `RTC`, `VREF`, `WDT`, `ERRCTRL`.
+- **`all.S`**: Master include file—integrates the entire framework.
+- **`core/`**: Primitives and essential data structures:
+  - `macro.S`: Function wrappers (`FUNC`/`ENDF`), ISR helpers, register defines, and `ASCIZ`.
+  - `extend.S`: Instruction set extensions (16-64 bit multi-byte operations).
+  - `delay.S`: Frequency-aware cycle-accurate delays.
+  - `print.S` / `print_num.S` / `print_hex.S` / `debug.S`: Diagnostic printing engine.
+  - `devicebuffer.S`: Handle-based Ring Buffer (Circular Buffer).
+  - `doublebuffer.S`: High-speed Ping-Pong buffer.
+- **`dev/`**: On-chip peripheral drivers:
+  - `usart.S`, `twi.S`, `spi.S`: Serial, I2C, and SPI communications.
+  - `adc_v1.S` / `adc_v2.S`: ADC drivers with automatic sample calibration.
+  - `tca.S` / `tce.S`: Advanced 16-bit Timers with PWM scaling.
+  - `clkctrl.S`, `rtc.S`, `wdt.S`, `bod.S`, `dac.S`, `ac.S`, `vref.S`, `slpctrl.S`, `errctrl.S`, `pin.S`, `portmux.S`.
+  - `usb.S`, `usb_ep0.S`, `usb_def.S`, `usb_hid_def.S`, `usb_struct.S`: USB Device Controller stack.
+- **`math/`**: Core mathematical routines:
+  - `mul.S`, `div.S`, `shifts.S`, `cast.S`: High-performance 16/32/64-bit arithmetic.
+- **`def/`**: Target register map defines and generator script (`gen_defines_gc.sh`).
 
-### 📦 Data Structures & Math
-
-- **`HAL_DEVICEBUFFER.S`**: Handle-based Ring Buffer.
-- **`HAL_DOUBLEBUFFER.S`**: High-speed Ping-Pong buffer.
-- **`MATH_MUL.S` / `MATH_DIV.S` / `MATH_SHIFTS.S`**: Core mathematical routines.
-
-### 📟 Board Support (`Boards/`)
+### 📟 Board Support (`boards/`)
 
 Device-specific configurations for standard Curiosity Nano boards:
-
-- `ATTINY3217`, `AVR128DA48`, `AVR128DB48`, `AVR16EB32`, `AVR32SD32`, `AVR64DD32`, `AVR64DU32`, `AVR64EA48`.
+`attiny3217`, `attiny3227`, `avr128da48`, `avr128db48`, `avr16eb32`, `avr32sd32`, `avr64dd32`, `avr64du32`, `avr64ea48`.
 
 ---
 
 ## 🧪 Demonstration Examples
 
-Ready-to-flash implementations in the `Examples/` directory:
+Ready-to-flash implementations in the `examples/` directory:
 
 - **01-05**: Basic I/O, buffered printing, and loopback/double-buffering.
-- **06_Math_lib**: Comprehensive validation suite for 16-64 bit math.
+- **06_math_lib**: Comprehensive validation suite for 16-64 bit math.
 - **07-16**: RTC, Device ID, Debugging, Clock Scaling, Watchdog, Brownout, and ADC features.
 - **17-20**: I2C (TWI) Bus Scanner, UV sensor, Temperature sensor, and MCP9700B integration.
 - **21-23**: SPI EtherCAT, TCE PWM Scaling, and Error Controller management.
-- **24_DAC_Sinewave**: High-resolution sine wave generation using DAC and symmetry-optimized lookup tables.
-- **25_OPAMP**: Configurable analog gain stages using internal resistor ladders.
-- **26_USB_HID / 27_USB_Hello_world**: Crystal-less USB HID Keyboard implementations for the AVR-DU family.
+- **24_dac_sinewave**: High-resolution sine wave generation using DAC and symmetry-optimized lookup tables.
+- **25_opamp_voltage_follower**: Configurable analog gain stages using internal resistor ladders.
+- **26_usb_hid / 27_usb_hello_world**: Crystal-less USB HID Keyboard implementations for the AVR-DU family.
+- **28_rs485_heartbeat / 29_my_c_code**: RS485 communication and C/Assembly interoperability.
 
 ---
 
@@ -86,7 +85,7 @@ Use the `curiosity.sh` script for MCU auto-detection, Linker Relaxation optimiza
 **Example:**
 
 ```bash
-./curiosity.sh AVR16EB32_CNANO Examples/05_Double_Buffered/main.S
+./curiosity.sh avr16eb32_cnano examples/05_double_buffered/main.S
 ```
 
 ### Fuse Management

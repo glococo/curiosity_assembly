@@ -24,7 +24,7 @@ Modern AVRs map Flash into the SRAM address space. This HAL leverages this by us
 
 ### The `ASCIZ` Macro
 
-Located in `HAL_MACRO.S`, this is the preferred way to define strings.
+Located in `hal/core/macro.S`, this is the preferred way to define strings.
 
 ```assembly
 ASCIZ my_string, "Hello World"
